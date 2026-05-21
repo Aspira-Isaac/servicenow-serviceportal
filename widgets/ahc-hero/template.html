@@ -1,13 +1,24 @@
-<!-- Dynamic brand colors injected as CSS custom properties -->
 <style>
-  .ahc-hero-wrap { --ahc-primary: {{data.branding.primaryColor}}; --ahc-accent: {{data.branding.accentColor}}; --ahc-primary-light: {{data.branding.primaryLight}}; }
+  .ahc-hero-wrap {
+    --ahc-primary:       {{data.branding.primaryColor}};
+    --ahc-accent:        {{data.branding.accentColor}};
+    --ahc-primary-light: {{data.branding.primaryLight}};
+  }
 </style>
 
 <div class="ahc-hero-wrap">
-  <!-- Hero Banner -->
-  <div class="ahc-hero">
-    <div class="ahc-hero__bg-grid"></div>
+  <div class="ahc-hero" ng-class="'ahc-hero--p' + data.branding.patternIndex">
+
+    <!-- Account watermark -->
+    <div class="ahc-hero__watermark" aria-hidden="true">{{data.accountName}}</div>
+
     <div class="ahc-hero__inner">
+
+      <!-- Account badge -->
+      <div class="ahc-hero__account-badge" ng-if="data.isLoggedIn && data.accountName">
+        <i class="fa fa-building-o"></i> {{data.accountName}}
+      </div>
+
       <p class="ahc-hero__greeting" ng-if="data.isLoggedIn">
         Welcome back, <strong>{{data.userName}}</strong>
       </p>
@@ -26,9 +37,7 @@
             aria-label="Search knowledge base"
           />
           <span class="input-group-btn">
-            <button class="btn ahc-hero__search-btn" ng-click="c.search()" type="button">
-              Search
-            </button>
+            <button class="btn ahc-hero__search-btn" ng-click="c.search()" type="button">Search</button>
           </span>
         </div>
       </div>
