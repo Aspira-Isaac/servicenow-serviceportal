@@ -1,5 +1,5 @@
 (function() {
-  var companyId = gs.getUser().getCompanyID() || 'default';
+  var companyId = String(gs.getUser().getCompanyID() || 'default');
   var configJson = gs.getProperty('ahc.client.configs', '{}');
   var configs = {};
   try { configs = JSON.parse(configJson); } catch(e) {}
@@ -16,12 +16,12 @@
   data.branding = configs[companyId] || defaultBranding;
 
   // Derive a stable pattern (0-4) from the company ID
+  var idStr = String(companyId);
   var hash = 0;
-  for (var i = 0; i < companyId.length; i++) {
-    hash = ((hash << 5) - hash) + companyId.charCodeAt(i);
-    hash = hash | 0;
+  for (var hi = 0; hi < idStr.length; hi++) {
+    hash += idStr.charCodeAt(hi) * (hi + 1);
   }
-  data.branding.patternIndex = Math.abs(hash) % 5;
+  data.branding.patternIndex = hash % 5;
 
   // Account display name — prefer config, fall back to the company record name
   var accountName = data.branding.companyName;
