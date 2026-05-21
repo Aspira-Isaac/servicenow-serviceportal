@@ -1,0 +1,200 @@
+<div class="ahc-wizard">
+  <div class="ahc-wizard__header">
+    <h2 class="ahc-wizard__heading">Submit a Ticket</h2>
+    <p class="ahc-wizard__subheading">Tell us what you need — we'll get it to the right team.</p>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="ahc-wizard__progress" ng-hide="c.submitted">
+    <div class="ahc-wizard__steps">
+      <div class="ahc-wizard__step" ng-class="{active: c.step >= 1, done: c.step > 1}">
+        <div class="ahc-wizard__step-circle">
+          <i class="fa fa-check" ng-if="c.step > 1"></i>
+          <span ng-if="c.step <= 1">1</span>
+        </div>
+        <span class="ahc-wizard__step-label">Category</span>
+      </div>
+      <div class="ahc-wizard__step-line" ng-class="{done: c.step > 1}"></div>
+      <div class="ahc-wizard__step" ng-class="{active: c.step >= 2, done: c.step > 2}">
+        <div class="ahc-wizard__step-circle">
+          <i class="fa fa-check" ng-if="c.step > 2"></i>
+          <span ng-if="c.step <= 2">2</span>
+        </div>
+        <span class="ahc-wizard__step-label">Details</span>
+      </div>
+      <div class="ahc-wizard__step-line" ng-class="{done: c.step > 2}"></div>
+      <div class="ahc-wizard__step" ng-class="{active: c.step >= 3}">
+        <div class="ahc-wizard__step-circle">3</div>
+        <span class="ahc-wizard__step-label">Review</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Category -->
+  <div class="ahc-wizard__panel" ng-show="c.step === 1 && !c.submitted">
+    <h3 class="ahc-wizard__panel-title">What do you need help with?</h3>
+
+    <div class="ahc-wizard__type-grid">
+      <button
+        class="ahc-wizard__type-card"
+        ng-class="{selected: c.form.type === t.value}"
+        ng-repeat="t in data.ticketTypes"
+        ng-click="c.selectType(t)"
+        type="button"
+      >
+        <i class="fa {{t.icon}} fa-2x ahc-wizard__type-icon"></i>
+        <span class="ahc-wizard__type-label">{{t.label}}</span>
+        <span class="ahc-wizard__type-desc">{{t.description}}</span>
+      </button>
+    </div>
+
+    <div class="form-group ahc-wizard__field" ng-show="c.form.type">
+      <label class="ahc-wizard__label">Category <span class="text-danger">*</span></label>
+      <select
+        class="form-control ahc-wizard__select"
+        ng-model="c.form.category"
+        ng-options="cat.label for cat in data.categories track by cat.value"
+      >
+        <option value="">— Select a category —</option>
+      </select>
+    </div>
+
+    <div class="ahc-wizard__footer">
+      <button
+        class="btn btn-danger ahc-wizard__btn-next"
+        ng-disabled="!c.form.type || !c.form.category"
+        ng-click="c.nextStep()"
+        type="button"
+      >
+        Continue <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 2: Details -->
+  <div class="ahc-wizard__panel" ng-show="c.step === 2 && !c.submitted">
+    <h3 class="ahc-wizard__panel-title">Describe your issue</h3>
+
+    <div class="form-group ahc-wizard__field">
+      <label class="ahc-wizard__label">
+        Short description <span class="text-danger">*</span>
+      </label>
+      <input
+        type="text"
+        class="form-control ahc-wizard__input"
+        ng-model="c.form.short_description"
+        placeholder="One-line summary of your issue"
+        maxlength="160"
+      />
+      <span class="ahc-wizard__char-count">{{160 - (c.form.short_description.length || 0)}} characters remaining</span>
+    </div>
+
+    <div class="form-group ahc-wizard__field">
+      <label class="ahc-wizard__label">Additional details</label>
+      <textarea
+        class="form-control ahc-wizard__textarea"
+        rows="5"
+        ng-model="c.form.description"
+        placeholder="Include any relevant details, error messages, or steps to reproduce..."
+      ></textarea>
+    </div>
+
+    <div class="form-group ahc-wizard__field">
+      <label class="ahc-wizard__label">Urgency</label>
+      <div class="ahc-wizard__urgency-group">
+        <label
+          class="ahc-wizard__urgency-btn"
+          ng-class="{selected: c.form.urgency === u.value}"
+          ng-repeat="u in data.urgencyLevels"
+        >
+          <input type="radio" ng-model="c.form.urgency" ng-value="u.value" />
+          <i class="fa {{u.icon}}"></i>
+          <span>{{u.label}}</span>
+          <small>{{u.description}}</small>
+        </label>
+      </div>
+    </div>
+
+    <div class="ahc-wizard__footer">
+      <button class="btn btn-default ahc-wizard__btn-back" ng-click="c.prevStep()" type="button">
+        <i class="fa fa-chevron-left"></i> Back
+      </button>
+      <button
+        class="btn btn-danger ahc-wizard__btn-next"
+        ng-disabled="!c.form.short_description"
+        ng-click="c.nextStep()"
+        type="button"
+      >
+        Review <i class="fa fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 3: Review & Submit -->
+  <div class="ahc-wizard__panel" ng-show="c.step === 3 && !c.submitted">
+    <h3 class="ahc-wizard__panel-title">Review your ticket</h3>
+
+    <div class="ahc-wizard__review-card">
+      <dl class="ahc-wizard__review-dl">
+        <dt>Type</dt>
+        <dd>
+          <i class="fa {{c.form.typeIcon}}"></i>
+          {{c.form.typeLabel}}
+        </dd>
+        <dt>Category</dt>
+        <dd>{{c.form.category.label}}</dd>
+        <dt>Short description</dt>
+        <dd>{{c.form.short_description}}</dd>
+        <dt ng-if="c.form.description">Details</dt>
+        <dd ng-if="c.form.description">{{c.form.description}}</dd>
+        <dt>Urgency</dt>
+        <dd>{{c.urgencyLabel()}}</dd>
+      </dl>
+    </div>
+
+    <p class="ahc-wizard__review-note">
+      <i class="fa fa-info-circle"></i>
+      You'll receive a confirmation email with your ticket number once submitted.
+    </p>
+
+    <div class="ahc-wizard__footer">
+      <button class="btn btn-default ahc-wizard__btn-back" ng-click="c.prevStep()" type="button">
+        <i class="fa fa-chevron-left"></i> Edit
+      </button>
+      <button
+        class="btn btn-danger ahc-wizard__btn-submit"
+        ng-disabled="c.submitting"
+        ng-click="c.submit()"
+        type="button"
+      >
+        <span ng-if="!c.submitting">
+          <i class="fa fa-paper-plane"></i> Submit Ticket
+        </span>
+        <span ng-if="c.submitting">
+          <i class="fa fa-spinner fa-spin"></i> Submitting...
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div class="ahc-wizard__error alert alert-danger" ng-show="c.errorMessage">
+    <i class="fa fa-exclamation-triangle"></i> {{c.errorMessage}}
+  </div>
+
+  <!-- Success state -->
+  <div class="ahc-wizard__success" ng-show="c.submitted">
+    <div class="ahc-wizard__success-icon">
+      <i class="fa fa-check-circle"></i>
+    </div>
+    <h3 class="ahc-wizard__success-title">Ticket Submitted!</h3>
+    <p class="ahc-wizard__success-body">
+      Your ticket <strong class="ahc-wizard__ticket-num">{{c.ticketNumber}}</strong> has been created.<br/>
+      You'll receive a confirmation email shortly.
+    </p>
+    <div class="ahc-wizard__success-actions">
+      <a href="?id=ahc_index" class="btn btn-danger">Return to Home</a>
+      <a href="?id=ahc_submit_ticket" class="btn btn-default" ng-click="c.reset()">Submit Another</a>
+    </div>
+  </div>
+</div>

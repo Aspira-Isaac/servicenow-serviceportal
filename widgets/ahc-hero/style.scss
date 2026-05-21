@@ -1,0 +1,227 @@
+/* Aspira Help Center — Hero v2 (multi-tenant, dynamic branding) */
+
+/* ── CSS custom property fallbacks ─────────────────────────── */
+.ahc-hero-wrap {
+  --ahc-primary: #1a2980;
+  --ahc-accent: #cf1d25;
+  --ahc-primary-light: #243499;
+}
+
+/* ── Hero banner ─────────────────────────────────────────────── */
+.ahc-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--ahc-primary) 0%, var(--ahc-primary-light) 60%, #2d4de0 100%);
+  color: #fff;
+  padding: 56px 20px 64px;
+  text-align: center;
+}
+
+/* Subtle dot-grid overlay for depth */
+.ahc-hero__bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+.ahc-hero__inner {
+  position: relative;
+  max-width: 680px;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.ahc-hero__greeting {
+  font-size: 0.9em;
+  color: rgba(255,255,255,0.7);
+  margin: 0 0 10px;
+  letter-spacing: 0.3px;
+}
+.ahc-hero__greeting strong { color: #fff; }
+
+.ahc-hero__title {
+  font-size: 2.4em;
+  font-weight: 700;
+  margin: 0 0 12px;
+  line-height: 1.2;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.ahc-hero__subtitle {
+  font-size: 1em;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 32px;
+  line-height: 1.7;
+}
+
+/* Search */
+.ahc-hero__search-wrap {
+  max-width: 580px;
+  margin: 0 auto 22px;
+}
+
+.ahc-hero__search {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+}
+
+.ahc-hero__search-icon {
+  padding: 0 14px;
+  color: #aaa;
+  font-size: 1em;
+  line-height: 1;
+}
+
+.ahc-hero__search-input.form-control {
+  border: none;
+  box-shadow: none;
+  height: 50px;
+  font-size: 0.95em;
+  padding-left: 0;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  color: #333;
+}
+.ahc-hero__search-input.form-control:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.ahc-hero__search-btn {
+  height: 50px;
+  padding: 0 24px;
+  font-size: 0.9em;
+  font-weight: 600;
+  background: var(--ahc-accent, #cf1d25);
+  border: none;
+  border-radius: 0 8px 8px 0;
+  color: #fff;
+  letter-spacing: 0.3px;
+  -webkit-transition: background 0.2s;
+  transition: background 0.2s;
+}
+.ahc-hero__search-btn:hover { background: #a8161c; color: #fff; }
+
+/* CTA pills */
+.ahc-hero__ctas {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  gap: 10px;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.ahc-hero__cta-pill {
+  border: 1px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.08);
+  padding: 7px 18px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.ahc-hero__cta-pill i { margin-right: 6px; }
+.ahc-hero__cta-pill:hover {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  text-decoration: none;
+  border-color: rgba(255,255,255,0.6);
+}
+
+/* ── Quick-access cards ──────────────────────────────────────── */
+.ahc-cards-section {
+  background: #f4f6fb;
+  padding: 32px 0 28px;
+  border-bottom: 1px solid #e4e8f0;
+}
+
+.ahc-card {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #e4e8f0;
+  border-radius: 10px;
+  padding: 18px 16px;
+  margin-bottom: 16px;
+  color: #222;
+  text-decoration: none;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  box-shadow: 0 1px 4px rgba(26,41,128,0.06);
+}
+
+.ahc-card:hover {
+  border-color: var(--ahc-primary, #1a2980);
+  box-shadow: 0 6px 20px rgba(26,41,128,0.12);
+  -webkit-transform: translateY(-2px);
+  -ms-transform: translateY(-2px);
+  transform: translateY(-2px);
+  color: #111;
+  text-decoration: none;
+}
+
+.ahc-card:hover .ahc-card__arrow { opacity: 1; color: var(--ahc-primary, #1a2980); }
+
+.ahc-card__icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+
+.ahc-card__body { -webkit-box-flex: 1; -ms-flex: 1; flex: 1; }
+
+.ahc-card__title {
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 3px;
+}
+
+.ahc-card__desc {
+  font-size: 0.82em;
+  color: #7a8099;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.ahc-card__arrow {
+  color: #ccd;
+  opacity: 0.5;
+  font-size: 0.85em;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+}

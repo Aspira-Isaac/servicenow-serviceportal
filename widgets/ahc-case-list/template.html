@@ -1,0 +1,115 @@
+<div class="ahc-cl">
+  <div class="container">
+
+    <div class="ahc-cl__header">
+      <div>
+        <h1 class="ahc-cl__title">{{data.scopeLabel === 'account' ? 'Account Cases' : 'My Cases'}}</h1>
+        <p class="ahc-cl__subtitle">{{c.filtered().length}} of {{data.cases.length}} case{{data.cases.length !== 1 ? 's' : ''}}</p>
+      </div>
+      <a href="?id=ahc_submit_ticket" class="ahc-cl__new-btn">
+        <i class="fa fa-plus"></i> New Case
+      </a>
+    </div>
+
+    <!-- Search + filter bar -->
+    <div class="ahc-cl__toolbar">
+      <div class="ahc-cl__search-wrap">
+        <i class="fa fa-search ahc-cl__search-icon"></i>
+        <input class="ahc-cl__search"
+               type="text"
+               ng-model="c.search"
+               ng-change="c.page = 0"
+               placeholder="Search by number, description, or name…"
+               autocomplete="off" />
+        <button class="ahc-cl__search-clear" ng-if="c.search" ng-click="c.search = ''; c.page = 0">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+
+      <div class="ahc-cl__filter-rows">
+        <div class="ahc-cl__filter-group">
+          <span class="ahc-cl__filter-label">Status</span>
+          <div class="ahc-cl__filters">
+            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'all'}"
+                    ng-click="c.setFilter('all')">All</button>
+            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'open'}"
+                    ng-click="c.setFilter('open')">Open</button>
+            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'resolved'}"
+                    ng-click="c.setFilter('resolved')">Resolved / Closed</button>
+          </div>
+        </div>
+
+        <div class="ahc-cl__filter-group" ng-if="data.scopeLabel === 'account'">
+          <span class="ahc-cl__filter-label">Opened by</span>
+          <div class="ahc-cl__filters">
+            <button class="ahc-cl__filter-btn" ng-class="{active: c.opener === 'everyone'}"
+                    ng-click="c.setOpener('everyone')">Everyone</button>
+            <button class="ahc-cl__filter-btn" ng-class="{active: c.opener === 'me'}"
+                    ng-click="c.setOpener('me')">Me</button>
+            <button class="ahc-cl__filter-btn" ng-class="{active: c.opener === 'team'}"
+                    ng-click="c.setOpener('team')">My Team</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="ahc-cl__empty" ng-if="c.filtered().length === 0">
+      <i class="fa fa-inbox ahc-cl__empty-icon"></i>
+      <p class="ahc-cl__empty-title" ng-if="c.hasFilters()">No matching cases</p>
+      <p class="ahc-cl__empty-title" ng-if="!c.hasFilters()">No cases yet</p>
+      <p class="ahc-cl__empty-sub" ng-if="c.hasFilters()">Try different filters or clear them to see all cases.</p>
+      <p class="ahc-cl__empty-sub" ng-if="!c.hasFilters()">Submit a new case and it will appear here.</p>
+      <button class="ahc-cl__filter-btn active" ng-if="c.hasFilters()" ng-click="c.clearAll()">Clear filters</button>
+      <a href="?id=ahc_submit_ticket" class="ahc-cl__new-btn" ng-if="!c.hasFilters()">Submit a Case</a>
+    </div>
+
+    <!-- Case list -->
+    <div ng-if="c.filtered().length > 0">
+      <div class="ahc-cl__list">
+
+        <div class="ahc-cl__row ahc-cl__row--head">
+          <div class="ahc-cl__col ahc-cl__col--num">Number</div>
+          <div class="ahc-cl__col ahc-cl__col--desc">Description</div>
+          <div class="ahc-cl__col ahc-cl__col--opener" ng-if="data.scopeLabel === 'account'">Opened By</div>
+          <div class="ahc-cl__col ahc-cl__col--state">Status</div>
+          <div class="ahc-cl__col ahc-cl__col--date">Updated</div>
+        </div>
+
+        <div class="ahc-cl__row ahc-cl__row--data" ng-repeat="cs in c.paged() track by cs.sys_id"
+             ng-click="c.goToCase(cs.sys_id)">
+          <div class="ahc-cl__col ahc-cl__col--num">
+            <span class="ahc-cl__number">{{cs.number}}</span>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--desc">
+            <span class="ahc-cl__desc">{{cs.short_description}}</span>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--opener" ng-if="data.scopeLabel === 'account'">
+            <span class="ahc-cl__opener" ng-class="{'ahc-cl__opener--me': cs.openedById === data.currentUserId}">
+              {{cs.openedById === data.currentUserId ? 'Me' : cs.openedByName}}
+            </span>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--state">
+            <span class="ahc-cl__badge ahc-cl__badge--{{cs.badgeClass}}">{{cs.state}}</span>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--date">
+            <span class="ahc-cl__date">{{cs.updated}}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Pagination -->
+      <div class="ahc-cl__pagination" ng-if="c.totalPages() > 1">
+        <button class="ahc-cl__page-btn" ng-click="c.prevPage()" ng-disabled="c.page === 0">
+          <i class="fa fa-chevron-left"></i>
+        </button>
+        <span class="ahc-cl__page-label">{{c.pageLabel()}}</span>
+        <button class="ahc-cl__page-btn" ng-click="c.nextPage()" ng-disabled="c.page >= c.totalPages() - 1">
+          <i class="fa fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

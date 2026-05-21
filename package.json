@@ -1,0 +1,20 @@
+{
+  "name": "servicenow-revamp",
+  "version": "1.0.0",
+  "description": "Aspira Help Center — ServiceNow Service Portal deploy scripts",
+  "type": "commonjs",
+  "scripts": {
+    "deploy": "node deploy/index.js",
+    "preflight": "node deploy/00-preflight.js",
+    "deploy:theme": "node deploy/01-theme.js",
+    "deploy:header-footer": "node deploy/02-header-footer.js",
+    "deploy:portal": "node deploy/03-portal.js",
+    "deploy:pages": "node deploy/04-pages.js",
+    "deploy:widgets": "node deploy/05-widgets.js",
+    "deploy:layout": "node deploy/06-layout.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.0"
+  }
+}

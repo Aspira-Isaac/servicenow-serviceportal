@@ -1,0 +1,67 @@
+<div class="ahc-st" ng-if="data.stats.total > 0">
+  <div class="container">
+
+    <div class="ahc-st__header">
+      <h2 class="ahc-st__title">
+        {{data.scopeLabel === 'account' ? 'Account Overview' : 'My Case Overview'}}
+      </h2>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="ahc-st__cards">
+
+      <div class="ahc-st__card ahc-st__card--total" ng-click="c.goToList('all')">
+        <div class="ahc-st__icon"><i class="fa fa-folder-open-o"></i></div>
+        <div class="ahc-st__body">
+          <div class="ahc-st__num">{{data.stats.total}}</div>
+          <div class="ahc-st__label">Total Cases</div>
+        </div>
+        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+      </div>
+
+      <div class="ahc-st__card ahc-st__card--open" ng-click="c.goToList('open')">
+        <div class="ahc-st__icon"><i class="fa fa-circle-o-notch"></i></div>
+        <div class="ahc-st__body">
+          <div class="ahc-st__num">{{data.stats.open}}</div>
+          <div class="ahc-st__label">Open</div>
+        </div>
+        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+      </div>
+
+      <div class="ahc-st__card ahc-st__card--awaiting" ng-click="c.goToList('open')">
+        <div class="ahc-st__icon"><i class="fa fa-clock-o"></i></div>
+        <div class="ahc-st__body">
+          <div class="ahc-st__num">{{data.stats.awaiting}}</div>
+          <div class="ahc-st__label">Awaiting Response</div>
+        </div>
+        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+      </div>
+
+      <div class="ahc-st__card ahc-st__card--resolved" ng-click="c.goToList('resolved')">
+        <div class="ahc-st__icon"><i class="fa fa-check-circle-o"></i></div>
+        <div class="ahc-st__body">
+          <div class="ahc-st__num">{{data.stats.resolved}}</div>
+          <div class="ahc-st__label">Resolved</div>
+        </div>
+        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+      </div>
+
+    </div>
+
+    <!-- Recent activity -->
+    <div class="ahc-st__recent" ng-if="data.recent.length > 0">
+      <h3 class="ahc-st__recent-title">Recently Active</h3>
+      <div class="ahc-st__recent-list">
+        <a class="ahc-st__recent-row"
+           ng-repeat="cs in data.recent track by cs.sys_id"
+           href="?id=ticket_detail&amp;sys_id={{cs.sys_id}}">
+          <div class="ahc-st__recent-num">{{cs.number}}</div>
+          <div class="ahc-st__recent-desc">{{cs.desc}}</div>
+          <span class="ahc-st__badge ahc-st__badge--{{cs.badge}}">{{cs.state}}</span>
+          <div class="ahc-st__recent-date">{{cs.updated}}</div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,98 @@
+<div class="ahc-kb">
+  <!-- Search bar -->
+  <div class="ahc-kb__search-bar">
+    <div class="input-group ahc-kb__input-group">
+      <input
+        type="text"
+        class="form-control ahc-kb__input"
+        placeholder="Search knowledge base articles..."
+        ng-model="c.query"
+        ng-keyup="$event.keyCode == 13 && c.search()"
+        aria-label="Search knowledge base"
+      />
+      <span class="input-group-btn">
+        <button class="btn btn-danger ahc-kb__search-btn" ng-click="c.search()" type="button">
+          <i class="fa fa-search"></i> Search
+        </button>
+      </span>
+    </div>
+  </div>
+
+  <!-- KB filter chips -->
+  <div class="ahc-kb__filters">
+    <span class="ahc-kb__filter-label">Filter by knowledge base:</span>
+    <button
+      class="btn btn-xs ahc-kb__filter-chip"
+      ng-class="{active: c.activeKb === 'all'}"
+      ng-click="c.filterByKb('all')"
+      type="button"
+    >All</button>
+    <button
+      class="btn btn-xs ahc-kb__filter-chip"
+      ng-class="{active: c.activeKb === kb.sys_id}"
+      ng-repeat="kb in data.knowledgeBases"
+      ng-click="c.filterByKb(kb.sys_id)"
+      type="button"
+    >{{kb.title}}</button>
+  </div>
+
+  <!-- Loading -->
+  <div class="ahc-kb__loading text-center" ng-show="c.loading">
+    <i class="fa fa-spinner fa-spin fa-2x"></i>
+    <p>Searching...</p>
+  </div>
+
+  <!-- Results -->
+  <div ng-show="!c.loading && c.hasSearched">
+    <p class="ahc-kb__result-count" ng-show="c.results.length">
+      <strong>{{c.results.length}}</strong> article{{c.results.length !== 1 ? 's' : ''}} found
+      <span ng-if="c.query"> for "<em>{{c.query}}</em>"</span>
+    </p>
+
+    <div class="row ahc-kb__results">
+      <div class="col-md-4 col-sm-6" ng-repeat="article in c.results">
+        <div class="ahc-kb__card" ng-click="c.openArticle(article.sys_id)">
+          <div class="ahc-kb__card-tag">{{article.kb_label}}</div>
+          <h4 class="ahc-kb__card-title">{{article.short_description}}</h4>
+          <p class="ahc-kb__card-snippet">{{article.snippet}}</p>
+          <div class="ahc-kb__card-meta">
+            <span><i class="fa fa-eye"></i> {{article.view_count}}</span>
+            <span class="ahc-kb__card-read-more">Read more <i class="fa fa-chevron-right"></i></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="ahc-kb__empty" ng-show="!c.results.length">
+      <i class="fa fa-search fa-3x"></i>
+      <h4>No articles found</h4>
+      <p>Try different keywords or <a href="?id=ahc_submit_ticket">submit a ticket</a> and we'll help you directly.</p>
+    </div>
+  </div>
+
+  <!-- Initial state (before first search) -->
+  <div class="ahc-kb__initial" ng-show="!c.hasSearched && !c.loading">
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2 text-center">
+        <i class="fa fa-book fa-3x ahc-kb__initial-icon"></i>
+        <h4>Search our knowledge base</h4>
+        <p class="text-muted">Type a keyword above to find articles, how-to guides, and FAQs.</p>
+      </div>
+    </div>
+
+    <!-- Featured KBs -->
+    <div class="row ahc-kb__kb-grid" ng-show="data.knowledgeBases.length">
+      <div class="col-sm-4" ng-repeat="kb in data.knowledgeBases | limitTo:6">
+        <button
+          class="ahc-kb__kb-card"
+          ng-click="c.filterByKb(kb.sys_id); c.search()"
+          type="button"
+        >
+          <i class="fa fa-folder-open"></i>
+          <span>{{kb.title}}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

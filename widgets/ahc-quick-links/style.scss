@@ -1,0 +1,84 @@
+/* Aspira Help Center — Quick Links widget */
+
+.ahc-ql {
+  background: #fff;
+  padding: 32px 0 28px;
+  border-bottom: 1px solid #eef0f7;
+}
+
+.ahc-ql__header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: baseline;
+  -ms-flex-align: baseline;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ahc-ql__title {
+  font-size: 1em;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.ahc-ql__subtitle {
+  font-size: 0.82em;
+  color: #9aa0b8;
+}
+
+.ahc-ql__grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ahc-ql__item {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 8px;
+  background: #f4f6fb;
+  border: 1px solid #e4e8f0;
+  border-radius: 6px;
+  padding: 9px 14px;
+  color: #2d3461;
+  font-size: 0.875em;
+  font-weight: 500;
+  text-decoration: none;
+  -webkit-transition: all 0.18s;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+
+.ahc-ql__item:hover {
+  background: #1a2980;
+  border-color: #1a2980;
+  color: #fff;
+  text-decoration: none;
+  -webkit-transform: translateY(-1px);
+  -ms-transform: translateY(-1px);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26,41,128,0.2);
+}
+
+.ahc-ql__item-icon {
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+.ahc-ql__item-ext {
+  font-size: 0.72em;
+  opacity: 0.5;
+  margin-left: 2px;
+}

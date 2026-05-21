@@ -1,0 +1,66 @@
+<!-- Dynamic brand colors injected as CSS custom properties -->
+<style>
+  .ahc-hero-wrap { --ahc-primary: {{data.branding.primaryColor}}; --ahc-accent: {{data.branding.accentColor}}; --ahc-primary-light: {{data.branding.primaryLight}}; }
+</style>
+
+<div class="ahc-hero-wrap">
+  <!-- Hero Banner -->
+  <div class="ahc-hero">
+    <div class="ahc-hero__bg-grid"></div>
+    <div class="ahc-hero__inner">
+      <p class="ahc-hero__greeting" ng-if="data.isLoggedIn">
+        Welcome back, <strong>{{data.userName}}</strong>
+      </p>
+      <h1 class="ahc-hero__title">{{data.branding.welcomeTitle}}</h1>
+      <p class="ahc-hero__subtitle">{{data.branding.welcomeSubtitle}}</p>
+
+      <div class="ahc-hero__search-wrap">
+        <div class="input-group ahc-hero__search">
+          <span class="ahc-hero__search-icon"><i class="fa fa-search"></i></span>
+          <input
+            type="text"
+            class="form-control ahc-hero__search-input"
+            placeholder="Search articles, how-tos, and FAQs..."
+            ng-model="c.searchQuery"
+            ng-keyup="$event.keyCode == 13 && c.search()"
+            aria-label="Search knowledge base"
+          />
+          <span class="input-group-btn">
+            <button class="btn ahc-hero__search-btn" ng-click="c.search()" type="button">
+              Search
+            </button>
+          </span>
+        </div>
+      </div>
+
+      <div class="ahc-hero__ctas">
+        <a href="?id=ahc_submit_ticket" class="ahc-hero__cta-pill">
+          <i class="fa fa-ticket"></i> Submit a Ticket
+        </a>
+        <a href="?id=ahc_kb_search" class="ahc-hero__cta-pill">
+          <i class="fa fa-book"></i> Browse Knowledge Base
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Access Cards -->
+  <div class="ahc-cards-section">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-4" ng-repeat="card in data.quickCards">
+          <a href="{{card.url}}" class="ahc-card">
+            <div class="ahc-card__icon-wrap" ng-style="{'background': card.color + '14', 'color': card.color}">
+              <i class="fa {{card.icon}} fa-lg"></i>
+            </div>
+            <div class="ahc-card__body">
+              <h4 class="ahc-card__title">{{card.title}}</h4>
+              <p class="ahc-card__desc">{{card.description}}</p>
+            </div>
+            <i class="fa fa-arrow-right ahc-card__arrow"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

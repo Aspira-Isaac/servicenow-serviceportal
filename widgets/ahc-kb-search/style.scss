@@ -1,0 +1,241 @@
+/* Aspira Help Center — KB Search widget */
+
+.ahc-kb {
+  padding: 24px 0;
+}
+
+/* Search bar */
+.ahc-kb__search-bar {
+  max-width: 700px;
+  margin: 0 auto 20px;
+}
+.ahc-kb__input-group {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ahc-kb__input {
+  height: 52px;
+  font-size: 1em;
+  border: none;
+  padding: 0 16px;
+  border-radius: 4px 0 0 4px;
+}
+.ahc-kb__input:focus {
+  box-shadow: none;
+  border: none;
+  outline: none;
+}
+.ahc-kb__search-btn {
+  height: 52px;
+  padding: 0 28px;
+  font-size: 1em;
+  font-weight: 600;
+  background: #cf1d25;
+  border-color: #a8161c;
+  border-radius: 0 4px 4px 0;
+}
+.ahc-kb__search-btn:hover,
+.ahc-kb__search-btn:focus {
+  background: #a8161c;
+  border-color: #8c1218;
+}
+
+/* Filter chips */
+.ahc-kb__filters {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.ahc-kb__filter-label {
+  font-size: 0.85em;
+  color: #999;
+  margin-right: 8px;
+}
+.ahc-kb__filter-chip {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #555;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.82em;
+  margin: 3px 3px;
+  -webkit-transition: all 0.18s;
+  transition: all 0.18s;
+}
+.ahc-kb__filter-chip:hover {
+  border-color: #cf1d25;
+  color: #cf1d25;
+}
+.ahc-kb__filter-chip.active {
+  background: #cf1d25;
+  border-color: #cf1d25;
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Loading */
+.ahc-kb__loading {
+  padding: 48px 0;
+  color: #999;
+}
+.ahc-kb__loading p {
+  margin-top: 12px;
+}
+
+/* Result count */
+.ahc-kb__result-count {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 20px;
+}
+.ahc-kb__result-count strong {
+  color: #1c1c1c;
+}
+.ahc-kb__result-count em {
+  color: #cf1d25;
+}
+
+/* Article cards */
+.ahc-kb__results {
+  margin-bottom: 24px;
+}
+.ahc-kb__card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+.ahc-kb__card:hover {
+  border-color: #cf1d25;
+  box-shadow: 0 4px 16px rgba(207, 29, 37, 0.1);
+  -webkit-transform: translateY(-2px);
+  -ms-transform: translateY(-2px);
+  transform: translateY(-2px);
+}
+.ahc-kb__card:hover .ahc-kb__card-read-more {
+  color: #cf1d25;
+}
+.ahc-kb__card-tag {
+  display: inline-block;
+  background: #f0f0f0;
+  color: #666;
+  font-size: 0.72em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+.ahc-kb__card-title {
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #1c1c1c;
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+.ahc-kb__card-snippet {
+  font-size: 0.85em;
+  color: #777;
+  line-height: 1.5;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  margin: 0 0 12px;
+}
+.ahc-kb__card-meta {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 0.8em;
+  color: #aaa;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #f0f0f0;
+}
+.ahc-kb__card-read-more {
+  color: #bbb;
+  -webkit-transition: color 0.2s;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+
+/* Empty state */
+.ahc-kb__empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: #999;
+}
+.ahc-kb__empty .fa {
+  margin-bottom: 16px;
+  color: #ddd;
+}
+.ahc-kb__empty h4 {
+  color: #555;
+  margin-bottom: 8px;
+}
+.ahc-kb__empty a {
+  color: #cf1d25;
+}
+
+/* Initial browse state */
+.ahc-kb__initial {
+  padding: 32px 0;
+}
+.ahc-kb__initial-icon {
+  color: #ddd;
+  margin-bottom: 12px;
+}
+.ahc-kb__initial h4 {
+  color: #555;
+  margin-bottom: 8px;
+}
+.ahc-kb__kb-grid {
+  margin-top: 32px;
+}
+.ahc-kb__kb-card {
+  display: block;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+  text-align: left;
+  color: #444;
+  font-size: 0.9em;
+  margin-bottom: 12px;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.ahc-kb__kb-card i {
+  margin-right: 8px;
+  color: #aaa;
+}
+.ahc-kb__kb-card:hover {
+  border-color: #cf1d25;
+  color: #cf1d25;
+  background: #fff5f5;
+  text-decoration: none;
+}
+.ahc-kb__kb-card:hover i {
+  color: #cf1d25;
+}

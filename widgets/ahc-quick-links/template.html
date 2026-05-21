@@ -1,0 +1,17 @@
+<div class="ahc-ql" ng-if="data.links.length">
+  <div class="container">
+    <div class="ahc-ql__header">
+      <h3 class="ahc-ql__title">{{data.sectionTitle}}</h3>
+      <span class="ahc-ql__subtitle">{{data.sectionSubtitle}}</span>
+    </div>
+    <div class="ahc-ql__grid">
+      <a href="{{link.url}}" class="ahc-ql__item" ng-repeat="link in data.links" target="{{link.external ? '_blank' : '_self'}}">
+        <div class="ahc-ql__item-icon">
+          <i class="fa {{link.icon}}"></i>
+        </div>
+        <span class="ahc-ql__item-label">{{link.label}}</span>
+        <i class="fa fa-external-link ahc-ql__item-ext" ng-if="link.external"></i>
+      </a>
+    </div>
+  </div>
+</div>

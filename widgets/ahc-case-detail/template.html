@@ -1,0 +1,217 @@
+<div class="ahc-cd">
+
+  <!-- Error state -->
+  <div class="container" ng-if="data.error">
+    <div class="ahc-cd__error">
+      <i class="fa fa-exclamation-triangle"></i>
+      {{data.error}}
+      <a href="?id=ticket_list">Back to My Cases</a>
+    </div>
+  </div>
+
+  <div ng-if="!data.error">
+
+    <!-- Meta bar -->
+    <div class="ahc-cd__meta-bar">
+      <div class="container">
+        <div class="ahc-cd__meta-inner">
+          <div class="ahc-cd__meta-left">
+            <a href="?id=ticket_list" class="ahc-cd__back">
+              <i class="fa fa-arrow-left"></i> My Cases
+            </a>
+            <span class="ahc-cd__meta-sep">›</span>
+            <span class="ahc-cd__meta-num">{{data.number}}</span>
+          </div>
+          <div class="ahc-cd__meta-right">
+            <div class="ahc-cd__meta-item">
+              <span class="ahc-cd__meta-label">Created</span>
+              <span class="ahc-cd__meta-val">{{data.created}}</span>
+            </div>
+            <div class="ahc-cd__meta-item">
+              <span class="ahc-cd__meta-label">Updated</span>
+              <span class="ahc-cd__meta-val">{{data.updated}}</span>
+            </div>
+            <div class="ahc-cd__meta-item">
+              <span class="ahc-cd__meta-label">Status</span>
+              <span class="ahc-cd__badge ahc-cd__badge--{{data.badgeClass}}">{{data.state}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero banner -->
+    <div class="ahc-cd__hero">
+      <div class="container">
+        <div class="ahc-cd__hero-inner">
+          <div class="ahc-cd__hero-content">
+            <p class="ahc-cd__hero-num">{{data.number}}</p>
+            <h1 class="ahc-cd__hero-title">{{data.shortDesc}}</h1>
+            <div class="ahc-cd__hero-meta" ng-if="data.account">
+              <i class="fa fa-building-o"></i> {{data.account}}
+            </div>
+          </div>
+          <div class="ahc-cd__hero-actions" ng-if="data.canClose">
+            <button class="ahc-cd__close-btn" ng-click="c.setTab('activity')">
+              <i class="fa fa-comment-o"></i> Reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="ahc-cd__tabs-wrap">
+      <div class="container">
+        <div class="ahc-cd__tabs">
+          <button class="ahc-cd__tab" ng-class="{active: c.activeTab === 'details'}"
+                  ng-click="c.setTab('details')">Case Details</button>
+          <button class="ahc-cd__tab" ng-class="{active: c.activeTab === 'activity'}"
+                  ng-click="c.setTab('activity')">
+            Activity
+            <span class="ahc-cd__tab-count" ng-if="data.activity.length > 0">{{data.activity.length}}</span>
+          </button>
+          <button class="ahc-cd__tab" ng-class="{active: c.activeTab === 'attachments'}"
+                  ng-click="c.setTab('attachments')">
+            Attachments
+            <span class="ahc-cd__tab-count" ng-if="data.attachments.length > 0">{{data.attachments.length}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab panels -->
+    <div class="ahc-cd__body">
+      <div class="container">
+
+        <!-- ── Details tab ───────────────────────────────────────────── -->
+        <div class="ahc-cd__panel" ng-show="c.activeTab === 'details'">
+          <div class="ahc-cd__fields">
+
+            <div class="ahc-cd__field" ng-if="data.shortDesc">
+              <span class="ahc-cd__field-label">Summary</span>
+              <span class="ahc-cd__field-value">{{data.shortDesc}}</span>
+            </div>
+
+            <div class="ahc-cd__field" ng-if="data.description">
+              <span class="ahc-cd__field-label">Description</span>
+              <span class="ahc-cd__field-value ahc-cd__field-value--multi">{{data.description}}</span>
+            </div>
+
+            <div class="ahc-cd__field-row">
+              <div class="ahc-cd__field" ng-if="data.priority">
+                <span class="ahc-cd__field-label">Priority</span>
+                <span class="ahc-cd__field-value">{{data.priority}}</span>
+              </div>
+              <div class="ahc-cd__field" ng-if="data.state">
+                <span class="ahc-cd__field-label">Status</span>
+                <span class="ahc-cd__badge ahc-cd__badge--{{data.badgeClass}}">{{data.state}}</span>
+              </div>
+            </div>
+
+            <div class="ahc-cd__field-row">
+              <div class="ahc-cd__field" ng-if="data.account">
+                <span class="ahc-cd__field-label">Account</span>
+                <span class="ahc-cd__field-value">{{data.account}}</span>
+              </div>
+              <div class="ahc-cd__field" ng-if="data.contact">
+                <span class="ahc-cd__field-label">Contact</span>
+                <span class="ahc-cd__field-value">{{data.contact}}</span>
+              </div>
+            </div>
+
+            <div class="ahc-cd__field-row">
+              <div class="ahc-cd__field" ng-if="data.assignedTo">
+                <span class="ahc-cd__field-label">Assigned To</span>
+                <span class="ahc-cd__field-value">{{data.assignedTo}}</span>
+              </div>
+              <div class="ahc-cd__field" ng-if="data.category">
+                <span class="ahc-cd__field-label">Category</span>
+                <span class="ahc-cd__field-value">{{data.category}}</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── Activity tab ──────────────────────────────────────────── -->
+        <div class="ahc-cd__panel" ng-show="c.activeTab === 'activity'">
+
+          <!-- Reply box -->
+          <div class="ahc-cd__reply" ng-if="data.canClose !== false || data.activity.length >= 0">
+            <div class="ahc-cd__reply-header">
+              <i class="fa fa-comment-o"></i> Add a Reply
+            </div>
+            <textarea class="ahc-cd__reply-area"
+                      ng-model="c.comment"
+                      placeholder="Type your message here..."
+                      rows="4"></textarea>
+            <div class="ahc-cd__reply-footer">
+              <span class="ahc-cd__reply-hint" ng-if="c.sent">
+                <i class="fa fa-check-circle"></i> Message sent successfully.
+              </span>
+              <span class="ahc-cd__reply-hint ahc-cd__reply-hint--error" ng-if="c.sendError">
+                <i class="fa fa-exclamation-circle"></i> Could not send — please try again.
+              </span>
+              <button class="ahc-cd__send-btn"
+                      ng-click="c.submitComment()"
+                      ng-disabled="!c.comment || c.sending">
+                <i class="fa fa-paper-plane-o" ng-if="!c.sending"></i>
+                <i class="fa fa-spinner fa-spin" ng-if="c.sending"></i>
+                {{c.sending ? 'Sending…' : 'Send'}}
+              </button>
+            </div>
+          </div>
+
+          <!-- Activity thread -->
+          <div class="ahc-cd__thread" ng-if="data.activity.length > 0">
+            <div class="ahc-cd__entry" ng-repeat="e in data.activity"
+                 ng-class="{'ahc-cd__entry--mine': e.isMine}">
+              <div class="ahc-cd__entry-avatar">
+                {{(e.author || 'G')[0].toUpperCase()}}
+              </div>
+              <div class="ahc-cd__entry-body">
+                <div class="ahc-cd__entry-meta">
+                  <span class="ahc-cd__entry-author">{{e.author}}</span>
+                  <span class="ahc-cd__entry-time">{{e.created}}</span>
+                </div>
+                <div class="ahc-cd__entry-text">{{e.value}}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ahc-cd__thread-empty" ng-if="data.activity.length === 0">
+            <i class="fa fa-comments-o"></i>
+            <p>No messages yet. Use the box above to send a reply.</p>
+          </div>
+
+        </div>
+
+        <!-- ── Attachments tab ───────────────────────────────────────── -->
+        <div class="ahc-cd__panel" ng-show="c.activeTab === 'attachments'">
+
+          <div class="ahc-cd__att-list" ng-if="data.attachments.length > 0">
+            <a class="ahc-cd__att-item"
+               ng-repeat="att in data.attachments"
+               ng-href="/sys_attachment.do?sys_id={{att.sys_id}}" target="_blank">
+              <i class="fa {{c.fileIcon(att.content_type)}} ahc-cd__att-icon"></i>
+              <div class="ahc-cd__att-info">
+                <span class="ahc-cd__att-name">{{att.file_name}}</span>
+                <span class="ahc-cd__att-meta">{{c.formatBytes(att.size_bytes)}} · {{att.created}}</span>
+              </div>
+              <i class="fa fa-download ahc-cd__att-dl"></i>
+            </a>
+          </div>
+
+          <div class="ahc-cd__thread-empty" ng-if="data.attachments.length === 0">
+            <i class="fa fa-paperclip"></i>
+            <p>No attachments on this case.</p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

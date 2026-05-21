@@ -1,0 +1,417 @@
+/* Aspira Help Center — Ticket Wizard widget */
+
+.ahc-wizard {
+  max-width: 680px;
+  margin: 32px auto;
+  padding: 0 16px;
+}
+.ahc-wizard__header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.ahc-wizard__heading {
+  font-size: 1.8em;
+  font-weight: 700;
+  color: #1c1c1c;
+  margin: 0 0 8px;
+}
+.ahc-wizard__subheading {
+  color: #777;
+  font-size: 1em;
+  margin: 0;
+}
+
+/* Progress steps */
+.ahc-wizard__progress {
+  margin-bottom: 36px;
+}
+.ahc-wizard__steps {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+.ahc-wizard__step {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+}
+.ahc-wizard__step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9em;
+  color: #aaa;
+  background: #fff;
+  -webkit-transition: all 0.25s;
+  transition: all 0.25s;
+}
+.ahc-wizard__step.active .ahc-wizard__step-circle {
+  background: #cf1d25;
+  border-color: #cf1d25;
+  color: #fff;
+}
+.ahc-wizard__step.done .ahc-wizard__step-circle {
+  background: #28a745;
+  border-color: #28a745;
+  color: #fff;
+}
+.ahc-wizard__step-label {
+  font-size: 0.8em;
+  color: #999;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ahc-wizard__step.active .ahc-wizard__step-label {
+  color: #cf1d25;
+}
+.ahc-wizard__step-line {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  height: 2px;
+  background: #e0e0e0;
+  max-width: 80px;
+  margin: 0 8px;
+  margin-bottom: 22px;
+  -webkit-transition: background 0.25s;
+  transition: background 0.25s;
+}
+.ahc-wizard__step-line.done {
+  background: #28a745;
+}
+
+/* Panel */
+.ahc-wizard__panel {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 28px 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.ahc-wizard__panel-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #1c1c1c;
+  margin: 0 0 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Type selection cards */
+.ahc-wizard__type-grid {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.ahc-wizard__type-card {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 140px;
+  flex: 1 1 140px;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px 12px;
+  cursor: pointer;
+  text-align: center;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 8px;
+}
+.ahc-wizard__type-card:hover {
+  border-color: #cf1d25;
+  box-shadow: 0 4px 12px rgba(207, 29, 37, 0.1);
+}
+.ahc-wizard__type-card.selected {
+  border-color: #cf1d25;
+  background: #fff5f5;
+}
+.ahc-wizard__type-card.selected .ahc-wizard__type-icon {
+  color: #cf1d25;
+}
+.ahc-wizard__type-icon {
+  color: #aaa;
+  -webkit-transition: color 0.2s;
+  transition: color 0.2s;
+}
+.ahc-wizard__type-label {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #333;
+  display: block;
+}
+.ahc-wizard__type-desc {
+  font-size: 0.78em;
+  color: #999;
+  display: block;
+  line-height: 1.3;
+}
+
+/* Form fields */
+.ahc-wizard__label {
+  font-weight: 600;
+  color: #444;
+  font-size: 0.9em;
+  margin-bottom: 6px;
+  display: block;
+}
+.ahc-wizard__field {
+  margin-bottom: 20px;
+}
+.ahc-wizard__input,
+.ahc-wizard__select,
+.ahc-wizard__textarea {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95em;
+  padding: 10px 12px;
+  -webkit-transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.ahc-wizard__input:focus,
+.ahc-wizard__select:focus,
+.ahc-wizard__textarea:focus {
+  border-color: #cf1d25;
+  box-shadow: 0 0 0 2px rgba(207, 29, 37, 0.15);
+  outline: none;
+}
+.ahc-wizard__textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+.ahc-wizard__char-count {
+  font-size: 0.78em;
+  color: #aaa;
+  float: right;
+  margin-top: 4px;
+}
+
+/* Urgency buttons */
+.ahc-wizard__urgency-group {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 10px;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+.ahc-wizard__urgency-btn {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  min-width: 100px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: normal;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+}
+.ahc-wizard__urgency-btn input[type="radio"] {
+  display: none;
+}
+.ahc-wizard__urgency-btn i {
+  font-size: 1.2em;
+}
+.ahc-wizard__urgency-btn span {
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #333;
+  display: block;
+}
+.ahc-wizard__urgency-btn small {
+  font-size: 0.75em;
+  color: #999;
+  display: block;
+}
+.ahc-wizard__urgency-btn.selected {
+  border-color: #cf1d25;
+  background: #fff5f5;
+}
+.ahc-wizard__urgency-btn:hover {
+  border-color: #cf1d25;
+}
+
+/* Footer nav */
+.ahc-wizard__footer {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+.ahc-wizard__btn-back {
+  color: #666;
+  background: transparent;
+  border-color: #ddd;
+}
+.ahc-wizard__btn-back:hover {
+  background: #f5f5f5;
+}
+.ahc-wizard__btn-next,
+.ahc-wizard__btn-submit {
+  background: #cf1d25;
+  border-color: #a8161c;
+  color: #fff;
+  padding: 9px 24px;
+  font-weight: 600;
+}
+.ahc-wizard__btn-next:hover,
+.ahc-wizard__btn-next:focus,
+.ahc-wizard__btn-submit:hover,
+.ahc-wizard__btn-submit:focus {
+  background: #a8161c;
+  border-color: #8c1218;
+  color: #fff;
+}
+.ahc-wizard__btn-next:disabled,
+.ahc-wizard__btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Review card */
+.ahc-wizard__review-card {
+  background: #f9f9f9;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.ahc-wizard__review-dl {
+  margin: 0;
+}
+.ahc-wizard__review-dl dt {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.875em;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 10px;
+}
+.ahc-wizard__review-dl dt:first-child {
+  margin-top: 0;
+}
+.ahc-wizard__review-dl dd {
+  color: #1c1c1c;
+  margin: 2px 0 0 0;
+  word-break: break-word;
+}
+.ahc-wizard__review-note {
+  color: #888;
+  font-size: 0.875em;
+  margin-bottom: 0;
+}
+.ahc-wizard__review-note i {
+  margin-right: 4px;
+}
+
+/* Error */
+.ahc-wizard__error {
+  margin-top: 16px;
+  border-radius: 6px;
+}
+
+/* Success state */
+.ahc-wizard__success {
+  text-align: center;
+  padding: 48px 32px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.ahc-wizard__success-icon {
+  color: #28a745;
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+.ahc-wizard__success-title {
+  font-size: 1.6em;
+  font-weight: 700;
+  color: #1c1c1c;
+  margin-bottom: 12px;
+}
+.ahc-wizard__success-body {
+  color: #666;
+  font-size: 1em;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+.ahc-wizard__ticket-num {
+  color: #cf1d25;
+  font-size: 1.1em;
+}
+.ahc-wizard__success-actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  gap: 12px;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
