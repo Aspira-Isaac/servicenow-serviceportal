@@ -2,9 +2,15 @@ function($scope, $location) {
   var c = this;
 
   var PAGE_SIZE = 20;
-  var CLOSED    = ['3', '6'];
+  var ACTIVE   = ['1', '2', '5'];
+  var AWAITING = ['18'];
+  var CLOSED   = ['3', '6'];
 
-  c.filter  = 'all';
+  // Pick up filter from URL param (e.g. navigating from a stats card)
+  var urlFilter = $location.search().filter;
+  var validFilters = ['all', 'open', 'awaiting', 'resolved'];
+
+  c.filter  = (urlFilter && validFilters.indexOf(urlFilter) !== -1) ? urlFilter : 'all';
   c.opener  = 'everyone';
   c.search  = '';
   c.page    = 0;
@@ -22,8 +28,9 @@ function($scope, $location) {
     var me = c.data.currentUserId;
 
     return (c.data.cases || []).filter(function(cs) {
-      if (c.filter === 'open'     && CLOSED.indexOf(cs.stateVal) !== -1) return false;
-      if (c.filter === 'resolved' && CLOSED.indexOf(cs.stateVal) === -1) return false;
+      if (c.filter === 'open'     && ACTIVE.indexOf(cs.stateVal)   === -1) return false;
+      if (c.filter === 'awaiting' && AWAITING.indexOf(cs.stateVal) === -1) return false;
+      if (c.filter === 'resolved' && CLOSED.indexOf(cs.stateVal)   === -1) return false;
 
       if (c.opener === 'me'   && cs.openedById !== me) return false;
       if (c.opener === 'team' && cs.openedById === me) return false;
@@ -48,7 +55,7 @@ function($scope, $location) {
   c.prevPage   = function() { if (c.page > 0) c.page--; };
   c.nextPage   = function() { if (c.page < c.totalPages() - 1) c.page++; };
 
-  c.pageLabel  = function() {
+  c.pageLabel = function() {
     var total = c.filtered().length;
     var start = c.page * PAGE_SIZE + 1;
     var end   = Math.min((c.page + 1) * PAGE_SIZE, total);

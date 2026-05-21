@@ -34,6 +34,8 @@
                     ng-click="c.setFilter('all')">All</button>
             <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'open'}"
                     ng-click="c.setFilter('open')">Open</button>
+            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'awaiting'}"
+                    ng-click="c.setFilter('awaiting')">Awaiting Response</button>
             <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'resolved'}"
                     ng-click="c.setFilter('resolved')">Resolved / Closed</button>
           </div>
