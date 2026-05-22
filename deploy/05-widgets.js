@@ -21,6 +21,12 @@ const WIDGETS = [
     ctxKey: 'widgetWizard'
   },
   {
+    id: 'ahc-cat-item',
+    name: 'AHC Catalog Item',
+    dir: 'ahc-cat-item',
+    ctxKey: 'widgetCatItem'
+  },
+  {
     id: 'ahc-kb-search-widget',
     name: 'AHC KB Search',
     dir: 'ahc-kb-search',

@@ -1,4 +1,3 @@
-const { findSysId } = require('../lib/idempotent');
 const client = require('../lib/client');
 
 // ServiceNow converts hyphens → underscores in sp_page.id on creation
@@ -12,8 +11,11 @@ const PAGES = [
 
 module.exports = async function deployPages(ctx) {
   for (const page of PAGES) {
-    // Check if page already exists — sp_page ACLs allow create but not update
-    const existing = await findSysId('sp_page', 'id', page.storedId);
+    // Scope lookup to our portal so we don't find shared or CSM pages with the same id
+    const resp = await client.get('/api/now/table/sp_page', {
+      params: { sysparm_query: `id=${page.storedId}^sp_portal=${ctx.portalSysId}`, sysparm_fields: 'sys_id', sysparm_limit: 1 }
+    });
+    const existing = resp.data.result && resp.data.result.length > 0 ? resp.data.result[0].sys_id : null;
     if (existing) {
       ctx[page.key] = existing;
       console.log(`  Page "${page.title}" (${page.id}): ${existing} [exists]`);

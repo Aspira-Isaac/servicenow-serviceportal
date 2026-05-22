@@ -8,6 +8,20 @@ const path = require('path');
 const HEADER_TEMPLATE = `
 <style>
   .ahc-nav-wrap { --ahc-primary: {{data.branding.primaryColor || '#1a2980'}}; --ahc-accent: {{data.branding.accentColor || '#cf1d25'}}; }
+
+  /* Global link color — injected via header template so it's truly global */
+  a, a:visited { color: #1a2980 !important; }
+  a:hover, a:focus { color: #141f6a !important; }
+  /* Restore navbar and footer link colors */
+  .ahc-nav__brand, .ahc-nav__brand:visited,
+  .ahc-nav__link, .ahc-nav__link:visited { color: #ffffff !important; }
+  .ahc-nav__link:hover, .ahc-nav__link:focus { color: rgba(255,255,255,0.7) !important; }
+  .ahc-footer__link, .ahc-footer__link:visited { color: rgba(255,255,255,0.45) !important; }
+  .ahc-footer__link:hover { color: rgba(255,255,255,0.8) !important; }
+  /* Required-info tags */
+  .label-danger { background-color: #1a2980 !important; border-color: #141f6a !important; color: #fff !important; }
+  /* Catalog active state */
+  .text-active, .text-primary { color: #1a2980 !important; }
 </style>
 
 <div class="ahc-nav-wrap"
@@ -30,7 +44,7 @@ const HEADER_TEMPLATE = `
       <!-- Desktop Nav Links -->
       <ul class="ahc-nav__links">
         <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li>
-        <li><a href="{{data.portalUrl}}?id=ahc_submit_ticket" class="ahc-nav__link">Catalog</a></li>
+        <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog</a></li>
         <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link">My Tickets</a></li>
       </ul>
 
@@ -305,6 +319,45 @@ const HEADER_CSS = `
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ── Portal-wide link + catalog color overrides (highest priority) ─────── */
+/* Exclude navbar and footer links — :not() only accepts simple selectors */
+body a:not(.ahc-nav__brand):not(.ahc-nav__link):not(.ahc-footer__link),
+body a:visited:not(.ahc-nav__brand):not(.ahc-nav__link):not(.ahc-footer__link) {
+  color: #1a2980 !important;
+}
+body a:hover:not(.ahc-nav__brand):not(.ahc-nav__link):not(.ahc-footer__link),
+body a:focus:not(.ahc-nav__brand):not(.ahc-nav__link):not(.ahc-footer__link) {
+  color: #141f6a !important;
+}
+.breadcrumb > li > a,
+.breadcrumb > li > a:visited,
+.breadcrumb > li > span > a {
+  color: #1a2980 !important;
+}
+.breadcrumb > li > a:hover {
+  color: #141f6a !important;
+}
+.label-danger {
+  background-color: #1a2980 !important;
+  border-color: #141f6a !important;
+  color: #fff !important;
+}
+.text-active,
+.text-primary {
+  color: #1a2980 !important;
+}
+.panel-footer a,
+.panel-footer a:visited {
+  color: #1a2980 !important;
+}
+.panel-footer a:hover {
+  color: #141f6a !important;
+}
+.catalog-item-name,
+.catalog-item-name a {
+  color: #1a2980 !important;
+}
 `.trim();
 
 // ── Footer ────────────────────────────────────────────────────────────────────
@@ -317,8 +370,8 @@ const FOOTER_TEMPLATE = `
         <img class="ahc-footer__logo-img" src="/cb8f9beb8762c1104c76ed7e0ebb35cc.iix" alt="Aspira" />
       </div>
       <div class="ahc-footer__links">
-        <a href="/help?id=ahc_submit_ticket">Submit a Ticket</a>
-        <a href="/help?id=ahc_kb_search">Knowledge Base</a>
+        <a class="ahc-footer__link" href="/help?id=ahc_submit_ticket">Submit a Ticket</a>
+        <a class="ahc-footer__link" href="/help?id=ahc_kb_search">Knowledge Base</a>
       </div>
       <p class="ahc-footer__copy">&copy; Aspira Connect. All rights reserved.</p>
     </div>
