@@ -203,26 +203,26 @@ const HEADER_TEMPLATE = `
 
 <div class="ahc-nav-wrap"
      ng-init="
-       $root.$on('$locationChangeStart',   function(){ $root.ahcNavLoading = true;  });
-       $root.$on('$locationChangeSuccess', function(){ $root.ahcNavLoading = false; });
-       $root.$on('$locationChangeError',   function(){ $root.ahcNavLoading = false; });
+       $root.$on('$locationChangeStart',   function(){ $root.ahcBarLoading = true;  });
+       $root.$on('$locationChangeSuccess', function(){ $root.ahcBarLoading = false; $root.ahcOverlay = false; });
+       $root.$on('$locationChangeError',   function(){ $root.ahcBarLoading = false; $root.ahcOverlay = false; });
      ">
-  <!-- Page loading bar -->
-  <div class="ahc-nav__loading-bar" ng-class="{'ahc-nav__loading-bar--on': $root.ahcNavLoading}"></div>
+  <!-- Page loading bar (fires on every location change, including filter param updates) -->
+  <div class="ahc-nav__loading-bar" ng-class="{'ahc-nav__loading-bar--on': $root.ahcBarLoading}"></div>
 
   <nav class="ahc-nav" role="navigation">
     <div class="ahc-nav__inner">
 
       <!-- Brand -->
-      <a class="ahc-nav__brand" href="{{data.portalUrl}}?id=ahc_index">
+      <a class="ahc-nav__brand" href="{{data.portalUrl}}?id=ahc_index" ng-click="$root.ahcOverlay = true">
         <img class="ahc-nav__logo-img" src="/cb8f9beb8762c1104c76ed7e0ebb35cc.iix" alt="Aspira" />
       </a>
 
       <!-- Desktop Nav Links -->
       <ul class="ahc-nav__links">
-        <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li>
-        <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog</a></li>
-        <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link">My Tickets</a></li>
+        <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">Knowledge</a></li>
+        <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">Catalog</a></li>
+        <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">My Tickets</a></li>
       </ul>
 
       <!-- Right side: notifications + user -->
@@ -251,9 +251,50 @@ const HEADER_TEMPLATE = `
     </div>
   </nav>
 </div>
+
+<!-- Page transition overlay — visible during SPA navigation -->
+<div class="ahc-nav__page-overlay" ng-show="$root.ahcOverlay">
+  <i class="fa fa-spinner fa-spin ahc-nav__page-spinner-icon"></i>
+  <p class="ahc-nav__page-spinner-label">Loading…</p>
+</div>
 `.trim();
 
 const HEADER_CSS = `
+/* Page transition overlay */
+.ahc-nav__page-overlay {
+  position: fixed;
+  top: 56px;
+  left: 0; right: 0; bottom: 0;
+  background: rgba(255,255,255,0.82);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  z-index: 8000;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  gap: 14px;
+}
+.ahc-nav__page-spinner-icon {
+  font-size: 2em;
+  color: #1a2980;
+  opacity: 0.7;
+}
+.ahc-nav__page-spinner-label {
+  font-size: 0.875em;
+  color: #64748b;
+  margin: 0;
+}
+
 /* Page loading bar */
 @-webkit-keyframes ahc-bar-sweep {
   0%   { -webkit-transform: translateX(-100%); transform: translateX(-100%); }
