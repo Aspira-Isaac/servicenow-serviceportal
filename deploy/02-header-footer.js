@@ -203,8 +203,14 @@ const HEADER_TEMPLATE = `
 
 <div class="ahc-nav-wrap"
      ng-init="
-       $root.$on('$locationChangeStart',   function(){ $root.ahcBarLoading = true;  });
-       $root.$on('$locationChangeSuccess', function(){ $root.ahcBarLoading = false; $root.ahcOverlay = false; });
+       $root.currentPageId = '';
+       $root.$on('$locationChangeStart',   function(){ $root.ahcBarLoading = true; });
+       $root.$on('$locationChangeSuccess', function(e, newUrl){
+         $root.ahcBarLoading = false;
+         $root.ahcOverlay = false;
+         var m = newUrl && newUrl.match(/[?&]id=([^&]+)/);
+         $root.currentPageId = m ? m[1] : '';
+       });
        $root.$on('$locationChangeError',   function(){ $root.ahcBarLoading = false; $root.ahcOverlay = false; });
      ">
   <!-- Page loading bar (fires on every location change, including filter param updates) -->
@@ -222,7 +228,7 @@ const HEADER_TEMPLATE = `
       <ul class="ahc-nav__links">
         <!-- KB hidden until ready: <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li> -->
         <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog</a></li>
-        <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">My Tickets</a></li>
+        <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link" ng-click="$root.currentPageId !== 'ticket_list' && ($root.ahcOverlay = true)">My Tickets</a></li>
       </ul>
 
       <!-- Right side: notifications + user -->

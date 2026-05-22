@@ -60,7 +60,7 @@
     <div class="container">
       <div class="row">
         <div class="col-sm-4" ng-repeat="card in data.quickCards">
-          <a href="{{card.url}}" class="ahc-card">
+          <a href="{{card.url}}" class="ahc-card" ng-click="card.showOverlay && ($root.ahcOverlay = true)">
             <div class="ahc-card__icon-wrap" ng-style="{'background': card.color + '14', 'color': card.color}">
               <i class="fa {{card.icon}} fa-lg"></i>
             </div>
