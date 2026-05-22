@@ -214,14 +214,14 @@ const HEADER_TEMPLATE = `
     <div class="ahc-nav__inner">
 
       <!-- Brand -->
-      <a class="ahc-nav__brand" href="{{data.portalUrl}}?id=ahc_index" ng-click="$root.ahcOverlay = true">
+      <a class="ahc-nav__brand" href="{{data.portalUrl}}?id=ahc_index">
         <img class="ahc-nav__logo-img" src="/cb8f9beb8762c1104c76ed7e0ebb35cc.iix" alt="Aspira" />
       </a>
 
       <!-- Desktop Nav Links -->
       <ul class="ahc-nav__links">
-        <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">Knowledge</a></li>
-        <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">Catalog</a></li>
+        <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li>
+        <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog</a></li>
         <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">My Tickets</a></li>
       </ul>
 
