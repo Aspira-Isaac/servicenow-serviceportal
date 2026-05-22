@@ -10,7 +10,15 @@ const HEADER_TEMPLATE = `
   .ahc-nav-wrap { --ahc-primary: {{data.branding.primaryColor || '#1a2980'}}; --ahc-accent: {{data.branding.accentColor || '#cf1d25'}}; }
 </style>
 
-<div class="ahc-nav-wrap">
+<div class="ahc-nav-wrap"
+     ng-init="
+       $root.$on('$locationChangeStart',   function(){ $root.ahcNavLoading = true;  });
+       $root.$on('$locationChangeSuccess', function(){ $root.ahcNavLoading = false; });
+       $root.$on('$locationChangeError',   function(){ $root.ahcNavLoading = false; });
+     ">
+  <!-- Page loading bar -->
+  <div class="ahc-nav__loading-bar" ng-class="{'ahc-nav__loading-bar--on': $root.ahcNavLoading}"></div>
+
   <nav class="ahc-nav" role="navigation">
     <div class="ahc-nav__inner">
 
@@ -55,6 +63,44 @@ const HEADER_TEMPLATE = `
 `.trim();
 
 const HEADER_CSS = `
+/* Page loading bar */
+@-webkit-keyframes ahc-bar-sweep {
+  0%   { -webkit-transform: translateX(-100%); transform: translateX(-100%); }
+  60%  { -webkit-transform: translateX(0%);    transform: translateX(0%); }
+  100% { -webkit-transform: translateX(100%);  transform: translateX(100%); }
+}
+@keyframes ahc-bar-sweep {
+  0%   { -webkit-transform: translateX(-100%); transform: translateX(-100%); }
+  60%  { -webkit-transform: translateX(0%);    transform: translateX(0%); }
+  100% { -webkit-transform: translateX(100%);  transform: translateX(100%); }
+}
+.ahc-nav__loading-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  overflow: hidden;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  -webkit-transition: opacity 0.3s ease 1s;
+  transition: opacity 0.3s ease 1s;
+}
+.ahc-nav__loading-bar--on {
+  opacity: 1;
+  -webkit-transition: opacity 0s;
+  transition: opacity 0s;
+  background: rgba(255,255,255,0.15);
+}
+.ahc-nav__loading-bar--on::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 60%;
+  background: #fff;
+  -webkit-animation: ahc-bar-sweep 1.1s ease-in-out infinite;
+  animation: ahc-bar-sweep 1.1s ease-in-out infinite;
+}
+
 /* Aspira Help Center — Navbar v2 */
 .ahc-nav-wrap {
   --ahc-primary: #1a2980;

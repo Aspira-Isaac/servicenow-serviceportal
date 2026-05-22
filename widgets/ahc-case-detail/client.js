@@ -1,13 +1,14 @@
 function($scope) {
   var c = this;
 
-  c.sending          = false;
-  c.sent             = false;
-  c.sendError        = false;
-  c.showActions      = false;
-  c.actionError      = false;
-  c.showFontPicker   = false;
+  c.sending           = false;
+  c.sent              = false;
+  c.sendError         = false;
+  c.showActions       = false;
+  c.actionError       = false;
+  c.showFontPicker    = false;
   c.selectedFontLabel = 'System Font';
+  c.navigating        = false;
 
   // Close dropdowns when clicking outside
   document.addEventListener('click', function() {

@@ -1,7 +1,13 @@
 <div class="ahc-cd">
 
+  <!-- Navigation loading screen -->
+  <div class="ahc-cd__nav-loading" ng-if="c.navigating">
+    <i class="fa fa-spinner fa-spin ahc-cd__nav-loading-icon"></i>
+    <p class="ahc-cd__nav-loading-label">Loading cases…</p>
+  </div>
+
   <!-- Error state -->
-  <div class="container" ng-if="data.error">
+  <div class="container" ng-if="data.error && !c.navigating">
     <div class="ahc-cd__error">
       <i class="fa fa-exclamation-triangle"></i>
       {{data.error}}
@@ -9,14 +15,14 @@
     </div>
   </div>
 
-  <div ng-if="!data.error">
+  <div ng-if="!data.error && !c.navigating">
 
     <!-- Meta bar -->
     <div class="ahc-cd__meta-bar">
       <div class="container">
         <div class="ahc-cd__meta-inner">
           <div class="ahc-cd__meta-left">
-            <a href="?id=ticket_list" class="ahc-cd__back">
+            <a href="?id=ticket_list" class="ahc-cd__back" ng-click="c.navigating = true">
               <i class="fa fa-arrow-left"></i> My Cases
             </a>
             <span class="ahc-cd__meta-sep">›</span>

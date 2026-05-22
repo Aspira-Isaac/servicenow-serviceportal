@@ -1,6 +1,35 @@
 /* AHC Case Detail */
 .ahc-cd { background: #f0f2f7; min-height: 80vh; }
 
+/* Navigation loading overlay */
+.ahc-cd__nav-loading {
+  min-height: 60vh;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  gap: 14px;
+}
+.ahc-cd__nav-loading-icon {
+  font-size: 2em;
+  color: #1a2980;
+  opacity: 0.7;
+}
+.ahc-cd__nav-loading-label {
+  font-size: 0.875em;
+  color: #64748b;
+  margin: 0;
+}
+
 /* Error */
 .ahc-cd__error {
   margin: 48px 0;

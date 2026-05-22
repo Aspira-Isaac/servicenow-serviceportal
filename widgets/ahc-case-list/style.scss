@@ -1,3 +1,62 @@
+/* Row entry animation */
+@-webkit-keyframes ahc-cl-row-in {
+  from { opacity: 0; -webkit-transform: translateY(5px); transform: translateY(5px); }
+  to   { opacity: 1; -webkit-transform: none; transform: none; }
+}
+@keyframes ahc-cl-row-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+.ahc-cl__row--data {
+  -webkit-animation: ahc-cl-row-in 0.18s ease both;
+  animation: ahc-cl-row-in 0.18s ease both;
+}
+.ahc-cl__row--data:nth-child(2)  { -webkit-animation-delay: 0.02s; animation-delay: 0.02s; }
+.ahc-cl__row--data:nth-child(3)  { -webkit-animation-delay: 0.04s; animation-delay: 0.04s; }
+.ahc-cl__row--data:nth-child(4)  { -webkit-animation-delay: 0.06s; animation-delay: 0.06s; }
+.ahc-cl__row--data:nth-child(5)  { -webkit-animation-delay: 0.08s; animation-delay: 0.08s; }
+.ahc-cl__row--data:nth-child(6)  { -webkit-animation-delay: 0.10s; animation-delay: 0.10s; }
+.ahc-cl__row--data:nth-child(7)  { -webkit-animation-delay: 0.12s; animation-delay: 0.12s; }
+.ahc-cl__row--data:nth-child(8)  { -webkit-animation-delay: 0.14s; animation-delay: 0.14s; }
+.ahc-cl__row--data:nth-child(9)  { -webkit-animation-delay: 0.16s; animation-delay: 0.16s; }
+.ahc-cl__row--data:nth-child(10) { -webkit-animation-delay: 0.18s; animation-delay: 0.18s; }
+
+/* Skeleton shimmer */
+@-webkit-keyframes ahc-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+@keyframes ahc-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+.ahc-cl__sk {
+  background: linear-gradient(90deg, #e8edf5 25%, #f1f5fb 50%, #e8edf5 75%);
+  background-size: 1200px 100%;
+  -webkit-animation: ahc-shimmer 1.5s infinite linear;
+  animation: ahc-shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+.ahc-cl__sk--title   { height: 28px; width: 160px; margin-bottom: 8px; }
+.ahc-cl__sk--subtitle{ height: 14px; width: 100px; }
+.ahc-cl__sk--btn     { height: 36px; width: 110px; border-radius: 8px; }
+.ahc-cl__sk--search  { height: 40px; border-radius: 8px; }
+.ahc-cl__sk-pills    { display: -webkit-box; display: -ms-flexbox; display: flex; gap: 8px; margin-top: 12px; }
+.ahc-cl__sk--pill    { height: 30px; width: 72px; border-radius: 20px; }
+.ahc-cl__sk--num     { height: 14px; width: 80px; }
+.ahc-cl__sk--desc    { height: 14px; width: 70%; }
+.ahc-cl__sk--badge   { height: 22px; width: 72px; border-radius: 20px; }
+.ahc-cl__sk--date    { height: 14px; width: 60px; }
+.ahc-cl__row--sk     { pointer-events: none; }
+/* vary desc widths so rows don't look identical */
+.ahc-cl__row--sk:nth-child(2) .ahc-cl__sk--desc { width: 85%; }
+.ahc-cl__row--sk:nth-child(3) .ahc-cl__sk--desc { width: 55%; }
+.ahc-cl__row--sk:nth-child(4) .ahc-cl__sk--desc { width: 75%; }
+.ahc-cl__row--sk:nth-child(5) .ahc-cl__sk--desc { width: 90%; }
+.ahc-cl__row--sk:nth-child(6) .ahc-cl__sk--desc { width: 50%; }
+.ahc-cl__row--sk:nth-child(7) .ahc-cl__sk--desc { width: 80%; }
+.ahc-cl__row--sk:nth-child(8) .ahc-cl__sk--desc { width: 65%; }
+
 /* AHC Case List */
 .ahc-cl {
   padding: 36px 0 48px;

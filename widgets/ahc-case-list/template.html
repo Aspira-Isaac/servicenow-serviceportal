@@ -1,6 +1,49 @@
 <div class="ahc-cl">
   <div class="container">
 
+    <!-- Skeleton loader — visible while server data is in flight -->
+    <div ng-if="!data.cases" class="ahc-cl__skeleton">
+      <div class="ahc-cl__header">
+        <div>
+          <div class="ahc-cl__sk ahc-cl__sk--title"></div>
+          <div class="ahc-cl__sk ahc-cl__sk--subtitle"></div>
+        </div>
+        <div class="ahc-cl__sk ahc-cl__sk--btn"></div>
+      </div>
+      <div class="ahc-cl__toolbar">
+        <div class="ahc-cl__sk ahc-cl__sk--search"></div>
+        <div class="ahc-cl__sk-pills">
+          <div class="ahc-cl__sk ahc-cl__sk--pill" ng-repeat="n in [1,2,3,4]"></div>
+        </div>
+      </div>
+      <div class="ahc-cl__list">
+        <div class="ahc-cl__row ahc-cl__row--head">
+          <div class="ahc-cl__col ahc-cl__col--num">Number</div>
+          <div class="ahc-cl__col ahc-cl__col--desc">Description</div>
+          <div class="ahc-cl__col ahc-cl__col--state">Status</div>
+          <div class="ahc-cl__col ahc-cl__col--date">Updated</div>
+        </div>
+        <div class="ahc-cl__row ahc-cl__row--data ahc-cl__row--sk"
+             ng-repeat="n in [1,2,3,4,5,6,7,8]">
+          <div class="ahc-cl__col ahc-cl__col--num">
+            <div class="ahc-cl__sk ahc-cl__sk--num"></div>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--desc">
+            <div class="ahc-cl__sk ahc-cl__sk--desc"></div>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--state">
+            <div class="ahc-cl__sk ahc-cl__sk--badge"></div>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--date">
+            <div class="ahc-cl__sk ahc-cl__sk--date"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Real content -->
+    <div ng-if="data.cases">
+
     <div class="ahc-cl__header">
       <div>
         <h1 class="ahc-cl__title">{{data.scopeLabel === 'account' ? 'Account Cases' : 'My Cases'}}</h1>
@@ -110,6 +153,8 @@
         </button>
       </div>
     </div>
+
+    </div><!-- /ng-if data.cases -->
 
   </div>
 </div>
