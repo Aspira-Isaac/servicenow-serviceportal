@@ -1,5 +1,8 @@
-function($scope, $location) {
+function($scope, $location, $rootScope) {
   var c = this;
+
+  // Clear any nav overlay now that the widget (and its server data) is ready
+  $rootScope.ahcOverlay = false;
 
   var PAGE_SIZE = 20;
 
