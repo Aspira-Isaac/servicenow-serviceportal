@@ -1,7 +1,8 @@
 function($scope, $location, $rootScope) {
   var c = this;
 
-  // Clear any nav overlay now that the widget (and its server data) is ready
+  // Tell the nav which page we're on, and clear the overlay
+  $rootScope.currentPageId = 'ticket_list';
   $rootScope.ahcOverlay = false;
 
   var PAGE_SIZE = 20;

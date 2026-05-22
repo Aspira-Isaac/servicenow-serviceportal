@@ -204,7 +204,7 @@ const HEADER_TEMPLATE = `
 <div class="ahc-nav-wrap"
      ng-init="
        $root.currentPageId = '';
-       $root.$on('$locationChangeStart',   function(){ $root.ahcBarLoading = true; });
+       $root.$on('$locationChangeStart',   function(){ $root.ahcBarLoading = true; $root.currentPageId = ''; });
        $root.$on('$locationChangeSuccess', function(e, newUrl){
          $root.ahcBarLoading = false;
          $root.ahcOverlay = false;
