@@ -204,6 +204,10 @@ const HEADER_TEMPLATE = `
 <div class="ahc-nav-wrap"
      ng-init="
        $root.currentPageId = '';
+       $root.navToTicketList = function() {
+         $root.ahcNotifOpen = false;
+         if ($root.currentPageId !== 'ticket_list') { $root.ahcOverlay = true; }
+       };
        $root.$on('$locationChangeStart',   function(){ $root.ahcBarLoading = true; $root.currentPageId = ''; });
        $root.$on('$locationChangeSuccess', function(e, newUrl){
          $root.ahcBarLoading = false;
@@ -297,7 +301,7 @@ const HEADER_TEMPLATE = `
 
   <div class="ahc-notif-panel__footer">
     <a href="?id=ticket_list" class="ahc-notif-panel__footer-link"
-       ng-click="$root.ahcNotifOpen = false; $root.ahcOverlay = ($root.currentPageId !== 'ticket_list')">
+       ng-click="$root.navToTicketList()">
       View all my cases <i class="fa fa-arrow-right"></i>
     </a>
   </div>
