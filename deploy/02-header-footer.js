@@ -297,7 +297,7 @@ const HEADER_TEMPLATE = `
 
   <div class="ahc-notif-panel__footer">
     <a href="?id=ticket_list" class="ahc-notif-panel__footer-link"
-       ng-click="$root.ahcNotifOpen = false; $root.currentPageId !== 'ticket_list' && ($root.ahcOverlay = true)">
+       ng-click="$root.ahcNotifOpen = false; $root.ahcOverlay = ($root.currentPageId !== 'ticket_list')">
       View all my cases <i class="fa fa-arrow-right"></i>
     </a>
   </div>
