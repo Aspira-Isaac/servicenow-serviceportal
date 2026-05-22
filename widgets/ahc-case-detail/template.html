@@ -158,7 +158,7 @@
                 <div class="ahc-cd__entry-body">
                   <div class="ahc-cd__entry-meta">
                     <span class="ahc-cd__entry-author">{{e.authorName}}</span>
-                    <span class="ahc-cd__entry-time" title="{{e.created}}">{{c.timeAgo(e.createdRaw)}}</span>
+                    <span class="ahc-cd__entry-time" title="{{e.created}}"><sn-time-ago timestamp="e.createdRaw"></sn-time-ago></span>
                   </div>
                   <div class="ahc-cd__entry-text" ng-bind-html="e.value"></div>
                   <div class="ahc-cd__entry-images" ng-if="e.images && e.images.length > 0">
