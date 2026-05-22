@@ -157,27 +157,34 @@
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  gap: 4px;
-  padding-bottom: 0;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-bottom: 4px;
 }
 
 .ahc-cl__filter-btn {
-  background: none;
-  border: none;
-  padding: 8px 18px;
-  font-size: 0.875em;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 0.8em;
   font-weight: 500;
-  color: #64748b;
+  color: #475569;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
   -webkit-transition: all 0.15s;
   transition: all 0.15s;
+  white-space: nowrap;
 }
-.ahc-cl__filter-btn:hover { color: #1a2980; }
-.ahc-cl__filter-btn.active {
+.ahc-cl__filter-btn:hover {
+  background: #e2e8f0;
   color: #1a2980;
-  border-bottom-color: #1a2980;
+  border-color: #c7d2e0;
+}
+.ahc-cl__filter-btn.active {
+  background: #1a2980;
+  border-color: #1a2980;
+  color: #fff;
   font-weight: 600;
 }
 
@@ -225,7 +232,7 @@
 .ahc-cl__col--desc    { -webkit-box-flex: 1; -ms-flex: 1; flex: 1; min-width: 0; }
 .ahc-cl__col--account { width: 160px; }
 .ahc-cl__col--opener  { width: 150px; }
-.ahc-cl__col--state   { width: 130px; }
+.ahc-cl__col--state   { width: 170px; min-width: 0; }
 .ahc-cl__col--date    { width: 150px; }
 
 .ahc-cl__row--head .ahc-cl__col {
@@ -273,11 +280,14 @@
 /* State badges */
 .ahc-cl__badge {
   display: inline-block;
-  padding: 3px 10px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 3px 8px;
   border-radius: 20px;
   font-size: 0.75em;
   font-weight: 600;
-  white-space: nowrap;
 }
 .ahc-cl__badge--new        { background: #dbeafe; color: #1d4ed8; }
 .ahc-cl__badge--open       { background: #e0f2fe; color: #0369a1; }

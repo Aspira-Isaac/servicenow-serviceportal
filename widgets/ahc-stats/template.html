@@ -1,4 +1,4 @@
-<div class="ahc-st" ng-if="data.stats.total > 0">
+<div class="ahc-st" ng-if="data.isLoggedIn">
   <div class="container">
 
     <div class="ahc-st__header">
@@ -19,7 +19,7 @@
         <i class="fa fa-chevron-right ahc-st__arrow"></i>
       </div>
 
-      <div class="ahc-st__card ahc-st__card--open" ng-click="c.goToList('open')">
+      <div class="ahc-st__card ahc-st__card--open" ng-click="c.goToList('all')">
         <div class="ahc-st__icon"><i class="fa fa-circle-o-notch"></i></div>
         <div class="ahc-st__body">
           <div class="ahc-st__num">{{data.stats.open}}</div>
@@ -28,16 +28,16 @@
         <i class="fa fa-chevron-right ahc-st__arrow"></i>
       </div>
 
-      <div class="ahc-st__card ahc-st__card--awaiting" ng-click="c.goToList('awaiting')">
+      <div class="ahc-st__card ahc-st__card--awaiting" ng-click="c.goToList('pending')">
         <div class="ahc-st__icon"><i class="fa fa-clock-o"></i></div>
         <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.awaiting}}</div>
-          <div class="ahc-st__label">Awaiting Response</div>
+          <div class="ahc-st__num">{{data.stats.pending}}</div>
+          <div class="ahc-st__label">Pending</div>
         </div>
         <i class="fa fa-chevron-right ahc-st__arrow"></i>
       </div>
 
-      <div class="ahc-st__card ahc-st__card--resolved" ng-click="c.goToList('resolved')">
+      <div class="ahc-st__card ahc-st__card--resolved" ng-click="c.goToList('all')">
         <div class="ahc-st__icon"><i class="fa fa-check-circle-o"></i></div>
         <div class="ahc-st__body">
           <div class="ahc-st__num">{{data.stats.resolved}}</div>

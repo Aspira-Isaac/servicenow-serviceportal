@@ -1,27 +1,40 @@
 (function() {
-  // Get the KB(s) linked to this portal
-  var portalKbId = '';
-  try {
-    var portalGr = $sp.getPortalRecord();
-    if (portalGr) portalKbId = String(portalGr.getValue('kb_knowledge_base') || '');
-  } catch(e) {}
+  // Resolve which KB to scope to for the current user:
+  //   1. Logged-in user → look up their company in ahc.kb.company_map
+  //   2. Fallback → KB linked to this portal
+  var effectiveKbId = '';
 
-  // Build KB filter chips — restricted to the portal's linked KB
+  var companyId = gs.isLoggedIn() ? String(gs.getUser().getCompanyID() || '') : '';
+  if (companyId) {
+    var mapJson = gs.getProperty('ahc.kb.company_map', '{}');
+    var kbMap = {};
+    try { kbMap = JSON.parse(mapJson); } catch(e) {}
+    effectiveKbId = kbMap[companyId] || '';
+  }
+
+  if (!effectiveKbId) {
+    try {
+      var portalGr = $sp.getPortalRecord();
+      if (portalGr) effectiveKbId = String(portalGr.getValue('kb_knowledge_base') || '');
+    } catch(e) {}
+  }
+
+  // Build KB filter chips — restricted to the effective KB for this user
   var kbs = [];
-  var kbMap = {};
+  var kbLabelMap = {};
   var kbGr = new GlideRecord('kb_knowledge_base');
   kbGr.addActiveQuery();
-  if (portalKbId) kbGr.addQuery('sys_id', portalKbId);
+  if (effectiveKbId) kbGr.addQuery('sys_id', effectiveKbId);
   kbGr.orderBy('title');
   kbGr.query();
   while (kbGr.next()) {
     var sysId = kbGr.getUniqueValue();
     var title  = kbGr.getValue('title');
     kbs.push({ sys_id: sysId, title: title });
-    kbMap[sysId] = title;
+    kbLabelMap[sysId] = title;
   }
   data.knowledgeBases = kbs;
-  data.portalKbId     = portalKbId;
+  data.effectiveKbId  = effectiveKbId;
 
   // Handle search AJAX call
   if (input && input.action === 'search') {
@@ -36,11 +49,10 @@
       qc.addOrCondition('keywords', 'CONTAINS', input.query);
     }
 
-    // Scope to selected KB, falling back to the portal's KB
     if (input.kb && input.kb !== 'all') {
       gr.addQuery('kb_knowledge_base', input.kb);
-    } else if (portalKbId) {
-      gr.addQuery('kb_knowledge_base', portalKbId);
+    } else if (effectiveKbId) {
+      gr.addQuery('kb_knowledge_base', effectiveKbId);
     }
 
     gr.orderByDesc('sys_view_count');
@@ -57,7 +69,7 @@
         short_description: gr.getValue('short_description'),
         snippet:           snippet,
         view_count:        parseInt(gr.getValue('sys_view_count') || '0', 10),
-        kb_label:          kbMap[gr.getValue('kb_knowledge_base')] || 'Knowledge Base'
+        kb_label:          kbLabelMap[gr.getValue('kb_knowledge_base')] || 'Knowledge Base'
       });
     }
 

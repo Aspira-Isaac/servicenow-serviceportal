@@ -2,15 +2,10 @@ function($scope, $location) {
   var c = this;
 
   var PAGE_SIZE = 20;
-  var ACTIVE   = ['1', '2', '5'];
-  var AWAITING = ['18'];
-  var CLOSED   = ['3', '6'];
 
-  // Pick up filter from URL param (e.g. navigating from a stats card)
+  // c.filter is 'all' or an exact state value string (e.g. '18', '1000')
   var urlFilter = $location.search().filter;
-  var validFilters = ['all', 'open', 'awaiting', 'resolved'];
-
-  c.filter  = (urlFilter && validFilters.indexOf(urlFilter) !== -1) ? urlFilter : 'all';
+  c.filter = (urlFilter && urlFilter !== '') ? urlFilter : 'all';
   c.opener  = 'everyone';
   c.search  = '';
   c.page    = 0;
@@ -28,9 +23,7 @@ function($scope, $location) {
     var me = c.data.currentUserId;
 
     return (c.data.cases || []).filter(function(cs) {
-      if (c.filter === 'open'     && ACTIVE.indexOf(cs.stateVal)   === -1) return false;
-      if (c.filter === 'awaiting' && AWAITING.indexOf(cs.stateVal) === -1) return false;
-      if (c.filter === 'resolved' && CLOSED.indexOf(cs.stateVal)   === -1) return false;
+      if (c.filter !== 'all' && cs.stateVal !== c.filter) return false;
 
       if (c.opener === 'me'   && cs.openedById !== me) return false;
       if (c.opener === 'team' && cs.openedById === me) return false;

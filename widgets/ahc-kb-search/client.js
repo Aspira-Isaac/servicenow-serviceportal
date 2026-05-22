@@ -14,8 +14,8 @@ function($scope, $location) {
 
     c.server.get({
       action: 'search',
-      query: c.query.trim(),
-      kb: c.activeKb === 'all' ? '' : c.activeKb
+      query:  c.query.trim(),
+      kb:     c.activeKb === 'all' ? '' : c.activeKb
     }).then(function(r) {
       c.loading = false;
       c.hasSearched = true;

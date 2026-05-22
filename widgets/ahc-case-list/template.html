@@ -32,12 +32,10 @@
           <div class="ahc-cl__filters">
             <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'all'}"
                     ng-click="c.setFilter('all')">All</button>
-            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'open'}"
-                    ng-click="c.setFilter('open')">Open</button>
-            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'awaiting'}"
-                    ng-click="c.setFilter('awaiting')">Awaiting Response</button>
-            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'resolved'}"
-                    ng-click="c.setFilter('resolved')">Resolved / Closed</button>
+            <button class="ahc-cl__filter-btn"
+                    ng-class="{active: c.filter === s.value}"
+                    ng-click="c.setFilter(s.value)"
+                    ng-repeat="s in data.states track by s.value">{{s.label}}</button>
           </div>
         </div>
 
