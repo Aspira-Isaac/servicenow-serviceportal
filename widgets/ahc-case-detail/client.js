@@ -1,15 +1,20 @@
 function($scope) {
   var c = this;
 
-  c.sending     = false;
-  c.sent        = false;
-  c.sendError   = false;
-  c.showActions = false;
-  c.actionError = false;
+  c.sending          = false;
+  c.sent             = false;
+  c.sendError        = false;
+  c.showActions      = false;
+  c.actionError      = false;
+  c.showFontPicker   = false;
+  c.selectedFontLabel = 'System Font';
 
-  // Close actions menu when clicking outside
+  // Close dropdowns when clicking outside
   document.addEventListener('click', function() {
-    $scope.$apply(function() { c.showActions = false; });
+    $scope.$apply(function() {
+      c.showActions    = false;
+      c.showFontPicker = false;
+    });
   });
 
   c.toggleActions = function($event) {
@@ -33,6 +38,41 @@ function($scope) {
     document.execCommand(cmd, false, val || null);
     var ed = document.querySelector('.ahc-cd__reply-editor');
     if (ed) ed.focus();
+  };
+
+  c.toggleFontPicker = function($event) {
+    $event.stopPropagation();
+    c.showFontPicker = !c.showFontPicker;
+  };
+
+  c.setFont = function(fontName, label) {
+    c.showFontPicker    = false;
+    c.selectedFontLabel = label || 'System Font';
+    var ed = document.querySelector('.ahc-cd__reply-editor');
+    if (!ed) return;
+    ed.focus();
+    if (fontName) {
+      document.execCommand('fontName', false, fontName);
+    } else {
+      document.execCommand('removeFormat', false, null);
+    }
+  };
+
+  c.toggleCode = function() {
+    var ed = document.querySelector('.ahc-cd__reply-editor');
+    if (!ed) return;
+    ed.focus();
+    var sel = window.getSelection();
+    var inCode = false;
+    if (sel && sel.rangeCount > 0) {
+      var node = sel.getRangeAt(0).commonAncestorContainer;
+      if (node.nodeType === 3) node = node.parentNode;
+      while (node && node !== ed) {
+        if (node.nodeName === 'PRE') { inCode = true; break; }
+        node = node.parentNode;
+      }
+    }
+    document.execCommand('formatBlock', false, inCode ? 'div' : 'pre');
   };
 
   c.clearEditor = function() {

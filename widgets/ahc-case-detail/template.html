@@ -25,11 +25,11 @@
           <div class="ahc-cd__meta-right">
             <div class="ahc-cd__meta-item">
               <span class="ahc-cd__meta-label">Created</span>
-              <span class="ahc-cd__meta-val">{{data.created}}</span>
+              <span class="ahc-cd__meta-val" title="{{data.created}}"><sn-time-ago timestamp="data.createdRaw"></sn-time-ago></span>
             </div>
             <div class="ahc-cd__meta-item">
               <span class="ahc-cd__meta-label">Updated</span>
-              <span class="ahc-cd__meta-val">{{data.updated}}</span>
+              <span class="ahc-cd__meta-val" title="{{data.updated}}"><sn-time-ago timestamp="data.updatedRaw"></sn-time-ago></span>
             </div>
             <div class="ahc-cd__meta-item">
               <span class="ahc-cd__meta-label">Status</span>
@@ -100,6 +100,7 @@
                 <i class="fa fa-comment-o"></i> Add a Reply
               </div>
               <div class="ahc-cd__fmt-bar">
+                <!-- Bold / Italic / Underline -->
                 <button class="ahc-cd__fmt-btn" type="button" title="Bold"
                         ng-mousedown="$event.preventDefault()" ng-click="c.format('bold')">
                   <strong>B</strong>
@@ -112,7 +113,57 @@
                         ng-mousedown="$event.preventDefault()" ng-click="c.format('underline')">
                   <u>U</u>
                 </button>
+
                 <span class="ahc-cd__fmt-sep"></span>
+
+                <!-- Font picker -->
+                <div class="ahc-cd__font-wrap" ng-click="$event.stopPropagation()">
+                  <button class="ahc-cd__font-btn" type="button"
+                          ng-mousedown="$event.preventDefault()"
+                          ng-click="c.toggleFontPicker($event)">
+                    {{c.selectedFontLabel}} <i class="fa fa-caret-down"></i>
+                  </button>
+                  <div class="ahc-cd__font-menu" ng-if="c.showFontPicker">
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('',            'System Font')">System Font</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Andale Mono',  'Andale Mono')"  style="font-family:Andale Mono">Andale Mono</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Arial',        'Arial')"         style="font-family:Arial">Arial</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Arial Black',  'Arial Black')"   style="font-family:Arial Black">Arial Black</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Book Antiqua', 'Book Antiqua')"  style="font-family:Book Antiqua">Book Antiqua</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Comic Sans MS','Comic Sans MS')" style="font-family:Comic Sans MS">Comic Sans MS</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Courier New',  'Courier New')"   style="font-family:Courier New">Courier New</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Georgia',      'Georgia')"       style="font-family:Georgia">Georgia</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Helvetica',    'Helvetica')"     style="font-family:Helvetica">Helvetica</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Impact',       'Impact')"        style="font-family:Impact">Impact</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Tahoma',       'Tahoma')"        style="font-family:Tahoma">Tahoma</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Times New Roman','Times New Roman')" style="font-family:Times New Roman">Times New Roman</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Trebuchet MS', 'Trebuchet MS')"  style="font-family:Trebuchet MS">Trebuchet MS</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Verdana',      'Verdana')"       style="font-family:Verdana">Verdana</button>
+                  </div>
+                </div>
+
+                <span class="ahc-cd__fmt-sep"></span>
+
+                <!-- Alignment -->
+                <button class="ahc-cd__fmt-btn" type="button" title="Align left"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyLeft')">
+                  <i class="fa fa-align-left"></i>
+                </button>
+                <button class="ahc-cd__fmt-btn" type="button" title="Align center"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyCenter')">
+                  <i class="fa fa-align-center"></i>
+                </button>
+                <button class="ahc-cd__fmt-btn" type="button" title="Align right"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyRight')">
+                  <i class="fa fa-align-right"></i>
+                </button>
+                <button class="ahc-cd__fmt-btn" type="button" title="Justify"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyFull')">
+                  <i class="fa fa-align-justify"></i>
+                </button>
+
+                <span class="ahc-cd__fmt-sep"></span>
+
+                <!-- Lists -->
                 <button class="ahc-cd__fmt-btn" type="button" title="Bullet list"
                         ng-mousedown="$event.preventDefault()" ng-click="c.format('insertUnorderedList')">
                   <i class="fa fa-list-ul"></i>
@@ -121,10 +172,13 @@
                         ng-mousedown="$event.preventDefault()" ng-click="c.format('insertOrderedList')">
                   <i class="fa fa-list-ol"></i>
                 </button>
+
                 <span class="ahc-cd__fmt-sep"></span>
-                <button class="ahc-cd__fmt-btn" type="button" title="Clear formatting"
-                        ng-mousedown="$event.preventDefault()" ng-click="c.format('removeFormat')">
-                  <i class="fa fa-eraser"></i>
+
+                <!-- Code block -->
+                <button class="ahc-cd__fmt-btn" type="button" title="Code block"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.toggleCode()">
+                  <i class="fa fa-code"></i>
                 </button>
               </div>
               <div class="ahc-cd__reply-editor"

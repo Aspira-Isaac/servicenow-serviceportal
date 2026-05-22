@@ -52,6 +52,8 @@
   data.priority    = gr.getDisplayValue('priority');
   data.created     = gr.getDisplayValue('sys_created_on');
   data.updated     = gr.getDisplayValue('sys_updated_on');
+  data.createdRaw  = gr.getValue('sys_created_on');
+  data.updatedRaw  = gr.getValue('sys_updated_on');
   data.canClose      = (stateVal !== '3' && stateVal !== '7' && stateVal !== '6') && gr.canWrite();
   data.canCloseCase  = data.canClose;
   data.isResolved    = (stateVal === '6');
