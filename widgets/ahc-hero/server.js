@@ -42,7 +42,7 @@
 
   data.quickCards = data.branding.quickCards || [
     { title: 'Submit a Ticket',  description: 'Report an issue or request something — we\'ll route it right.', icon: 'fa-ticket',   url: '?id=sc_category&catalog_id=-1', color: '#cf1d25' },
-    { title: 'Knowledge Base',   description: 'Browse how-to guides, FAQs, and troubleshooting articles.',     icon: 'fa-book',     url: '?id=ahc_kb_search',     color: '#1a2980' },
+    // KB card hidden until ready: { title: 'Knowledge Base', description: 'Browse how-to guides, FAQs, and troubleshooting articles.', icon: 'fa-book', url: '?id=ahc_kb_search', color: '#1a2980' },
     { title: 'My Tickets',       description: 'Track the status of your open and recently resolved requests.',  icon: 'fa-list-alt', url: '?id=ticket_list',       color: '#28a745' }
   ];
 })();

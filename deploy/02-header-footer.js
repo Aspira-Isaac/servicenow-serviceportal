@@ -220,7 +220,7 @@ const HEADER_TEMPLATE = `
 
       <!-- Desktop Nav Links -->
       <ul class="ahc-nav__links">
-        <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li>
+        <!-- KB hidden until ready: <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li> -->
         <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog</a></li>
         <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link" ng-click="$root.ahcOverlay = true">My Tickets</a></li>
       </ul>
@@ -670,7 +670,7 @@ const FOOTER_TEMPLATE = `
       </div>
       <div class="ahc-footer__links">
         <a class="ahc-footer__link" href="/help?id=sc_category&catalog_id=-1">Submit a Ticket</a>
-        <a class="ahc-footer__link" href="/help?id=ahc_kb_search">Knowledge Base</a>
+        <!-- KB hidden until ready: <a class="ahc-footer__link" href="/help?id=ahc_kb_search">Knowledge Base</a> -->
       </div>
       <p class="ahc-footer__copy">&copy; Aspira Connect. All rights reserved.</p>
     </div>
