@@ -44,6 +44,9 @@ $link-hover-color: #141f6a !default;
 $success: #28a745 !default;
 $info:    #0d6efd !default;
 $warning: #ffc107 !default;
+
+// Catalog item form — required-field label color
+$sc-field-error-color: #1a2980 !default;
 `;
 
 // CSS overrides — scoped to our portal theme only, never touches CSM or shared widgets.

@@ -9,7 +9,7 @@ const HEADER_TEMPLATE = `
 <style>
   .ahc-nav-wrap { --ahc-primary: {{data.branding.primaryColor || '#1a2980'}}; --ahc-accent: {{data.branding.accentColor || '#cf1d25'}}; }
 
-  /* Global link color — injected via header template so it's truly global */
+  /* ── Global link color ──────────────────────────────────────────────────── */
   a, a:visited { color: #1a2980 !important; }
   a:hover, a:focus { color: #141f6a !important; }
   /* Restore navbar and footer link colors */
@@ -18,10 +18,187 @@ const HEADER_TEMPLATE = `
   .ahc-nav__link:hover, .ahc-nav__link:focus { color: rgba(255,255,255,0.7) !important; }
   .ahc-footer__link, .ahc-footer__link:visited { color: rgba(255,255,255,0.45) !important; }
   .ahc-footer__link:hover { color: rgba(255,255,255,0.8) !important; }
-  /* Required-info tags */
-  .label-danger { background-color: #1a2980 !important; border-color: #141f6a !important; color: #fff !important; }
-  /* Catalog active state */
+
+  /* ── Breadcrumbs ─────────────────────────────────────────────────────────── */
+  .breadcrumb > li > a,
+  .breadcrumb > li > a:visited,
+  .breadcrumb > li > span > a { color: #1a2980 !important; }
+  .breadcrumb > li > a:hover  { color: #141f6a !important; }
+
+  /* ── State color text ────────────────────────────────────────────────────── */
   .text-active, .text-primary { color: #1a2980 !important; }
+
+  /* ── Catalog item form: submit button ───────────────────────────────────── */
+  .btn-danger, .btn-danger:focus {
+    background-color: #1a2980 !important; border-color: #141f6a !important; color: #fff !important;
+    border-radius: 8px !important; font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(26,41,128,0.22) !important;
+    transition: background 0.15s, box-shadow 0.15s !important;
+  }
+  .btn-danger:hover, .btn-danger:active {
+    background-color: #141f6a !important; border-color: #0e1550 !important; color: #fff !important;
+    box-shadow: 0 4px 14px rgba(26,41,128,0.32) !important;
+  }
+
+  /* ── Catalog item form: panel, fields, labels ────────────────────────────── */
+  /* Use .panel.panel-default > to beat Bootstrap's .panel-default > specificity */
+  .panel.panel-default > .panel-heading {
+    background: #fff !important; border-bottom: 1px solid #e8edf8 !important;
+    padding: 24px 28px 20px !important; border-radius: 0 !important;
+  }
+  .panel.panel-default > .panel-heading h1,
+  .panel.panel-default > .panel-heading h2,
+  .panel.panel-default > .panel-heading h3 {
+    font-size: 21px !important; font-weight: 700 !important; color: #0f172a !important;
+    margin: 0 0 6px !important; line-height: 1.3 !important;
+  }
+  .panel.panel-default > .panel-heading p,
+  .panel.panel-default > .panel-heading small {
+    color: #64748b !important; font-size: 13px !important; margin: 0 !important; display: block;
+  }
+  .panel.panel-default > .panel-body { background: #fff !important; padding: 24px 28px !important; }
+  .panel.panel-default > .panel-footer {
+    background: #f8fafc !important; border-top: 1px solid #e8edf8 !important;
+    padding: 14px 28px !important;
+  }
+
+  /* Form fields */
+  .form-control {
+    border: 1.5px solid #e2e8f0 !important; border-radius: 7px !important;
+    background: #fff !important; color: #1e293b !important;
+    box-shadow: none !important; transition: border-color 0.15s, box-shadow 0.15s !important;
+    font-size: 13.5px !important;
+  }
+  .form-control:focus { border-color: #1a2980 !important; box-shadow: 0 0 0 3px rgba(26,41,128,0.09) !important; }
+  .form-group > label {
+    font-size: 11px !important; font-weight: 600 !important; color: #64748b !important;
+    text-transform: uppercase !important; letter-spacing: 0.5px !important; margin-bottom: 5px !important;
+  }
+
+  /* Form table (multi-row variables like Closure Details) */
+  .form-control table, .catalog-variables table, .sp-table {
+    border-collapse: collapse !important; width: 100% !important;
+  }
+  table thead th {
+    background: #f1f5f9 !important; color: #475569 !important;
+    font-size: 11px !important; font-weight: 700 !important; text-transform: uppercase !important;
+    letter-spacing: 0.5px !important; padding: 9px 12px !important; border: none !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+  }
+  table tbody td { padding: 8px 12px !important; border: none !important; border-bottom: 1px solid #f1f5f9 !important; font-size: 13px !important; }
+
+  /* "Add" + "Remove All" buttons in multi-row variables */
+  .btn-primary { background: #1a2980 !important; border-color: #141f6a !important; color: #fff !important; border-radius: 6px !important; }
+  .btn-primary:hover { background: #141f6a !important; }
+  .btn-default { border: 1.5px solid #e2e8f0 !important; color: #475569 !important; background: #fff !important; border-radius: 6px !important; }
+  .btn-default:hover { background: #f1f5f9 !important; border-color: #cbd5e1 !important; }
+
+  /* Required asterisk — keep red for semantic clarity */
+  .mandatory-fields-red { color: #cf1d25 !important; }
+
+  /* All label variants in required-info sidebar → navy pills */
+  .label-danger, .label-primary, .label-info, .label-warning, .label-success, .label-default {
+    background-color: #1a2980 !important; border-color: #141f6a !important; color: #fff !important;
+    border-radius: 20px !important; padding: 3px 10px !important;
+    font-size: 11px !important; font-weight: 500 !important;
+  }
+
+  /* ── Catalog page wrapper — white, no background ─────────────────────────── */
+  #sc_category_page { background: transparent; }
+  #sc_category_page > .row { padding-top: 8px; }
+
+  /* ── Catalog search bar ──────────────────────────────────────────────────── */
+  .input-group .form-control {
+    border-radius: 8px 0 0 8px !important; border: 1.5px solid #e2e8f0 !important;
+    font-size: 0.875em !important; padding: 9px 14px !important; background: #fff !important;
+    box-shadow: none !important; color: #1e293b !important;
+  }
+  .input-group .form-control:focus { border-color: #1a2980 !important; }
+  .input-group-btn .btn,
+  .input-group-btn .btn-default {
+    background: #1a2980 !important; border: 1.5px solid #1a2980 !important;
+    color: #fff !important; border-radius: 0 8px 8px 0 !important;
+    padding: 9px 16px !important;
+  }
+  .input-group-btn .btn:hover { background: #141f6a !important; border-color: #141f6a !important; }
+
+  /* ── Category sidebar ────────────────────────────────────────────────────── */
+  .category-widget,
+  .category-widget .panel { border: none !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; }
+  /* Sidebar heading: override the form panel-heading rule above */
+  .category-widget .panel.panel-default > .panel-heading,
+  .category-widget .panel-heading { background: transparent !important; border: none !important; padding: 0 4px 12px !important; box-shadow: none !important; }
+  .category-widget .panel-heading .panel-title {
+    font-size: 10px !important; font-weight: 700 !important; text-transform: uppercase !important;
+    letter-spacing: 1.4px !important; color: #94a3b8 !important;
+  }
+  .category-widget .list-group { box-shadow: none !important; border-radius: 0 !important; margin-bottom: 0 !important; }
+  .category-widget .list-group-item,
+  .category-widget .group-item {
+    background: transparent !important; border: none !important; border-radius: 8px !important;
+    padding: 9px 14px !important; font-size: 13.5px !important; color: #475569 !important;
+    cursor: pointer; transition: background 0.12s, color 0.12s, padding-left 0.12s;
+    margin-bottom: 1px; border-left: 2px solid transparent !important;
+  }
+  .category-widget .list-group-item:hover,
+  .category-widget .group-item:hover {
+    background: #eef2ff !important; color: #1a2980 !important;
+    border-left-color: #a5b4fc !important; padding-left: 16px !important;
+  }
+  .category-widget [aria-current="true"],
+  .category-widget .text-active,
+  .category-widget [class*="sc_category_treeitem"][aria-current="true"] {
+    background: #e8edf8 !important; color: #1a2980 !important;
+    font-weight: 600 !important; border-left-color: #1a2980 !important;
+    padding-left: 16px !important;
+  }
+
+  /* ── Catalog category title + view toggle ────────────────────────────────── */
+  #sc_category_page > .row > .col-xs-9 > h2,
+  [id="sc_category_page"] h2 {
+    font-size: 20px !important; font-weight: 700 !important; color: #0f172a !important;
+    margin: 0 0 20px !important; letter-spacing: -0.3px;
+  }
+  .tab-card-padding { color: #94a3b8 !important; padding: 4px 6px !important; border-radius: 4px; transition: color 0.12s; }
+  .tab-card-padding.active, .tab-card-padding:hover { color: #1a2980 !important; }
+
+  /* ── Catalog item cards ──────────────────────────────────────────────────── */
+  .item-card-column { padding: 6px !important; }
+  .item-card-column .panel,
+  .item-card-column .sc-panel {
+    border: 1.5px solid #e8edf8 !important; border-radius: 12px !important;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.05) !important;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease !important;
+    overflow: hidden !important; background: #fff !important;
+    border-top: 3px solid #1a2980 !important;
+  }
+  .item-card-column .panel:hover,
+  .item-card-column .sc-panel:hover {
+    box-shadow: 0 8px 28px rgba(26,41,128,0.13) !important;
+    border-top-color: #4f6ef7 !important; border-color: #c7d2fe !important;
+    transform: translateY(-3px) !important;
+  }
+  .item-card-column .panel-body { padding: 20px 20px 14px !important; }
+  .item-card-column .catalog-item-name {
+    font-size: 14px !important; font-weight: 700 !important; color: #1a2980 !important;
+    margin-bottom: 8px !important; text-decoration: none !important; line-height: 1.35 !important;
+    display: block !important;
+  }
+  .item-card-column .catalog-item-name:hover { color: #141f6a !important; }
+  .item-card-column .item-short-desc {
+    font-size: 12.5px !important; color: #64748b !important;
+    line-height: 1.55 !important; margin: 0 !important;
+  }
+  .item-card-column .panel-footer {
+    background: #f8fafc !important; border-top: 1px solid #e8edf8 !important;
+    padding: 10px 20px !important;
+  }
+  .item-card-column .panel-footer a {
+    font-size: 12px !important; font-weight: 600 !important; color: #1a2980 !important;
+    text-decoration: none !important; text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+  .item-card-column .panel-footer a:hover { color: #4f6ef7 !important; }
 </style>
 
 <div class="ahc-nav-wrap"
@@ -363,6 +540,78 @@ body a:focus:not(.ahc-nav__brand):not(.ahc-nav__link):not(.ahc-footer__link) {
 // ── Footer ────────────────────────────────────────────────────────────────────
 
 const FOOTER_TEMPLATE = `
+<style>
+  /* ── Last-word overrides: render after all widget CSS ─────────────────────
+     The footer renders after every widget on the page, so same-specificity
+     !important rules here beat anything compiled into widget stylesheets.   */
+
+  /* Catalog item form: sticky item header (the gray title area) */
+  .sc-sticky-item-header {
+    background-color: #fff !important;
+    border-bottom: 1px solid #e8edf8 !important;
+    border-radius: 0 !important;
+  }
+  .sc-sticky-item-header h2 {
+    font-size: 22px !important; font-weight: 700 !important;
+    color: #0f172a !important; letter-spacing: -0.2px !important;
+  }
+  .sc-cat-item-short-description {
+    color: #64748b !important; font-size: 13px !important;
+  }
+
+  /* Required-info tags: actual widget class (NOT label-danger) */
+  .sc-field-error-label,
+  .sc-reqd-info-btn {
+    background-color: #1a2980 !important; color: #fff !important;
+    border-radius: 20px !important; border: none !important;
+    padding: 4px 11px !important; font-size: 11px !important;
+    font-weight: 500 !important; cursor: pointer !important;
+    white-space: normal !important;
+  }
+  .sc-reqd-info-btn:hover { background-color: #141f6a !important; }
+
+  /* Form inputs */
+  .form-control {
+    border: 1.5px solid #e2e8f0 !important; border-radius: 7px !important;
+    background: #fff !important; color: #1e293b !important;
+    box-shadow: none !important;
+  }
+  .form-control:focus {
+    border-color: #1a2980 !important; box-shadow: 0 0 0 3px rgba(26,41,128,0.09) !important;
+  }
+  .form-group > label {
+    font-size: 11px !important; font-weight: 600 !important; color: #64748b !important;
+    text-transform: uppercase !important; letter-spacing: 0.5px !important;
+  }
+
+  /* Table in multi-row variable fields */
+  table thead th {
+    background: #f1f5f9 !important; color: #475569 !important;
+    font-size: 11px !important; font-weight: 700 !important;
+    text-transform: uppercase !important; letter-spacing: 0.5px !important;
+    padding: 9px 12px !important; border: none !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+  }
+  table tbody td {
+    padding: 8px 12px !important; border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important; font-size: 13px !important;
+  }
+
+  /* Submit + action buttons */
+  .btn-danger, .btn-danger:focus {
+    background-color: #1a2980 !important; border-color: #141f6a !important; color: #fff !important;
+    border-radius: 8px !important; font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(26,41,128,0.22) !important;
+  }
+  .btn-danger:hover, .btn-danger:active {
+    background-color: #141f6a !important; box-shadow: 0 4px 14px rgba(26,41,128,0.32) !important;
+  }
+  .btn-primary { background: #1a2980 !important; border-color: #141f6a !important; border-radius: 6px !important; }
+  .btn-primary:hover { background: #141f6a !important; }
+  .btn-default { border: 1.5px solid #e2e8f0 !important; background: #fff !important; color: #475569 !important; border-radius: 6px !important; }
+  .btn-default:hover { background: #f1f5f9 !important; }
+</style>
+
 <footer class="ahc-footer">
   <div class="container">
     <div class="ahc-footer__inner">
