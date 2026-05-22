@@ -234,9 +234,10 @@ const HEADER_TEMPLATE = `
       <!-- Right side: notifications + user -->
       <div class="ahc-nav__right">
         <!-- Notification bell -->
-        <button class="ahc-nav__notif-btn" type="button" aria-label="Notifications">
+        <button class="ahc-nav__notif-btn" type="button" aria-label="Notifications"
+                ng-click="$root.ahcNotifOpen = !$root.ahcNotifOpen">
           <i class="fa fa-bell"></i>
-          <span class="ahc-nav__notif-badge" ng-if="data.notifCount">{{data.notifCount}}</span>
+          <span class="ahc-nav__notif-badge" ng-if="data.notifCount && !$root.ahcNotifOpen">{{data.notifCount}}</span>
         </button>
 
         <!-- Divider -->
@@ -256,6 +257,50 @@ const HEADER_TEMPLATE = `
 
     </div>
   </nav>
+</div>
+
+<!-- Notification backdrop — click outside to close -->
+<div class="ahc-notif-backdrop" ng-if="$root.ahcNotifOpen" ng-click="$root.ahcNotifOpen = false"></div>
+
+<!-- Notification panel -->
+<div class="ahc-notif-panel" ng-if="$root.ahcNotifOpen">
+  <div class="ahc-notif-panel__header">
+    <span class="ahc-notif-panel__title">Notifications</span>
+    <button class="ahc-notif-panel__close" ng-click="$root.ahcNotifOpen = false" type="button">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div class="ahc-notif-panel__list">
+    <!-- Empty state -->
+    <div class="ahc-notif-panel__empty" ng-if="!data.notifications || !data.notifications.length">
+      <i class="fa fa-bell-o ahc-notif-panel__empty-icon"></i>
+      <p>You're all caught up</p>
+    </div>
+
+    <!-- Notification items -->
+    <a ng-repeat="n in data.notifications track by n.sys_id"
+       href="?id=ticket_detail&sys_id={{n.docSysId}}"
+       class="ahc-notif-item"
+       ng-click="$root.ahcNotifOpen = false; $root.ahcOverlay = true; $root.currentPageId = ''">
+      <div class="ahc-notif-item__icon"><i class="fa fa-comment-o"></i></div>
+      <div class="ahc-notif-item__body">
+        <div class="ahc-notif-item__case" ng-if="n.caseNum">{{n.caseNum}}</div>
+        <div class="ahc-notif-item__msg">{{n.message}}</div>
+        <div class="ahc-notif-item__meta">
+          <span ng-if="n.fromName">{{n.fromName}} · </span>{{n.createdOn}}
+        </div>
+      </div>
+      <i class="fa fa-chevron-right ahc-notif-item__arrow"></i>
+    </a>
+  </div>
+
+  <div class="ahc-notif-panel__footer">
+    <a href="?id=ticket_list" class="ahc-notif-panel__footer-link"
+       ng-click="$root.ahcNotifOpen = false; $root.currentPageId !== 'ticket_list' && ($root.ahcOverlay = true)">
+      View all my cases <i class="fa fa-arrow-right"></i>
+    </a>
+  </div>
 </div>
 
 <!-- Page transition overlay — visible during SPA navigation -->
@@ -544,6 +589,154 @@ const HEADER_CSS = `
   text-overflow: ellipsis;
 }
 
+/* ── Notification panel ──────────────────────────────────────────────── */
+.ahc-notif-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 6999;
+}
+.ahc-notif-panel {
+  position: fixed;
+  top: 62px;
+  right: 16px;
+  width: 360px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(15,23,42,0.18), 0 2px 8px rgba(15,23,42,0.08);
+  z-index: 7000;
+  overflow: hidden;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  border: 1px solid #e8edf8;
+}
+.ahc-notif-panel__header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.ahc-notif-panel__title {
+  font-size: 0.9em;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 0.1px;
+}
+.ahc-notif-panel__close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.9em;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  -webkit-transition: color 0.15s;
+  transition: color 0.15s;
+}
+.ahc-notif-panel__close:hover { color: #475569; }
+.ahc-notif-panel__list {
+  overflow-y: auto;
+  max-height: 400px;
+}
+.ahc-notif-panel__empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #94a3b8;
+}
+.ahc-notif-panel__empty p { margin: 8px 0 0; font-size: 0.875em; }
+.ahc-notif-panel__empty-icon { font-size: 2em; display: block; }
+.ahc-notif-item {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: flex-start;
+  -ms-flex-align: flex-start;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f8f9fc;
+  text-decoration: none;
+  -webkit-transition: background 0.12s;
+  transition: background 0.12s;
+  cursor: pointer;
+}
+.ahc-notif-item:hover { background: #f8faff; text-decoration: none; }
+.ahc-notif-item__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #e8edf8;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  color: #1a2980;
+  font-size: 0.85em;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+.ahc-notif-item__body {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  min-width: 0;
+}
+.ahc-notif-item__case {
+  font-size: 0.75em;
+  font-weight: 700;
+  color: #1a2980;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+.ahc-notif-item__msg {
+  font-size: 0.875em;
+  color: #1e293b;
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+.ahc-notif-item__meta {
+  font-size: 0.75em;
+  color: #94a3b8;
+}
+.ahc-notif-item__arrow {
+  color: #cbd5e1;
+  font-size: 0.75em;
+  margin-top: 4px;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+.ahc-notif-panel__footer {
+  padding: 12px 20px;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+}
+.ahc-notif-panel__footer-link {
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #1a2980;
+  text-decoration: none;
+  letter-spacing: 0.2px;
+}
+.ahc-notif-panel__footer-link:hover { color: #141f6a; text-decoration: none; }
+.ahc-notif-panel__footer-link i { margin-left: 5px; font-size: 0.85em; }
+
 /* ── Portal-wide link + catalog color overrides (highest priority) ─────── */
 /* Exclude navbar and footer links — :not() only accepts simple selectors */
 body a:not(.ahc-nav__brand):not(.ahc-nav__link):not(.ahc-footer__link),
@@ -657,6 +850,16 @@ const FOOTER_TEMPLATE = `
   .btn-primary:hover { background: #141f6a !important; }
   .btn-default { border: 1.5px solid #e2e8f0 !important; background: #fff !important; color: #475569 !important; border-radius: 6px !important; }
   .btn-default:hover { background: #f1f5f9 !important; }
+
+  /* Notification panel link items — keep explicit text colors intact */
+  .ahc-notif-item,
+  .ahc-notif-item:visited { color: #1e293b !important; }
+  .ahc-notif-item:hover   { color: #1e293b !important; }
+  .ahc-notif-item__case   { color: #1a2980 !important; }
+  .ahc-notif-item__msg    { color: #1e293b !important; }
+  .ahc-notif-item__meta   { color: #94a3b8 !important; }
+  .ahc-notif-panel__footer-link,
+  .ahc-notif-panel__footer-link:visited { color: #1a2980 !important; }
 
   /* Navy pill/button links — restore white text beaten by global a { color: navy } */
   .ahc-cl__new-btn,

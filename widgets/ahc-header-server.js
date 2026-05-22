@@ -21,18 +21,39 @@
   data.isLoggedIn   = gs.isLoggedIn();
   data.userId       = gs.getUser().getID();
 
-  // Notification count — count active announcements as a proxy
+  // Notifications from live_notification (case mentions, updates)
+  var notifList  = [];
   var notifCount = 0;
+
   try {
-    var annGr = new GlideAggregate('sys_ux_announcement');
-    annGr.addQuery('active', 'true');
-    annGr.addAggregate('COUNT');
-    annGr.query();
-    if (annGr.next()) {
-      notifCount = parseInt(annGr.getAggregate('COUNT'), 10) || 0;
+    var profileGr = new GlideRecord('live_profile');
+    profileGr.addQuery('document', data.userId);
+    profileGr.setLimit(1);
+    profileGr.query();
+
+    if (profileGr.next()) {
+      var notifGr = new GlideRecord('live_notification');
+      notifGr.addQuery('profile', profileGr.getUniqueValue());
+      notifGr.orderByDesc('sys_created_on');
+      notifGr.setLimit(10);
+      notifGr.query();
+
+      while (notifGr.next()) {
+        notifList.push({
+          sys_id:     notifGr.getUniqueValue(),
+          message:    notifGr.getValue('message')    || '',
+          caseNum:    notifGr.getValue('title')       || '',
+          docSysId:   notifGr.getValue('document')    || '',
+          fromName:   notifGr.getDisplayValue('user_from') || '',
+          createdOn:  notifGr.getDisplayValue('sys_created_on') || ''
+        });
+      }
+      notifCount = notifList.length;
     }
-  } catch(e) { /* table may not exist in all instances */ }
-  data.notifCount = notifCount > 9 ? '9+' : (notifCount > 0 ? String(notifCount) : '');
+  } catch(e) { /* live_notification may not be accessible */ }
+
+  data.notifications = notifList;
+  data.notifCount    = notifCount > 9 ? '9+' : (notifCount > 0 ? String(notifCount) : '');
 
   // Avatar background color derived from initials
   var colors = ['#1a2980', '#7c3aed', '#0d9488', '#b45309', '#dc2626', '#0369a1'];
