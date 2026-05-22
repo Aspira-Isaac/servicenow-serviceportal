@@ -148,7 +148,7 @@ const CUSTOMER_ARTICLES = [
   <li>Use a different card or payment method</li>
   <li>If nothing works, call <strong>1-888-432-2267</strong> to complete the transaction by phone</li>
 </ol>
-<p><strong>Important:</strong> If your card shows a charge but you didn't receive a confirmation number, <a href="?id=ahc_submit_ticket">submit a support ticket</a> and we'll investigate within 1 business day.</p>`
+<p><strong>Important:</strong> If your card shows a charge but you didn't receive a confirmation number, <a href="?id=sc_category&catalog_id=-1">submit a support ticket</a> and we'll investigate within 1 business day.</p>`
   },
   {
     short_description: 'How to Request a Refund',
@@ -172,7 +172,7 @@ const CUSTOMER_ARTICLES = [
 <h3>How to Request</h3>
 <ol>
   <li>Gather your confirmation number, transaction date, and the amount charged</li>
-  <li><a href="?id=ahc_submit_ticket">Submit a support ticket</a> with the details</li>
+  <li><a href="?id=sc_category&catalog_id=-1">Submit a support ticket</a> with the details</li>
   <li>Attach any confirmation emails or receipts</li>
 </ol>
 <p>Approved refunds process within 5–10 business days to your original payment method. We cannot redirect refunds to a different card or account.</p>`

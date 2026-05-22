@@ -49,7 +49,7 @@
         <h1 class="ahc-cl__title">{{data.scopeLabel === 'account' ? 'Account Cases' : 'My Cases'}}</h1>
         <p class="ahc-cl__subtitle">{{c.filtered().length}} of {{data.cases.length}} case{{data.cases.length !== 1 ? 's' : ''}}</p>
       </div>
-      <a href="?id=ahc_submit_ticket" class="ahc-cl__new-btn">
+      <a href="?id=sc_category&catalog_id=-1" class="ahc-cl__new-btn">
         <i class="fa fa-plus"></i> New Case
       </a>
     </div>
@@ -104,7 +104,7 @@
       <p class="ahc-cl__empty-sub" ng-if="c.hasFilters()">Try different filters or clear them to see all cases.</p>
       <p class="ahc-cl__empty-sub" ng-if="!c.hasFilters()">Submit a new case and it will appear here.</p>
       <button class="ahc-cl__filter-btn active" ng-if="c.hasFilters()" ng-click="c.clearAll()">Clear filters</button>
-      <a href="?id=ahc_submit_ticket" class="ahc-cl__new-btn" ng-if="!c.hasFilters()">Submit a Case</a>
+      <a href="?id=sc_category&catalog_id=-1" class="ahc-cl__new-btn" ng-if="!c.hasFilters()">Submit a Case</a>
     </div>
 
     <!-- Case list -->
