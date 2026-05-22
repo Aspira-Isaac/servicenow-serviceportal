@@ -22,12 +22,26 @@ function($scope, $location, $rootScope) {
     return c.filter !== 'all' || c.opener !== 'everyone' || !!c.search;
   };
 
+  // Named group filters from stats cards → stateVal arrays (must mirror server.js groupings)
+  var FILTER_GROUPS = {
+    'open':     ['1', '2', '10'],
+    'pending':  ['18', '8', '1000', '1010', '1020', '1030'],
+    'resolved': ['3', '6', '7']
+  };
+
   c.filtered = function() {
     var q  = (c.search || '').toLowerCase().trim();
     var me = c.data.currentUserId;
 
     return (c.data.cases || []).filter(function(cs) {
-      if (c.filter !== 'all' && cs.stateVal !== c.filter) return false;
+      if (c.filter !== 'all') {
+        var group = FILTER_GROUPS[c.filter];
+        if (group) {
+          if (group.indexOf(cs.stateVal) === -1) return false;
+        } else {
+          if (cs.stateVal !== c.filter) return false;
+        }
+      }
 
       if (c.opener === 'me'   && cs.openedById !== me) return false;
       if (c.opener === 'team' && cs.openedById === me) return false;
