@@ -651,6 +651,15 @@ const FOOTER_TEMPLATE = `
   .btn-primary:hover { background: #141f6a !important; }
   .btn-default { border: 1.5px solid #e2e8f0 !important; background: #fff !important; color: #475569 !important; border-radius: 6px !important; }
   .btn-default:hover { background: #f1f5f9 !important; }
+
+  /* Navy pill/button links — restore white text beaten by global a { color: navy } */
+  .ahc-cl__new-btn,
+  .ahc-cl__new-btn:visited { color: #fff !important; }
+  .ahc-cl__new-btn:hover   { color: #fff !important; }
+  .ahc-hero__cta-pill,
+  .ahc-hero__cta-pill:visited { color: #1a2980 !important; }
+  .ahc-hero__cta-pill:last-child,
+  .ahc-hero__cta-pill:last-child:visited { color: #fff !important; }
 </style>
 
 <footer class="ahc-footer">
