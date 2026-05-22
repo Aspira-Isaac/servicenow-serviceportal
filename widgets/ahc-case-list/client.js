@@ -52,11 +52,13 @@ function($scope, $location, $rootScope) {
   c.prevPage   = function() { if (c.page > 0) c.page--; };
   c.nextPage   = function() { if (c.page < c.totalPages() - 1) c.page++; };
 
+  function fmt(n) { return n.toLocaleString('en-US'); }
+
   c.pageLabel = function() {
     var total = c.filtered().length;
     var start = c.page * PAGE_SIZE + 1;
     var end   = Math.min((c.page + 1) * PAGE_SIZE, total);
-    return start + '–' + end + ' of ' + total;
+    return fmt(start) + '–' + fmt(end) + ' of ' + fmt(total);
   };
 
   c.goToCase = function(sysId) {

@@ -47,7 +47,7 @@
     <div class="ahc-cl__header">
       <div>
         <h1 class="ahc-cl__title">{{data.scopeLabel === 'account' ? 'Account Cases' : 'My Cases'}}</h1>
-        <p class="ahc-cl__subtitle">{{c.filtered().length}} of {{data.cases.length}} case{{data.cases.length !== 1 ? 's' : ''}}</p>
+        <p class="ahc-cl__subtitle">{{c.filtered().length | number}} of {{data.cases.length | number}} case{{data.cases.length !== 1 ? 's' : ''}}</p>
       </div>
       <a href="?id=sc_category&catalog_id=-1" class="ahc-cl__new-btn">
         <i class="fa fa-plus"></i> New Case

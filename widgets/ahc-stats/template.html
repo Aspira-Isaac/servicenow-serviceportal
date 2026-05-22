@@ -13,7 +13,7 @@
       <div class="ahc-st__card ahc-st__card--total" ng-click="c.goToList('all')">
         <div class="ahc-st__icon"><i class="fa fa-folder-open-o"></i></div>
         <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.total}}</div>
+          <div class="ahc-st__num">{{data.stats.total | number}}</div>
           <div class="ahc-st__label">Total Cases</div>
         </div>
         <i class="fa fa-chevron-right ahc-st__arrow"></i>
@@ -22,7 +22,7 @@
       <div class="ahc-st__card ahc-st__card--open" ng-click="c.goToList('all')">
         <div class="ahc-st__icon"><i class="fa fa-circle-o-notch"></i></div>
         <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.open}}</div>
+          <div class="ahc-st__num">{{data.stats.open | number}}</div>
           <div class="ahc-st__label">Open</div>
         </div>
         <i class="fa fa-chevron-right ahc-st__arrow"></i>
@@ -31,7 +31,7 @@
       <div class="ahc-st__card ahc-st__card--awaiting" ng-click="c.goToList('pending')">
         <div class="ahc-st__icon"><i class="fa fa-clock-o"></i></div>
         <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.pending}}</div>
+          <div class="ahc-st__num">{{data.stats.pending | number}}</div>
           <div class="ahc-st__label">Pending</div>
         </div>
         <i class="fa fa-chevron-right ahc-st__arrow"></i>
@@ -40,7 +40,7 @@
       <div class="ahc-st__card ahc-st__card--resolved" ng-click="c.goToList('all')">
         <div class="ahc-st__icon"><i class="fa fa-check-circle-o"></i></div>
         <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.resolved}}</div>
+          <div class="ahc-st__num">{{data.stats.resolved | number}}</div>
           <div class="ahc-st__label">Resolved</div>
         </div>
         <i class="fa fa-chevron-right ahc-st__arrow"></i>
