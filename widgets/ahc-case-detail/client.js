@@ -40,6 +40,56 @@ function($scope, $rootScope) {
     });
   };
 
+  // Close Case confirmation — mirrors OOTB CSM: closing is final, so confirm first
+  c.showCloseConfirm = false;
+
+  c.startClose = function() {
+    c.showActions      = false;
+    c.actionError      = false;
+    c.showCloseConfirm = true;
+  };
+
+  c.cancelClose = function() {
+    c.showCloseConfirm = false;
+  };
+
+  c.confirmClose = function() {
+    c.showCloseConfirm = false;
+    c.performAction('close_case');
+  };
+
+  // Reject Solution — mirrors OOTB CSM: a reason is required and is posted
+  // as a comment along with the state change
+  c.showReject   = false;
+  c.rejectReason = '';
+  c.rejecting    = false;
+
+  c.startReject = function() {
+    c.showActions  = false;
+    c.actionError  = false;
+    c.rejectReason = '';
+    c.showReject   = true;
+  };
+
+  c.cancelReject = function() {
+    c.showReject = false;
+  };
+
+  c.confirmReject = function() {
+    var reason = (c.rejectReason || '').trim();
+    if (!reason || c.rejecting) return;
+    c.rejecting = true;
+    c.server.update({ action: 'reject_solution', comment: reason }).then(function() {
+      c.rejecting  = false;
+      c.showReject = false;
+      if (c.data.actionDone) {
+        c.server.refresh();
+      } else {
+        c.actionError = true;
+      }
+    });
+  };
+
   c.format = function(cmd, val) {
     document.execCommand(cmd, false, val || null);
     var ed = document.querySelector('.ahc-cd__reply-editor');

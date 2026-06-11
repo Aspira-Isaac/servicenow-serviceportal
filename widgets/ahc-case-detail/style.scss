@@ -719,3 +719,83 @@
   }
   .ahc-cd__sidebar { -webkit-box-ordinal-group: 0; -ms-flex-order: -1; order: -1; }
 }
+
+/* ── Reject Solution modal ───────────────────────────────────── */
+.ahc-cd__modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.45);
+  z-index: 8400;
+}
+.ahc-cd__modal {
+  position: fixed;
+  top: 16%;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px 26px;
+  z-index: 8500;
+  box-shadow: 0 18px 60px rgba(15,23,42,0.30), 0 4px 12px rgba(15,23,42,0.12);
+}
+.ahc-cd__modal-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+.ahc-cd__modal-text {
+  font-size: 0.875em;
+  color: #64748b;
+  margin: 0 0 14px;
+}
+.ahc-cd__modal-input {
+  width: 100%;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.875em;
+  color: #1e293b;
+  resize: vertical;
+  outline: none;
+  -webkit-transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ahc-cd__modal-input:focus {
+  border-color: #1a2980;
+  box-shadow: 0 0 0 3px rgba(26,41,128,0.09);
+}
+.ahc-cd__modal-actions {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+.ahc-cd__modal-btn {
+  background: #1a2980;
+  color: #fff;
+  border: 1.5px solid #1a2980;
+  border-radius: 8px;
+  font-size: 0.85em;
+  font-weight: 600;
+  padding: 8px 18px;
+  cursor: pointer;
+  -webkit-transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ahc-cd__modal-btn:hover:not(:disabled) { background: #141f6a; border-color: #141f6a; }
+.ahc-cd__modal-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.ahc-cd__modal-btn--ghost {
+  background: #fff;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+.ahc-cd__modal-btn--ghost:hover { background: #f1f5f9; color: #334155; }

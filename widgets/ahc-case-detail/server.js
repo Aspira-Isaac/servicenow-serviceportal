@@ -6,20 +6,48 @@
     return;
   }
 
-  // Handle actions
+  // Mirrors hasAccessToCaseActions() in the OOTB case-ticket-action widget:
+  // record write + field-level write on state + CSM query rules check
+  // (excluding the read-only case_viewer role). Commenting only needs canWrite.
+  function hasCaseActionAccess(rec) {
+    if (!rec.canWrite()) return false;
+    if (!GlideSecurityManager.get().hasRightsTo('record/' + rec.sys_class_name + '.state/write', rec)) return false;
+    try {
+      if (!gs.hasRole('admin') && new global.CSMQueryRulesUtil().useQueryRules()) {
+        var roles = String(gs.getUser().getRoles()).split(',').filter(function(r) {
+          return r && r !== 'sn_customerservice.case_viewer';
+        });
+        var filter = new sn_queryrules.QueryRuleGenerator().getEncodedQueryForRoles('sn_customerservice_case', roles.join(','));
+        return GlideFilter.checkRecord(rec, filter);
+      }
+    } catch (e) { /* query rules framework not available — fall through */ }
+    return true;
+  }
+
+  // Handle actions. State changes mirror OOTB CSM: close from active states,
+  // accept/reopen (= reject solution) from Resolved only — Closed is final.
   if (input && input.action) {
     var actGr = new GlideRecord('sn_customerservice_case');
     if (actGr.get(sysId) && actGr.canWrite()) {
+      var actState  = actGr.getValue('state');
+      var actAccess = hasCaseActionAccess(actGr);
+      var actActive = (actState !== '3' && actState !== '6' && actState !== '7');
       if (input.action === 'add_comment' && input.comment) {
         actGr.comments = '[code]' + input.comment + '[/code]';
         actGr.update();
         data.commentSaved = true;
-      } else if (input.action === 'close_case' || input.action === 'accept_solution') {
+      } else if (input.action === 'close_case' && actAccess && actActive) {
         actGr.state = '3';
         actGr.update();
         data.actionDone = true;
-      } else if (input.action === 'reopen_case') {
-        actGr.state = '2';
+      } else if (input.action === 'accept_solution' && actAccess && actState === '6') {
+        actGr.state = '3';
+        actGr.update();
+        data.actionDone = true;
+      } else if (input.action === 'reject_solution' && actAccess && actState === '6' && input.comment) {
+        // Mirror OOTB Reject Solution: reason is required and posted as a comment
+        actGr.comments = input.comment;
+        actGr.state = '2'; // back to Assigned so the agent picks it up again
         actGr.update();
         data.actionDone = true;
       }
@@ -54,10 +82,16 @@
   data.updated     = gr.getDisplayValue('sys_updated_on');
   data.createdRaw  = gr.getValue('sys_created_on');
   data.updatedRaw  = gr.getValue('sys_updated_on');
-  data.canClose      = (stateVal !== '3' && stateVal !== '7' && stateVal !== '6') && gr.canWrite();
-  data.canCloseCase  = data.canClose;
-  data.isResolved    = (stateVal === '6');
-  data.canReopen     = (stateVal === '3' || stateVal === '7' || stateVal === '6') && gr.canWrite();
+  var isActiveState = (stateVal !== '3' && stateVal !== '7' && stateVal !== '6');
+  var actionAccess  = hasCaseActionAccess(gr);
+
+  data.isResolved   = (stateVal === '6');
+  // Commenting only needs record write; state actions need the full CSM gate.
+  // Accept/Reject Solution on Resolved only — Closed is final, like OOTB CSM.
+  data.canComment   = isActiveState && gr.canWrite();
+  data.canCloseCase = isActiveState && actionAccess;
+  data.canAccept    = data.isResolved && actionAccess;
+  data.canReject    = data.isResolved && actionAccess;
 
   // Who and where
   data.openedBy       = gr.getDisplayValue('opened_by');

@@ -43,7 +43,7 @@
             </div>
             <!-- Actions dropdown -->
             <div class="ahc-cd__actions-wrap"
-                 ng-if="data.canCloseCase || data.isResolved || data.canReopen">
+                 ng-if="data.canCloseCase || data.canAccept || data.canReject">
               <button class="ahc-cd__actions-btn"
                       ng-click="c.toggleActions($event)"
                       ng-class="{'ahc-cd__actions-btn--open': c.showActions}">
@@ -51,16 +51,16 @@
               </button>
               <div class="ahc-cd__actions-menu" ng-show="c.showActions">
                 <button class="ahc-cd__actions-item" ng-if="data.canCloseCase"
-                        ng-click="c.performAction('close_case')">
+                        ng-click="c.startClose()">
                   <i class="fa fa-times-circle-o"></i> Close Case
                 </button>
-                <button class="ahc-cd__actions-item ahc-cd__actions-item--success" ng-if="data.isResolved"
+                <button class="ahc-cd__actions-item ahc-cd__actions-item--success" ng-if="data.canAccept"
                         ng-click="c.performAction('accept_solution')">
                   <i class="fa fa-thumbs-o-up"></i> Accept Solution
                 </button>
-                <button class="ahc-cd__actions-item" ng-if="data.canReopen"
-                        ng-click="c.performAction('reopen_case')">
-                  <i class="fa fa-refresh"></i> Reopen Case
+                <button class="ahc-cd__actions-item" ng-if="data.canReject"
+                        ng-click="c.startReject()">
+                  <i class="fa fa-thumbs-o-down"></i> Reject Solution
                 </button>
               </div>
               <span class="ahc-cd__action-err" ng-if="c.actionError">
@@ -69,6 +69,40 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Close Case confirmation modal (mirrors OOTB CSM — closed is final) -->
+    <div class="ahc-cd__modal-backdrop" ng-if="c.showCloseConfirm" ng-click="c.cancelClose()"></div>
+    <div class="ahc-cd__modal" ng-if="c.showCloseConfirm" role="dialog" aria-label="Close Case">
+      <div class="ahc-cd__modal-title">Close Case</div>
+      <p class="ahc-cd__modal-text">
+        Are you sure that you want to close this case?<br />
+        Once closed, this case cannot be reopened.
+      </p>
+      <div class="ahc-cd__modal-actions">
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--ghost" type="button"
+                ng-click="c.cancelClose()">Cancel</button>
+        <button class="ahc-cd__modal-btn" type="button"
+                ng-click="c.confirmClose()">Close Case</button>
+      </div>
+    </div>
+
+    <!-- Reject Solution modal — reason is required (mirrors OOTB CSM) -->
+    <div class="ahc-cd__modal-backdrop" ng-if="c.showReject" ng-click="c.cancelReject()"></div>
+    <div class="ahc-cd__modal" ng-if="c.showReject" role="dialog" aria-label="Reject Solution">
+      <div class="ahc-cd__modal-title">Reject Solution</div>
+      <p class="ahc-cd__modal-text">What is the reason for rejecting this solution?</p>
+      <textarea class="ahc-cd__modal-input" rows="4" ng-model="c.rejectReason"
+                placeholder="Tell us why the solution didn't resolve your issue..."></textarea>
+      <div class="ahc-cd__modal-actions">
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--ghost" type="button"
+                ng-click="c.cancelReject()">Cancel</button>
+        <button class="ahc-cd__modal-btn" type="button"
+                ng-click="c.confirmReject()"
+                ng-disabled="!c.rejectReason.trim() || c.rejecting">
+          {{c.rejecting ? 'Submitting…' : 'Reject Solution'}}
+        </button>
       </div>
     </div>
 
@@ -101,7 +135,7 @@
             </div>
 
             <!-- Reply editor -->
-            <div class="ahc-cd__reply" ng-if="data.canClose">
+            <div class="ahc-cd__reply" ng-if="data.canComment">
               <div class="ahc-cd__reply-hdr">
                 <i class="fa fa-comment-o"></i> Add a Reply
               </div>
@@ -235,11 +269,11 @@
               </div>
             </div>
 
-            <div class="ahc-cd__thread-empty" ng-if="data.activity.length === 0 && !data.canClose">
+            <div class="ahc-cd__thread-empty" ng-if="data.activity.length === 0 && !data.canComment">
               <i class="fa fa-comments-o"></i>
               <p>No messages on this case.</p>
             </div>
-            <div class="ahc-cd__thread-empty" ng-if="data.activity.length === 0 && data.canClose">
+            <div class="ahc-cd__thread-empty" ng-if="data.activity.length === 0 && data.canComment">
               <i class="fa fa-comments-o"></i>
               <p>No messages yet. Use the editor above to send a reply.</p>
             </div>
