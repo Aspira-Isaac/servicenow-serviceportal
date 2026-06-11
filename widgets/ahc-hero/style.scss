@@ -69,13 +69,18 @@
     linear-gradient(140deg, var(--ahc-primary) 0%, #1d4ed8 55%, var(--ahc-primary-light) 100%);
 }
 
-/* ── Account watermark ───────────────────────────────────────── */
+/* ── Account watermark — outlined monogram on the right edge ──── */
 .ahc-hero__watermark {
   position: absolute;
-  bottom: -16px;
-  right: -20px;
-  font-size: 9em;
+  top: 50%;
+  right: 24px;
+  -webkit-transform: translateY(-52%);
+  -ms-transform: translateY(-52%);
+  transform: translateY(-52%);
+  font-size: 16em;
   font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.045em;
   color: rgba(255,255,255,0.05);
   white-space: nowrap;
   pointer-events: none;
@@ -83,11 +88,19 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  letter-spacing: -4px;
-  line-height: 1;
-  overflow: hidden;
-  max-width: 100%;
-  text-transform: uppercase;
+  /* fade out toward the bottom, where the stat cards overlap the band */
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, rgba(0,0,0,0.35) 70%, transparent 98%);
+  mask-image: linear-gradient(to bottom, #000 30%, rgba(0,0,0,0.35) 70%, transparent 98%);
+}
+/* outline letterforms where text-stroke is supported (all modern browsers) */
+@supports (-webkit-text-stroke: 1px #fff) {
+  .ahc-hero__watermark {
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(255,255,255,0.13);
+  }
+}
+@media (max-width: 991px) {
+  .ahc-hero__watermark { display: none; }
 }
 
 /* ── Account badge ───────────────────────────────────────────── */

@@ -10,8 +10,8 @@
   <div class="ahc-hero"
        ng-class="['ahc-hero--p' + data.branding.patternIndex, {'ahc-hero--overlap': data.isLoggedIn}]">
 
-    <!-- Account watermark -->
-    <div class="ahc-hero__watermark" aria-hidden="true">{{data.accountName}}</div>
+    <!-- Account watermark — outlined monogram, right edge -->
+    <div class="ahc-hero__watermark" aria-hidden="true" ng-if="data.accountMonogram">{{data.accountMonogram}}</div>
 
     <div class="ahc-hero__inner">
 

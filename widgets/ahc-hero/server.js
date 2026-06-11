@@ -31,6 +31,18 @@
   }
   data.accountName = accountName;
 
+  // Watermark monogram — initials of up to 3 significant words
+  // ("Pennsylvania State Parks" → "PSP"); full names clip badly at hero edges
+  var stopWords = { 'of': 1, 'the': 1, 'and': 1, '&': 1, 'for': 1 };
+  var monoWords = String(accountName || '').trim().split(/\s+/).filter(function(w) {
+    return w && !stopWords[w.toLowerCase()];
+  });
+  var mono = '';
+  for (var mi = 0; mi < monoWords.length && mono.length < 3; mi++) {
+    mono += monoWords[mi].charAt(0);
+  }
+  data.accountMonogram = mono.toUpperCase();
+
   // Current user
   var userName = gs.getUserDisplayName() || '';
   var nameParts = userName.trim().split(' ');
