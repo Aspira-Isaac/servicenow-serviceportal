@@ -10,7 +10,7 @@
     primaryLight:    '#243499',
     companyName:     'Aspira',
     welcomeTitle:    'How can we help you today?',
-    welcomeSubtitle: 'Search our knowledge base or submit a support ticket.',
+    welcomeSubtitle: 'Submit a support ticket or track your cases — all in one place.',
     logoText:        'ASPIRA'
   };
   data.branding = configs[companyId] || defaultBranding;

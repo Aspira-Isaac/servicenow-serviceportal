@@ -7,7 +7,8 @@
 </style>
 
 <div class="ahc-hero-wrap">
-  <div class="ahc-hero" ng-class="'ahc-hero--p' + data.branding.patternIndex">
+  <div class="ahc-hero"
+       ng-class="['ahc-hero--p' + data.branding.patternIndex, {'ahc-hero--overlap': data.isLoggedIn}]">
 
     <!-- Account watermark -->
     <div class="ahc-hero__watermark" aria-hidden="true">{{data.accountName}}</div>
@@ -25,6 +26,7 @@
       <h1 class="ahc-hero__title">{{data.branding.welcomeTitle}}</h1>
       <p class="ahc-hero__subtitle">{{data.branding.welcomeSubtitle}}</p>
 
+      <!-- KB hidden until ready:
       <div class="ahc-hero__search-wrap">
         <div class="input-group ahc-hero__search">
           <span class="ahc-hero__search-icon"><i class="fa fa-search"></i></span>
@@ -41,10 +43,15 @@
           </span>
         </div>
       </div>
+      -->
 
       <div class="ahc-hero__ctas">
         <a href="?id=sc_category&catalog_id=-1" class="ahc-hero__cta-pill">
           <i class="fa fa-ticket"></i> Submit a Ticket
+        </a>
+        <a href="?id=ticket_list" class="ahc-hero__cta-pill"
+           ng-click="$root.currentPageId !== 'ticket_list' && ($root.ahcOverlay = true)">
+          <i class="fa fa-list-alt"></i> My Tickets
         </a>
         <!-- KB hidden until ready:
         <a href="?id=ahc_kb_search" class="ahc-hero__cta-pill">
@@ -55,7 +62,7 @@
     </div>
   </div>
 
-  <!-- Quick Access Cards -->
+  <!-- Quick-access cards hidden for the stats-first iteration (redundant with hero CTAs):
   <div class="ahc-cards-section">
     <div class="container">
       <div class="row">
@@ -74,4 +81,5 @@
       </div>
     </div>
   </div>
+  -->
 </div>

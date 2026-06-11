@@ -16,7 +16,25 @@ Search for `KB hidden until ready` across the repo to find all commented-out blo
 | `deploy/02-header-footer.js` | Uncomment the nav "Knowledge" `<li>` |
 | `deploy/02-header-footer.js` | Uncomment the footer "Knowledge Base" `<a>` |
 | `widgets/ahc-hero/template.html` | Uncomment the "Browse Knowledge Base" `<a>` pill |
+| `widgets/ahc-hero/template.html` | Uncomment the KB search bar (`ahc-hero__search-wrap` block) |
 | `widgets/ahc-hero/server.js` | Uncomment the KB entry in `quickCards` |
+| `widgets/ahc-hero/server.js` | Restore the KB mention in the default `welcomeSubtitle` if desired |
+
+### Hero quick-access cards (hidden for stats-first iteration)
+
+The gray quick-access card strip under the hero (`ahc-cards-section` in
+`widgets/ahc-hero/template.html`) is commented out — it duplicated the hero CTA
+pills once the home page switched to leading with ticket stats. Uncomment the
+block to bring it back.
+
+### Loading overlay contract
+
+Any `ng-click` that sets `$root.ahcOverlay = true` must navigate to a page whose
+widget clears it on init (`ahc-case-list` and `ahc-case-detail` both do). It is
+intentionally NOT cleared on `$locationChangeSuccess` — that fires before the
+destination widgets load. Nav helpers (`navToTicketList`, `navToCase`) live in
+`widgets/ahc-header-client.js`; they must stay in the client script because
+Angular expressions (`ng-init`) cannot define functions.
 
 ### Quick Links widget
 

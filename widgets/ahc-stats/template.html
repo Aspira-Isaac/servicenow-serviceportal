@@ -1,56 +1,71 @@
 <div class="ahc-st" ng-if="data.isLoggedIn">
   <div class="container">
 
-    <div class="ahc-st__header">
-      <h2 class="ahc-st__title">
-        {{data.scopeLabel === 'account' ? 'Account Overview' : 'My Case Overview'}}
-      </h2>
-    </div>
-
-    <!-- Stat cards -->
+    <!-- Stat cards — pulled up over the hero's bottom edge -->
     <div class="ahc-st__cards">
 
-      <div class="ahc-st__card ahc-st__card--total" ng-click="c.goToList('all')">
-        <div class="ahc-st__icon"><i class="fa fa-folder-open-o"></i></div>
-        <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.total | number}}</div>
-          <div class="ahc-st__label">Total Cases</div>
+      <div class="ahc-st__card ahc-st__card--total" ng-click="c.goToList('all')"
+           role="button" tabindex="0" ng-keypress="$event.keyCode == 13 && c.goToList('all')">
+        <div class="ahc-st__card-head">
+          <span class="ahc-st__label">Total Cases</span>
+          <span class="ahc-st__icon"><i class="fa fa-folder-open-o"></i></span>
         </div>
-        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+        <div class="ahc-st__num">{{data.stats.total | number}}</div>
+        <div class="ahc-st__cta">View all <i class="fa fa-arrow-right"></i></div>
       </div>
 
-      <div class="ahc-st__card ahc-st__card--open" ng-click="c.goToList('all')">
-        <div class="ahc-st__icon"><i class="fa fa-circle-o-notch"></i></div>
-        <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.open | number}}</div>
-          <div class="ahc-st__label">Open</div>
+      <div class="ahc-st__card ahc-st__card--open" ng-click="c.goToList('open')"
+           role="button" tabindex="0" ng-keypress="$event.keyCode == 13 && c.goToList('open')">
+        <div class="ahc-st__card-head">
+          <span class="ahc-st__label">Open</span>
+          <span class="ahc-st__icon"><i class="fa fa-circle-o-notch"></i></span>
         </div>
-        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+        <div class="ahc-st__num">{{data.stats.open | number}}</div>
+        <div class="ahc-st__cta">View open <i class="fa fa-arrow-right"></i></div>
       </div>
 
-      <div class="ahc-st__card ahc-st__card--awaiting" ng-click="c.goToList('pending')">
-        <div class="ahc-st__icon"><i class="fa fa-clock-o"></i></div>
-        <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.pending | number}}</div>
-          <div class="ahc-st__label">Pending</div>
+      <div class="ahc-st__card ahc-st__card--awaiting" ng-click="c.goToList('pending')"
+           role="button" tabindex="0" ng-keypress="$event.keyCode == 13 && c.goToList('pending')">
+        <div class="ahc-st__card-head">
+          <span class="ahc-st__label">Pending</span>
+          <span class="ahc-st__icon"><i class="fa fa-clock-o"></i></span>
         </div>
-        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+        <div class="ahc-st__num">{{data.stats.pending | number}}</div>
+        <div class="ahc-st__cta">View pending <i class="fa fa-arrow-right"></i></div>
       </div>
 
-      <div class="ahc-st__card ahc-st__card--resolved" ng-click="c.goToList('all')">
-        <div class="ahc-st__icon"><i class="fa fa-check-circle-o"></i></div>
-        <div class="ahc-st__body">
-          <div class="ahc-st__num">{{data.stats.resolved | number}}</div>
-          <div class="ahc-st__label">Resolved</div>
+      <div class="ahc-st__card ahc-st__card--resolved" ng-click="c.goToList('resolved')"
+           role="button" tabindex="0" ng-keypress="$event.keyCode == 13 && c.goToList('resolved')">
+        <div class="ahc-st__card-head">
+          <span class="ahc-st__label">Resolved</span>
+          <span class="ahc-st__icon"><i class="fa fa-check-circle-o"></i></span>
         </div>
-        <i class="fa fa-chevron-right ahc-st__arrow"></i>
+        <div class="ahc-st__num">{{data.stats.resolved | number}}</div>
+        <div class="ahc-st__cta">View resolved <i class="fa fa-arrow-right"></i></div>
       </div>
 
+    </div>
+
+    <!-- Empty state -->
+    <div class="ahc-st__empty" ng-if="data.stats.total === 0">
+      <i class="fa fa-inbox ahc-st__empty-icon"></i>
+      <p class="ahc-st__empty-msg">No cases yet — when you submit a ticket, it will show up here.</p>
+      <a href="?id=sc_category&amp;catalog_id=-1" class="ahc-st__empty-btn">
+        <i class="fa fa-ticket"></i> Submit your first ticket
+      </a>
     </div>
 
     <!-- Recent activity -->
     <div class="ahc-st__recent" ng-if="data.recent.length > 0">
-      <h3 class="ahc-st__recent-title">Recently Active</h3>
+      <div class="ahc-st__recent-head">
+        <h3 class="ahc-st__recent-title">
+          Recently Active
+          <span class="ahc-st__scope">{{data.scopeLabel === 'account' ? 'Account-wide' : 'My cases'}}</span>
+        </h3>
+        <a class="ahc-st__viewall" ng-click="c.goToList('all')">
+          View all cases <i class="fa fa-arrow-right"></i>
+        </a>
+      </div>
       <div class="ahc-st__recent-list">
         <a class="ahc-st__recent-row"
            ng-repeat="cs in data.recent track by cs.sys_id"

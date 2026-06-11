@@ -18,6 +18,11 @@
 }
 /* base gradient fallback — overridden by .ahc-hero--p* classes */
 
+/* Logged in: stats cards below pull up over the hero's bottom edge */
+.ahc-hero--overlap {
+  padding-bottom: 132px;
+}
+
 /* ── Per-account background patterns ─────────────────────────── */
 
 /* Pattern 0 — diagonal stripes (default) */
