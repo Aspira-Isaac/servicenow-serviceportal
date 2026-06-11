@@ -30,7 +30,7 @@
 
   try {
     var caseGr = new GlideRecord('sn_customerservice_case');
-    caseGr.addQuery('contact.user', data.userId).addOrCondition('opened_by', data.userId);
+    caseGr.addQuery('contact', data.userId).addOrCondition('opened_by', data.userId);
     caseGr.addQuery('state', 'IN', '6,18'); // Resolved, Pending — waiting on the customer
     caseGr.orderByDesc('sys_updated_on');
     caseGr.setLimit(10);

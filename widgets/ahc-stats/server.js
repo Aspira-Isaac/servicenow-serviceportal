@@ -5,6 +5,16 @@
   var userId    = gs.getUserID();
   var isAdmin   = gs.hasRole('sn_customerservice.customer_admin');
   var accountId = isAdmin ? String(gs.getUser().getCompanyID() || '') : '';
+  // Account scope only applies when the company is an actual customer account
+  // (internal users hold customer_admin implicitly via admin)
+  if (accountId) {
+    var coGr = new GlideRecord('core_company');
+    coGr.addQuery('sys_id', accountId);
+    coGr.addQuery('customer', true);
+    coGr.setLimit(1);
+    coGr.query();
+    if (!coGr.hasNext()) accountId = '';
+  }
 
   // Account admins can flip the whole section between account-wide and
   // personal scope (input.scope from the toggle; default account-wide)
@@ -17,7 +27,7 @@
     if (isAccount) {
       gr.addQuery('account', accountId);
     } else {
-      gr.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
+      gr.addQuery('contact', userId).addOrCondition('opened_by', userId);
     }
   }
 

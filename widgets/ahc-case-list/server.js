@@ -29,8 +29,19 @@
     'resolved': ['3', '6', '7']
   };
 
-  var isAdmin     = gs.hasRole('sn_customerservice.customer_admin');
-  var accountId   = isAdmin ? gs.getUser().getCompanyID() : '';
+  var isAdmin   = gs.hasRole('sn_customerservice.customer_admin');
+  var accountId = isAdmin ? String(gs.getUser().getCompanyID() || '') : '';
+  // Account scope only applies when the company is an actual customer account.
+  // Internal users hold customer_admin implicitly via admin, but their company
+  // is the vendor — without this check they'd see no cases at all.
+  if (accountId) {
+    var coGr = new GlideRecord('core_company');
+    coGr.addQuery('sys_id', accountId);
+    coGr.addQuery('customer', true);
+    coGr.setLimit(1);
+    coGr.query();
+    if (!coGr.hasNext()) accountId = '';
+  }
   var isAccount   = isAdmin && !!accountId;
   data.scopeLabel = isAccount ? 'account' : 'personal';
 
@@ -48,7 +59,7 @@
     if (isAccount) {
       gr.addQuery('account', accountId);
     } else {
-      gr.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
+      gr.addQuery('contact', userId).addOrCondition('opened_by', userId);
     }
     if (filter !== 'all') {
       var group = FILTER_GROUPS[filter];
@@ -117,7 +128,7 @@
     if (isAccount) {
       stAgg.addQuery('account', accountId);
     } else {
-      stAgg.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
+      stAgg.addQuery('contact', userId).addOrCondition('opened_by', userId);
     }
     stAgg.groupBy('state');
     stAgg.addAggregate('COUNT');
