@@ -1,4 +1,6 @@
-function($rootScope, $location) {
+function($scope, $rootScope, $location) {
+  var c = this;
+
   /* Header client controller.
    *
    * NOTE: this logic used to live in an ng-init on the header template, but
@@ -18,6 +20,16 @@ function($rootScope, $location) {
   if (!$rootScope.currentPageId) {
     $rootScope.currentPageId = search().id || '';
   }
+
+  // Bell toggle — the badge mirrors OOTB CSM (count of cases needing the
+  // user's action), so it clears by acting on the cases, not by viewing.
+  // NOTE if a custom input is ever needed here: the header's server.update()
+  // ignores its argument and posts the whole data object — use server.get().
+  function toggleNotifs() {
+    $rootScope.ahcNotifOpen = !$rootScope.ahcNotifOpen;
+  }
+  $scope.toggleNotifs = toggleNotifs;
+  c.toggleNotifs = toggleNotifs;
 
   // Notification panel footer: "View all my cases"
   $rootScope.navToTicketList = function() {

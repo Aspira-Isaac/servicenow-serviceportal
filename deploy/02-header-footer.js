@@ -227,7 +227,7 @@ const HEADER_TEMPLATE = `
       <div class="ahc-nav__right">
         <!-- Notification bell -->
         <button class="ahc-nav__notif-btn" type="button" aria-label="Notifications"
-                ng-click="$root.ahcNotifOpen = !$root.ahcNotifOpen">
+                ng-click="toggleNotifs()">
           <i class="fa fa-bell"></i>
           <span class="ahc-nav__notif-badge" ng-if="data.notifCount && !$root.ahcNotifOpen">{{data.notifCount}}</span>
         </button>
@@ -270,18 +270,18 @@ const HEADER_TEMPLATE = `
       <p>You're all caught up</p>
     </div>
 
-    <!-- Notification items -->
+    <!-- Action items: cases waiting on the user (mirrors OOTB CSM bell) -->
     <a ng-repeat="n in data.notifications track by n.sys_id"
        href="?id=ticket_detail&sys_id={{n.docSysId}}"
        class="ahc-notif-item"
        ng-click="$root.navToCase(n.docSysId)">
-      <div class="ahc-notif-item__icon"><i class="fa fa-comment-o"></i></div>
+      <div class="ahc-notif-item__icon" ng-class="'ahc-notif-item__icon--' + n.kind">
+        <i class="fa" ng-class="n.kind === 'resolved' ? 'fa-check-circle-o' : 'fa-question-circle-o'"></i>
+      </div>
       <div class="ahc-notif-item__body">
-        <div class="ahc-notif-item__case" ng-if="n.caseNum">{{n.caseNum}}</div>
+        <div class="ahc-notif-item__case">{{n.caseNum}}</div>
         <div class="ahc-notif-item__msg">{{n.message}}</div>
-        <div class="ahc-notif-item__meta">
-          <span ng-if="n.fromName">{{n.fromName}} · </span>{{n.createdOn}}
-        </div>
+        <div class="ahc-notif-item__meta">{{n.stateLabel}} · Updated {{n.updatedOn}}</div>
       </div>
       <i class="fa fa-chevron-right ahc-notif-item__arrow"></i>
     </a>
@@ -624,6 +624,9 @@ const HEADER_CSS = `
   font-weight: 700;
   color: #0f172a;
   letter-spacing: 0.1px;
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
 }
 .ahc-notif-panel__close {
   background: none;
@@ -648,6 +651,8 @@ const HEADER_CSS = `
 }
 .ahc-notif-panel__empty p { margin: 8px 0 0; font-size: 0.875em; }
 .ahc-notif-panel__empty-icon { font-size: 2em; display: block; }
+.ahc-notif-item__icon--resolved { background: #d1fae5 !important; color: #065f46 !important; }
+.ahc-notif-item__icon--pending  { background: #fef3c7 !important; color: #b45309 !important; }
 .ahc-notif-item {
   display: -webkit-box;
   display: -ms-flexbox;
