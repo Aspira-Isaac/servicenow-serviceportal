@@ -5,16 +5,25 @@
   var userId    = gs.getUserID();
   var isAdmin   = gs.hasRole('sn_customerservice.customer_admin');
   var accountId = isAdmin ? String(gs.getUser().getCompanyID() || '') : '';
-  var isAccount = isAdmin && !!accountId;
+
+  // Account admins can flip the whole section between account-wide and
+  // personal scope (input.scope from the toggle; default account-wide)
+  data.canToggleScope = isAdmin && !!accountId;
+  var isAccount = data.canToggleScope && !(input && input.scope === 'mine');
+  data.scope      = isAccount ? 'account' : 'mine';
   data.scopeLabel = isAccount ? 'account' : 'personal';
+
+  function addScope(gr) {
+    if (isAccount) {
+      gr.addQuery('account', accountId);
+    } else {
+      gr.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
+    }
+  }
 
   // Count by state using aggregate
   var agg = new GlideAggregate('sn_customerservice_case');
-  if (isAccount) {
-    agg.addQuery('account', accountId);
-  } else {
-    agg.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
-  }
+  addScope(agg);
   agg.groupBy('state');
   agg.addAggregate('COUNT');
   agg.query();
@@ -61,13 +70,80 @@
     resolved: breakdown(['6', '3', '7'])
   };
 
+  // Monthly momentum — opened / resolved this calendar month vs last.
+  // Resolved uses closed_at within the resolved-group states; plain
+  // addQuery/addOrCondition only (encoded ^NQ would drop the scope filter).
+  function countOpened(from, to) {
+    var ag = new GlideAggregate('sn_customerservice_case');
+    addScope(ag);
+    ag.addQuery('opened_at', '>=', from);
+    if (to) ag.addQuery('opened_at', '<', to);
+    ag.addAggregate('COUNT');
+    ag.query();
+    return ag.next() ? (parseInt(ag.getAggregate('COUNT'), 10) || 0) : 0;
+  }
+  function countResolved(from, to) {
+    var ag = new GlideAggregate('sn_customerservice_case');
+    addScope(ag);
+    ag.addQuery('state', 'IN', '3,6,7');
+    ag.addQuery('closed_at', '>=', from);
+    if (to) ag.addQuery('closed_at', '<', to);
+    ag.addAggregate('COUNT');
+    ag.query();
+    return ag.next() ? (parseInt(ag.getAggregate('COUNT'), 10) || 0) : 0;
+  }
+  var monthStart     = gs.beginningOfThisMonth();
+  var lastMonthStart = gs.beginningOfLastMonth();
+  data.trend = {
+    openedThis:   countOpened(monthStart),
+    openedLast:   countOpened(lastMonthStart, monthStart),
+    resolvedThis: countResolved(monthStart),
+    resolvedLast: countResolved(lastMonthStart, monthStart)
+  };
+
+  // Account insights — top locations / categories over the last 90 days
+  // (account scope only; not meaningful for a personal case list)
+  // Some cases carry the account-level location instead of a real park, so the
+  // location list excludes any entry named after the account itself.
+  var accountName = '';
+  if (isAccount) {
+    var accGr = new GlideRecord('core_company');
+    if (accGr.get(accountId)) accountName = String(accGr.getValue('name') || '').toLowerCase();
+  }
+
+  function topGroups(field) {
+    var out = [];
+    var ag = new GlideAggregate('sn_customerservice_case');
+    ag.addQuery('account', accountId);
+    ag.addQuery('opened_at', '>=', gs.daysAgo(90));
+    ag.addNotNullQuery(field);
+    ag.groupBy(field);
+    ag.addAggregate('COUNT');
+    ag.query();
+    while (ag.next()) {
+      var label = String(ag.getDisplayValue(field) || '');
+      var cnt   = parseInt(ag.getAggregate('COUNT'), 10) || 0;
+      if (!label || cnt === 0) continue;
+      if (field === 'location' && accountName && label.toLowerCase() === accountName) continue;
+      out.push({ label: label, count: cnt });
+    }
+    out.sort(function(a, b) { return b.count - a.count; });
+    out = out.slice(0, 5);
+    var max = out.length ? out[0].count : 1;
+    for (var ti = 0; ti < out.length; ti++) {
+      out[ti].pct = Math.max(8, Math.round(out[ti].count / max * 100));
+    }
+    return out;
+  }
+  data.insights = { locations: [], categories: [] };
+  if (isAccount) {
+    data.insights.locations  = topGroups('location');
+    data.insights.categories = topGroups('category');
+  }
+
   // 5 most recently updated cases
   var gr = new GlideRecord('sn_customerservice_case');
-  if (isAccount) {
-    gr.addQuery('account', accountId);
-  } else {
-    gr.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
-  }
+  addScope(gr);
   gr.addQuery('state', 'NOT IN', '3,6,7');
   gr.orderByDesc('sys_updated_on');
   gr.setLimit(5);

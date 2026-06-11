@@ -369,3 +369,166 @@
     opacity: 1;
   }
 }
+
+/* ── Monthly momentum line on Total / Resolved cards ─────────── */
+.ahc-st__trend {
+  font-size: 0.75em;
+  color: #64748b;
+  border-top: 1px dashed #e8edf5;
+  padding-top: 8px;
+  margin: 2px 0 10px;
+}
+.ahc-st__trend-num { font-weight: 700; color: #334155; font-variant-numeric: tabular-nums; }
+.ahc-st__trend-cmp { color: #94a3b8; white-space: nowrap; }
+.ahc-st__trend-cmp i { font-size: 0.85em; margin: 0 1px 0 4px; }
+
+/* ── Lower section: recent + insights ────────────────────────── */
+.ahc-st__lower {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: start;
+  -ms-flex-align: start;
+  align-items: flex-start;
+  gap: 24px;
+}
+.ahc-st__recent {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 62%;
+  flex: 1 1 62%;
+  min-width: 0;
+}
+.ahc-st__insights {
+  -ms-flex: 1 1 32%;
+  flex: 1 1 32%;
+  min-width: 260px;
+}
+.ahc-st__recent-none {
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-align: center;
+  font-size: 0.85em;
+  color: #94a3b8;
+}
+
+/* Scope toggle (account admins) */
+.ahc-st__scope-toggle {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  background: #eef2f7;
+  border-radius: 18px;
+  padding: 2px;
+  margin: 0 14px;
+}
+.ahc-st__scope-btn {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  padding: 4px 14px;
+  font-size: 0.72em;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s;
+}
+.ahc-st__scope-btn--on {
+  background: #fff;
+  color: #1a2980;
+  box-shadow: 0 1px 3px rgba(15,23,42,0.12);
+}
+
+/* Insight blocks */
+.ahc-st__insight {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.04);
+  padding: 16px 18px 12px;
+  margin-bottom: 16px;
+}
+.ahc-st__insight-title {
+  font-size: 0.8em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  margin: 0 0 12px;
+}
+.ahc-st__insight-sub {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.2px;
+  color: #94a3b8;
+  font-size: 0.9em;
+  margin-left: 4px;
+}
+.ahc-st__insight-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+}
+.ahc-st__insight-label {
+  -ms-flex: 0 1 42%;
+  flex: 0 1 42%;
+  min-width: 0;
+  font-size: 0.78em;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ahc-st__insight-bar {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  height: 6px;
+  background: #eef2f7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ahc-st__insight-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #1a2980, #4f6ef7);
+}
+.ahc-st__insight-count {
+  font-size: 0.75em;
+  font-weight: 700;
+  color: #334155;
+  font-variant-numeric: tabular-nums;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  min-width: 22px;
+  text-align: right;
+}
+
+/* Busy state while the scope toggle reloads */
+.ahc-st--busy .ahc-st__cards,
+.ahc-st--busy .ahc-st__lower {
+  opacity: 0.45;
+  pointer-events: none;
+  -webkit-transition: opacity 0.15s;
+  transition: opacity 0.15s;
+}
+
+@media (max-width: 900px) {
+  .ahc-st__lower {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+  .ahc-st__insights { min-width: 0; width: 100%; }
+  .ahc-st__scope-toggle { margin: 0 8px; }
+}

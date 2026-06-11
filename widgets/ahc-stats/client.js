@@ -10,4 +10,21 @@ function($scope, $location, $rootScope) {
   c.goToState = function(stateVal) {
     c.goToList(stateVal);
   };
+
+  // Account admins: flip the whole section between account-wide and personal.
+  // server.get() reruns the server script with input.scope and returns fresh data.
+  c.scopeLoading = false;
+  c.setScope = function(scope) {
+    if (c.scopeLoading || scope === c.data.scope) return;
+    c.scopeLoading = true;
+    c.server.get({ scope: scope }).then(function(resp) {
+      var rd = (resp && resp.data) ? resp.data : {};
+      ['stats', 'breakdown', 'trend', 'insights', 'recent', 'scope', 'scopeLabel'].forEach(function(k) {
+        if (typeof rd[k] !== 'undefined') c.data[k] = rd[k];
+      });
+      c.scopeLoading = false;
+    }, function() {
+      c.scopeLoading = false;
+    });
+  };
 }

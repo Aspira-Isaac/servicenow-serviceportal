@@ -1,7 +1,7 @@
 <div class="ahc-st" ng-if="data.isLoggedIn">
-  <div class="container">
+  <div class="container" ng-class="{'ahc-st--busy': c.scopeLoading}">
 
-    <!-- Stat cards — pulled up over the hero's bottom edge -->
+    <!-- Stat cards — pulled up over the hero band -->
     <div class="ahc-st__cards">
 
       <div class="ahc-st__card ahc-st__card--total" ng-click="c.goToList('all')"
@@ -11,6 +11,14 @@
           <span class="ahc-st__icon"><i class="fa fa-folder-open-o"></i></span>
         </div>
         <div class="ahc-st__num">{{data.stats.total | number}}</div>
+        <div class="ahc-st__trend" ng-if="data.trend">
+          <span class="ahc-st__trend-num">{{data.trend.openedThis | number}}</span> opened this month
+          <span class="ahc-st__trend-cmp" title="{{data.trend.openedLast | number}} opened last month">
+            <i class="fa" ng-class="data.trend.openedThis > data.trend.openedLast ? 'fa-long-arrow-up' :
+              (data.trend.openedThis < data.trend.openedLast ? 'fa-long-arrow-down' : 'fa-minus')"></i>
+            {{data.trend.openedLast | number}} last month
+          </span>
+        </div>
         <div class="ahc-st__cta">View all <i class="fa fa-arrow-right"></i></div>
       </div>
 
@@ -68,6 +76,14 @@
             <span class="ahc-st__break-count">{{b.count | number}}</span>
           </button>
         </div>
+        <div class="ahc-st__trend" ng-if="data.trend">
+          <span class="ahc-st__trend-num">{{data.trend.resolvedThis | number}}</span> resolved this month
+          <span class="ahc-st__trend-cmp" title="{{data.trend.resolvedLast | number}} resolved last month">
+            <i class="fa" ng-class="data.trend.resolvedThis > data.trend.resolvedLast ? 'fa-long-arrow-up' :
+              (data.trend.resolvedThis < data.trend.resolvedLast ? 'fa-long-arrow-down' : 'fa-minus')"></i>
+            {{data.trend.resolvedLast | number}} last month
+          </span>
+        </div>
         <div class="ahc-st__cta">View resolved <i class="fa fa-arrow-right"></i></div>
       </div>
 
@@ -82,27 +98,66 @@
       </a>
     </div>
 
-    <!-- Recent activity -->
-    <div class="ahc-st__recent" ng-if="data.recent.length > 0">
-      <div class="ahc-st__recent-head">
-        <h3 class="ahc-st__recent-title">
-          Recently Active
-          <span class="ahc-st__scope">{{data.scopeLabel === 'account' ? 'Account-wide' : 'My cases'}}</span>
-        </h3>
-        <a class="ahc-st__viewall" ng-click="c.goToList('all')">
-          View all cases <i class="fa fa-arrow-right"></i>
-        </a>
+    <!-- Lower: recent activity + account insights -->
+    <div class="ahc-st__lower" ng-if="data.recent.length > 0 || data.canToggleScope">
+
+      <div class="ahc-st__recent">
+        <div class="ahc-st__recent-head">
+          <h3 class="ahc-st__recent-title">
+            Recently Active
+            <span class="ahc-st__scope" ng-if="!data.canToggleScope">My cases</span>
+          </h3>
+          <div class="ahc-st__scope-toggle" ng-if="data.canToggleScope" role="group" aria-label="Statistics scope">
+            <button type="button" class="ahc-st__scope-btn"
+                    ng-class="{'ahc-st__scope-btn--on': data.scope === 'account'}"
+                    ng-click="c.setScope('account')">Account</button>
+            <button type="button" class="ahc-st__scope-btn"
+                    ng-class="{'ahc-st__scope-btn--on': data.scope === 'mine'}"
+                    ng-click="c.setScope('mine')">My cases</button>
+          </div>
+          <a class="ahc-st__viewall" ng-click="c.goToList('all')">
+            View all cases <i class="fa fa-arrow-right"></i>
+          </a>
+        </div>
+        <div class="ahc-st__recent-list" ng-if="data.recent.length">
+          <a class="ahc-st__recent-row"
+             ng-repeat="cs in data.recent track by cs.sys_id"
+             href="?id=ticket_detail&amp;sys_id={{cs.sys_id}}">
+            <div class="ahc-st__recent-num">{{cs.number}}</div>
+            <div class="ahc-st__recent-desc">{{cs.desc}}</div>
+            <span class="ahc-st__badge ahc-st__badge--{{cs.badge}}">{{cs.state}}</span>
+            <div class="ahc-st__recent-date">{{cs.updated}}</div>
+          </a>
+        </div>
+        <div class="ahc-st__recent-none" ng-if="!data.recent.length">
+          No recently active cases.
+        </div>
       </div>
-      <div class="ahc-st__recent-list">
-        <a class="ahc-st__recent-row"
-           ng-repeat="cs in data.recent track by cs.sys_id"
-           href="?id=ticket_detail&amp;sys_id={{cs.sys_id}}">
-          <div class="ahc-st__recent-num">{{cs.number}}</div>
-          <div class="ahc-st__recent-desc">{{cs.desc}}</div>
-          <span class="ahc-st__badge ahc-st__badge--{{cs.badge}}">{{cs.state}}</span>
-          <div class="ahc-st__recent-date">{{cs.updated}}</div>
-        </a>
+
+      <div class="ahc-st__insights"
+           ng-if="data.scope === 'account' && (data.insights.locations.length || data.insights.categories.length)">
+        <div class="ahc-st__insight" ng-if="data.insights.locations.length">
+          <h3 class="ahc-st__insight-title">
+            Most Active Locations <span class="ahc-st__insight-sub">last 90 days</span>
+          </h3>
+          <div class="ahc-st__insight-row" ng-repeat="r in data.insights.locations track by r.label" title="{{r.label}}: {{r.count}} cases">
+            <div class="ahc-st__insight-label">{{r.label}}</div>
+            <div class="ahc-st__insight-bar"><span ng-style="{width: r.pct + '%'}"></span></div>
+            <div class="ahc-st__insight-count">{{r.count | number}}</div>
+          </div>
+        </div>
+        <div class="ahc-st__insight" ng-if="data.insights.categories.length">
+          <h3 class="ahc-st__insight-title">
+            Top Categories <span class="ahc-st__insight-sub">last 90 days</span>
+          </h3>
+          <div class="ahc-st__insight-row" ng-repeat="r in data.insights.categories track by r.label" title="{{r.label}}: {{r.count}} cases">
+            <div class="ahc-st__insight-label">{{r.label}}</div>
+            <div class="ahc-st__insight-bar"><span ng-style="{width: r.pct + '%'}"></span></div>
+            <div class="ahc-st__insight-count">{{r.count | number}}</div>
+          </div>
+        </div>
       </div>
+
     </div>
 
   </div>
