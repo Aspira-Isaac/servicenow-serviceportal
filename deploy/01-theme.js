@@ -127,28 +127,26 @@ a:focus {
 .category-widget .list-group {
   box-shadow: none !important;
 }
-.category-widget .list-group-item,
-.category-widget .group-item {
+.category-widget .list-group-item {
   background: transparent !important;
   border: none !important;
-  border-radius: 6px !important;
+  padding: 0 !important;
+  margin-bottom: 2px;
+}
+.category-widget .group-item {
   padding: 7px 12px !important;
   font-size: 0.875em;
   color: #475569;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  margin-bottom: 2px;
 }
-.category-widget .list-group-item:hover,
-.category-widget .group-item:hover {
-  background: #f1f5f9 !important;
-  color: #1a2980 !important;
+/* Use 4-class specificity to beat ServiceNow's compiled brand-primary background on active items */
+.category-widget .group-item.group-item-primary.text-active,
+.category-widget .group-item.group-item-primary:hover {
+  background: transparent !important;
+  background-color: transparent !important;
 }
-.category-widget [aria-current="true"],
 .category-widget .text-active,
-.category-widget .sc_category_treeitem_0[aria-current="true"],
 .category-widget [class*="sc_category_treeitem"][aria-current="true"] {
-  background: #e8edf8 !important;
   color: #1a2980 !important;
   font-weight: 600;
 }
