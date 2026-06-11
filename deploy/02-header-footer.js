@@ -210,8 +210,9 @@ const HEADER_TEMPLATE = `
   <nav class="ahc-nav" role="navigation">
     <div class="ahc-nav__inner">
 
-      <!-- Brand -->
-      <a class="ahc-nav__brand" href="{{data.portalUrl}}?id=ahc_index">
+      <!-- Brand — target=_self forces a full navigation; Angular's link rewriting
+           otherwise updates the URL without SP swapping the page content -->
+      <a class="ahc-nav__brand" href="{{data.portalUrl}}?id=ahc_index" target="_self">
         <img class="ahc-nav__logo-img" src="/cb8f9beb8762c1104c76ed7e0ebb35cc.iix" alt="Aspira" />
       </a>
 
@@ -869,7 +870,7 @@ const FOOTER_TEMPLATE = `
         <img class="ahc-footer__logo-img" src="/cb8f9beb8762c1104c76ed7e0ebb35cc.iix" alt="Aspira" />
       </div>
       <div class="ahc-footer__links">
-        <a class="ahc-footer__link" href="/help?id=sc_category&catalog_id=-1">Submit a Ticket</a>
+        <a class="ahc-footer__link" href="/help?id=sc_category&catalog_id=-1" target="_self">Submit a Ticket</a>
         <!-- KB hidden until ready: <a class="ahc-footer__link" href="/help?id=ahc_kb_search">Knowledge Base</a> -->
       </div>
       <p class="ahc-footer__copy">&copy; Aspira Connect. All rights reserved.</p>
