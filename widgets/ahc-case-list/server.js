@@ -1,4 +1,9 @@
 (function() {
+  // Server-side pagination, filtering, and search (mirrors how the stock CSM
+  // list behaves). Only one page of rows is ever loaded and serialized —
+  // accounts with tens of thousands of cases render in constant time.
+  var PAGE_SIZE = 20;
+
   var userId = gs.getUserID();
   data.currentUserId = userId;
 
@@ -17,19 +22,67 @@
     '7':    'closed'
   };
 
-  var isAdmin       = gs.hasRole('sn_customerservice.customer_admin');
-  var accountId     = isAdmin ? gs.getUser().getCompanyID() : '';
-  data.scopeLabel   = (isAdmin && accountId) ? 'account' : 'personal';
+  // Named group filters from the stats cards (must mirror ahc-stats groupings)
+  var FILTER_GROUPS = {
+    'open':     ['1', '2', '10'],
+    'pending':  ['18', '8', '1000', '1010', '1020', '1030'],
+    'resolved': ['3', '6', '7']
+  };
 
-  var gr = new GlideRecord('sn_customerservice_case');
+  var isAdmin     = gs.hasRole('sn_customerservice.customer_admin');
+  var accountId   = isAdmin ? gs.getUser().getCompanyID() : '';
+  var isAccount   = isAdmin && !!accountId;
+  data.scopeLabel = isAccount ? 'account' : 'personal';
 
-  if (isAdmin && accountId) {
-    gr.addQuery('account', accountId);
-  } else {
-    gr.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
+  // Parameters: from server.get input after first load, from the URL initially
+  var urlFilter = '';
+  try { urlFilter = String($sp.getParameter('filter') || ''); } catch(e) {}
+
+  var filter = String((input && input.filter) || urlFilter || 'all');
+  var opener = String((input && input.opener) || 'everyone');
+  var search = String((input && input.search) || '').substring(0, 200).trim();
+  var page   = parseInt((input && input.page) || 0, 10);
+  if (isNaN(page) || page < 0) page = 0;
+
+  function addConditions(gr) {
+    if (isAccount) {
+      gr.addQuery('account', accountId);
+    } else {
+      gr.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
+    }
+    if (filter !== 'all') {
+      var group = FILTER_GROUPS[filter];
+      if (group) {
+        gr.addQuery('state', 'IN', group.join(','));
+      } else {
+        gr.addQuery('state', filter);
+      }
+    }
+    if (opener === 'me')   gr.addQuery('opened_by', userId);
+    if (opener === 'team') gr.addQuery('opened_by', '!=', userId);
+    if (search) {
+      gr.addQuery('number', 'CONTAINS', search)
+        .addOrCondition('short_description', 'CONTAINS', search)
+        .addOrCondition('opened_by.name', 'CONTAINS', search);
+    }
   }
 
+  // Total matching cases (count only — no rows)
+  var countAgg = new GlideAggregate('sn_customerservice_case');
+  addConditions(countAgg);
+  countAgg.addAggregate('COUNT');
+  countAgg.query();
+  var total = countAgg.next() ? (parseInt(countAgg.getAggregate('COUNT'), 10) || 0) : 0;
+
+  // Clamp the page if filters shrank the result set under the current window
+  var maxPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);
+  if (page > maxPage) page = maxPage;
+
+  // One page of rows
+  var gr = new GlideRecord('sn_customerservice_case');
+  addConditions(gr);
   gr.orderByDesc('sys_updated_on');
+  gr.chooseWindow(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
   gr.query();
 
   var cases = [];
@@ -49,15 +102,31 @@
     });
   }
 
-  data.cases = cases;
+  data.cases    = cases;
+  data.total    = total;
+  data.page     = page;
+  data.pageSize = PAGE_SIZE;
+  data.filter   = filter;
+  data.opener   = opener;
+  data.search   = search;
 
-  // Build unique sorted state list from loaded cases (used to generate filter chips)
-  var stateSeen = {};
-  for (var si = 0; si < cases.length; si++) {
-    var sv = cases[si].stateVal;
-    if (!stateSeen[sv]) stateSeen[sv] = cases[si].state;
+  // Filter chips: distinct states across the whole scope (unfiltered), so
+  // chips don't vanish while one of them is selected
+  if (!input) {
+    var stAgg = new GlideAggregate('sn_customerservice_case');
+    if (isAccount) {
+      stAgg.addQuery('account', accountId);
+    } else {
+      stAgg.addQuery('contact.user', userId).addOrCondition('opened_by', userId);
+    }
+    stAgg.groupBy('state');
+    stAgg.addAggregate('COUNT');
+    stAgg.query();
+    var states = [];
+    while (stAgg.next()) {
+      states.push({ value: stAgg.getValue('state'), label: stAgg.getDisplayValue('state') });
+    }
+    states.sort(function(a, b) { return Number(a.value) - Number(b.value); });
+    data.states = states;
   }
-  data.states = Object.keys(stateSeen)
-    .sort(function(a, b) { return Number(a) - Number(b); })
-    .map(function(v) { return { value: v, label: stateSeen[v] }; });
 })();
