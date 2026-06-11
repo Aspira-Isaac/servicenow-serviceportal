@@ -34,6 +34,13 @@
   -ms-flex: 1;
   flex: 1;
   min-width: 170px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
   position: relative;
   background: #fff;
   border: 1px solid #e2e8f0;
@@ -131,8 +138,57 @@
   font-size: 0.75em;
   font-weight: 600;
   color: #94a3b8;
+  margin-top: auto; /* pin to the card bottom so heights stay even */
   -webkit-transition: color 0.15s;
   transition: color 0.15s;
+}
+
+/* Per-state breakdown rows (Open / Pending cards) */
+.ahc-st__break {
+  border-top: 1px dashed #e8edf5;
+  padding: 7px 0 4px;
+  margin: 0 0 10px;
+}
+.ahc-st__break-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 3px 0;
+  text-align: left;
+  font-size: 0.75em;
+  color: #64748b;
+  cursor: pointer;
+  -webkit-transition: color 0.12s;
+  transition: color 0.12s;
+}
+.ahc-st__break-row:hover,
+.ahc-st__break-row:focus {
+  color: #1a2980;
+  outline: none;
+}
+.ahc-st__break-row:hover .ahc-st__break-count { color: #1a2980; }
+.ahc-st__break-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.ahc-st__break-count {
+  font-weight: 700;
+  color: #334155;
+  font-variant-numeric: tabular-nums;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
 }
 .ahc-st__cta i {
   font-size: 0.85em;

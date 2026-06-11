@@ -37,6 +37,30 @@
     resolved: resolved
   };
 
+  // Per-state breakdown rows inside the Open and Pending cards.
+  // Values must stay valid ahc-case-list filter params (exact state match).
+  var stateLabels = {
+    '1': 'New', '2': 'Assigned', '10': 'In Progress',
+    '18': 'Pending', '8': 'Pending - Aspira', '1000': 'Pending Quality Control',
+    '1010': 'Ready to Test', '1020': 'Ready for Prod', '1030': 'On Hold (Future Consideration)',
+    '6': 'Resolved', '3': 'Closed', '7': 'Cancelled'
+  };
+  function breakdown(stateVals) {
+    var rows = [];
+    for (var bi = 0; bi < stateVals.length; bi++) {
+      var v = stateVals[bi];
+      var n = counts[v] || 0;
+      if (n > 0) rows.push({ value: v, label: stateLabels[v] || v, count: n });
+    }
+    rows.sort(function(a, b) { return b.count - a.count; });
+    return rows;
+  }
+  data.breakdown = {
+    open:     breakdown(['1', '2', '10']),
+    pending:  breakdown(['18', '8', '1000', '1010', '1020', '1030']),
+    resolved: breakdown(['6', '3', '7'])
+  };
+
   // 5 most recently updated cases
   var gr = new GlideRecord('sn_customerservice_case');
   if (isAccount) {
