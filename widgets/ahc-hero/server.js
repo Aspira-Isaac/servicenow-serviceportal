@@ -15,14 +15,6 @@
   };
   data.branding = configs[companyId] || defaultBranding;
 
-  // Derive a stable pattern (0-4) from the company ID
-  var idStr = String(companyId);
-  var hash = 0;
-  for (var hi = 0; hi < idStr.length; hi++) {
-    hash += idStr.charCodeAt(hi) * (hi + 1);
-  }
-  data.branding.patternIndex = hash % 5;
-
   // Account display name — prefer config, fall back to the company record name
   var accountName = data.branding.companyName;
   if (!configs[companyId] && companyId !== 'default') {
@@ -30,18 +22,6 @@
     if (co.get(companyId)) accountName = co.getValue('name') || accountName;
   }
   data.accountName = accountName;
-
-  // Watermark monogram — initials of up to 3 significant words
-  // ("Pennsylvania State Parks" → "PSP"); full names clip badly at hero edges
-  var stopWords = { 'of': 1, 'the': 1, 'and': 1, '&': 1, 'for': 1 };
-  var monoWords = String(accountName || '').trim().split(/\s+/).filter(function(w) {
-    return w && !stopWords[w.toLowerCase()];
-  });
-  var mono = '';
-  for (var mi = 0; mi < monoWords.length && mono.length < 3; mi++) {
-    mono += monoWords[mi].charAt(0);
-  }
-  data.accountMonogram = mono.toUpperCase();
 
   // Current user
   var userName = gs.getUserDisplayName() || '';

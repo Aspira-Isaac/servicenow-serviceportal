@@ -7,119 +7,87 @@
   --ahc-primary-light: #243499;
 }
 
-/* ── Hero banner ─────────────────────────────────────────────── */
+/* ── Hero banner — dusk sky over a park panorama ─────────────── */
 .ahc-hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--ahc-primary) 0%, var(--ahc-primary-light) 60%, #2d4de0 100%);
+  /* darker zenith → brand navy → horizon glow behind the ridgelines */
+  background:
+    radial-gradient(115% 60% at 50% 102%, rgba(79,110,247,0.45) 0%, rgba(79,110,247,0) 62%),
+    linear-gradient(180deg, #131b55 0%, var(--ahc-primary) 50%, var(--ahc-primary-light) 100%);
   color: #fff;
   padding: 56px 20px 64px;
   text-align: center;
 }
-/* base gradient fallback — overridden by .ahc-hero--p* classes */
 
 /* Logged in: stats cards below pull up over the hero's bottom edge */
 .ahc-hero--overlap {
   padding-bottom: 132px;
 }
 
-/* ── Per-account background patterns ─────────────────────────── */
-
-/* Pattern 0 — diagonal stripes (default) */
-.ahc-hero--p0 {
-  background: linear-gradient(135deg, var(--ahc-primary) 0%, var(--ahc-primary-light) 60%, #2d4de0 100%);
-  background-image:
-    repeating-linear-gradient(135deg, transparent, transparent 28px, rgba(255,255,255,0.04) 28px, rgba(255,255,255,0.04) 30px),
-    linear-gradient(135deg, var(--ahc-primary) 0%, var(--ahc-primary-light) 60%, #2d4de0 100%);
-}
-
-/* Pattern 1 — dot grid */
-.ahc-hero--p1 {
-  background: linear-gradient(150deg, var(--ahc-primary) 0%, var(--ahc-primary-light) 50%, #3a2abf 100%);
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,0.11) 1.5px, transparent 1.5px),
-    linear-gradient(150deg, var(--ahc-primary) 0%, var(--ahc-primary-light) 50%, #3a2abf 100%);
-  background-size: 26px 26px, 100% 100%;
-}
-
-/* Pattern 2 — crosshatch grid */
-.ahc-hero--p2 {
-  background: linear-gradient(120deg, var(--ahc-primary) 0%, #1e3a8a 50%, var(--ahc-primary-light) 100%);
-  background-image:
-    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px),
-    linear-gradient(120deg, var(--ahc-primary) 0%, #1e3a8a 50%, var(--ahc-primary-light) 100%);
-  background-size: 40px 40px, 40px 40px, 100% 100%;
-}
-
-/* Pattern 3 — diamond mesh */
-.ahc-hero--p3 {
-  background: linear-gradient(160deg, var(--ahc-primary) 0%, #2563eb 40%, var(--ahc-primary-light) 100%);
-  background-image:
-    repeating-linear-gradient(45deg,  transparent, transparent 18px, rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px),
-    repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.04) 18px, rgba(255,255,255,0.04) 19px),
-    linear-gradient(160deg, var(--ahc-primary) 0%, #2563eb 40%, var(--ahc-primary-light) 100%);
-}
-
-/* Pattern 4 — horizontal scan lines */
-.ahc-hero--p4 {
-  background: linear-gradient(140deg, var(--ahc-primary) 0%, #1d4ed8 55%, var(--ahc-primary-light) 100%);
-  background-image:
-    repeating-linear-gradient(0deg, transparent, transparent 22px, rgba(255,255,255,0.04) 22px, rgba(255,255,255,0.04) 24px),
-    linear-gradient(140deg, var(--ahc-primary) 0%, #1d4ed8 55%, var(--ahc-primary-light) 100%);
-}
-
-/* ── Account watermark — outlined monogram on the right edge ──── */
-.ahc-hero__watermark {
+/* ── Park panorama scene (ridgelines + pines + stars) ────────── */
+.ahc-hero__scene {
   position: absolute;
-  top: 50%;
-  right: 24px;
-  -webkit-transform: translateY(-52%);
-  -ms-transform: translateY(-52%);
-  transform: translateY(-52%);
-  font-size: 16em;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -0.045em;
-  color: rgba(255,255,255,0.05);
-  white-space: nowrap;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
   pointer-events: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  /* fade out toward the bottom, where the stat cards overlap the band */
-  -webkit-mask-image: linear-gradient(to bottom, #000 30%, rgba(0,0,0,0.35) 70%, transparent 98%);
-  mask-image: linear-gradient(to bottom, #000 30%, rgba(0,0,0,0.35) 70%, transparent 98%);
 }
-/* outline letterforms where text-stroke is supported (all modern browsers) */
-@supports (-webkit-text-stroke: 1px #fff) {
-  .ahc-hero__watermark {
-    color: transparent;
-    -webkit-text-stroke: 2px rgba(255,255,255,0.13);
-  }
+.ahc-hero__scene svg {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 300px;
+  display: block;
 }
-@media (max-width: 991px) {
-  .ahc-hero__watermark { display: none; }
+@media (max-width: 768px) {
+  .ahc-hero__scene svg { height: 200px; }
 }
 
-/* ── Account badge ───────────────────────────────────────────── */
-.ahc-hero__account-badge {
-  display: inline-flex;
+/* ── Account eyebrow — poster-style title line ───────────────── */
+.ahc-hero__account {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.12);
-  border: 1px solid rgba(255,255,255,0.22);
-  color: rgba(255,255,255,0.9);
-  font-size: 0.75em;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  padding: 4px 12px;
-  border-radius: 20px;
-  margin-bottom: 14px;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.ahc-hero__account .fa-tree {
+  font-size: 0.7em;
+  color: rgba(255,255,255,0.42);
+}
+.ahc-hero__account-name {
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 3.5px;
   text-transform: uppercase;
+  color: rgba(255,255,255,0.88);
+  text-shadow: 0 1px 12px rgba(0,0,0,0.25);
+}
+.ahc-hero__account-rule {
+  height: 1px;
+  width: 64px;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+}
+.ahc-hero__account-rule--l {
+  background: linear-gradient(to left, rgba(255,255,255,0.38), rgba(255,255,255,0));
+}
+.ahc-hero__account-rule--r {
+  background: linear-gradient(to right, rgba(255,255,255,0.38), rgba(255,255,255,0));
+}
+@media (max-width: 600px) {
+  .ahc-hero__account-rule { width: 28px; }
+  .ahc-hero__account-name { letter-spacing: 2px; }
 }
 
 .ahc-hero__inner {
