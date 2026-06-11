@@ -1,0 +1,54 @@
+function($rootScope, $location) {
+  /* Header client controller.
+   *
+   * NOTE: this logic used to live in an ng-init on the header template, but
+   * Angular expressions cannot contain `function () {}` literals — the whole
+   * ng-init threw a $parse syntax error and none of it ever ran. Navigation
+   * helpers and location listeners must live here instead.
+   *
+   * Overlay contract: anything that sets $root.ahcOverlay = true must navigate
+   * to a page whose widget clears it on init (ahc-case-list and ahc-case-detail
+   * both do). It is deliberately NOT cleared on $locationChangeSuccess — that
+   * event fires as soon as the URL changes, before the new page's widgets have
+   * loaded, which would kill the loading screen too early.
+   */
+
+  function search() { return $location.search() || {}; }
+
+  if (!$rootScope.currentPageId) {
+    $rootScope.currentPageId = search().id || '';
+  }
+
+  // Notification panel footer: "View all my cases"
+  $rootScope.navToTicketList = function() {
+    $rootScope.ahcNotifOpen = false;
+    if (search().id !== 'ticket_list') {
+      $rootScope.ahcOverlay = true;
+    }
+  };
+
+  // Notification item: open a case. Guard against the no-navigation case —
+  // clicking a notification for the case already on screen leaves the URL
+  // unchanged, so nothing would ever clear the overlay.
+  $rootScope.navToCase = function(sysId) {
+    $rootScope.ahcNotifOpen = false;
+    var s = search();
+    if (s.id !== 'ticket_detail' || s.sys_id !== sysId) {
+      $rootScope.ahcOverlay = true;
+    }
+  };
+
+  $rootScope.$on('$locationChangeStart', function() {
+    $rootScope.ahcBarLoading = true;
+    $rootScope.currentPageId = '';
+  });
+  $rootScope.$on('$locationChangeSuccess', function(e, newUrl) {
+    $rootScope.ahcBarLoading = false;
+    var m = newUrl && newUrl.match(/[?&]id=([^&]+)/);
+    $rootScope.currentPageId = m ? m[1] : '';
+  });
+  $rootScope.$on('$locationChangeError', function() {
+    $rootScope.ahcBarLoading = false;
+    $rootScope.ahcOverlay = false;
+  });
+}

@@ -1,5 +1,10 @@
-function($scope) {
+function($scope, $rootScope) {
   var c = this;
+
+  // Tell the nav which page we're on, and clear the overlay
+  // (every nav path that sets ahcOverlay relies on the destination widget to clear it)
+  $rootScope.currentPageId = 'ticket_detail';
+  $rootScope.ahcOverlay = false;
 
   c.sending           = false;
   c.sent              = false;

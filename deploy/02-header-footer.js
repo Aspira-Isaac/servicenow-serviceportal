@@ -201,22 +201,9 @@ const HEADER_TEMPLATE = `
   .item-card-column .panel-footer a:hover { color: #4f6ef7 !important; }
 </style>
 
-<div class="ahc-nav-wrap"
-     ng-init="
-       $root.currentPageId = '';
-       $root.navToTicketList = function() {
-         $root.ahcNotifOpen = false;
-         if ($root.currentPageId !== 'ticket_list') { $root.ahcOverlay = true; }
-       };
-       $root.$on('$locationChangeStart',   function(){ $root.ahcBarLoading = true; $root.currentPageId = ''; });
-       $root.$on('$locationChangeSuccess', function(e, newUrl){
-         $root.ahcBarLoading = false;
-         $root.ahcOverlay = false;
-         var m = newUrl && newUrl.match(/[?&]id=([^&]+)/);
-         $root.currentPageId = m ? m[1] : '';
-       });
-       $root.$on('$locationChangeError',   function(){ $root.ahcBarLoading = false; $root.ahcOverlay = false; });
-     ">
+<!-- Navigation helpers + location listeners live in the header client script
+     (widgets/ahc-header-client.js) — ng-init cannot define functions. -->
+<div class="ahc-nav-wrap">
   <!-- Page loading bar (fires on every location change, including filter param updates) -->
   <div class="ahc-nav__loading-bar" ng-class="{'ahc-nav__loading-bar--on': $root.ahcBarLoading}"></div>
 
@@ -286,7 +273,7 @@ const HEADER_TEMPLATE = `
     <a ng-repeat="n in data.notifications track by n.sys_id"
        href="?id=ticket_detail&sys_id={{n.docSysId}}"
        class="ahc-notif-item"
-       ng-click="$root.ahcNotifOpen = false; $root.ahcOverlay = true; $root.currentPageId = ''">
+       ng-click="$root.navToCase(n.docSysId)">
       <div class="ahc-notif-item__icon"><i class="fa fa-comment-o"></i></div>
       <div class="ahc-notif-item__body">
         <div class="ahc-notif-item__case" ng-if="n.caseNum">{{n.caseNum}}</div>
@@ -933,12 +920,18 @@ const HEADER_SERVER = fs.readFileSync(
   path.join(__dirname, '..', 'widgets', 'ahc-header-server.js'), 'utf8'
 );
 
+// ── Client script for the header (nav helpers + overlay/loading-bar state) ───
+const HEADER_CLIENT = fs.readFileSync(
+  path.join(__dirname, '..', 'widgets', 'ahc-header-client.js'), 'utf8'
+);
+
 module.exports = async function deployHeaderFooter(ctx) {
   const header = await upsert('sp_header_footer', 'name', 'Aspira Help Center Header', {
     name: 'Aspira Help Center Header',
     template: HEADER_TEMPLATE,
     css: HEADER_CSS,
     script: HEADER_SERVER,
+    client_script: HEADER_CLIENT,
     public: true
   });
   ctx.headerSysId = header.sys_id;
