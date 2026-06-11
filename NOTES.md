@@ -36,6 +36,21 @@ destination widgets load. Nav helpers (`navToTicketList`, `navToCase`) live in
 `widgets/ahc-header-client.js`; they must stay in the client script because
 Angular expressions (`ng-init`) cannot define functions.
 
+### Stock `ticket` page edits (June 2026 — shared across portals!)
+
+The post-submission view (`?id=ticket`, also `?id=sc_request`) is the OOTB
+global page, shared by every portal on the instance. Three changes were made:
+
+| What | Where | Rollback |
+|------|-------|----------|
+| Removed "Tickets are picked up within 4 hours (M-F 9-5)" | `sp_instance` `44af3d50d7000200a9ad1e173e24d4ea` (Ticket Fields, page `ticket`) — `widget_parameters` blanked | Restore `{"pickup_msg": {"value": "Tickets are picked up within <br/> 4 hours (M-F 9-5)"}}` |
+| Removed "Requests are picked up within…" | `sp_instance` `cc316d33d7230200a9addd173e24d4f5` (page `sc_request`) — `widget_parameters` blanked | Restore `{"pickup_msg": "${Requests are picked up within <br/> 4 hours (M-F 9-5)}"}` |
+| Deleted "Set up Google Maps API" box (shown to any case writer; `google.maps.key` unset instance-wide) | `sp_instance` `29af3d50d7000200a9ad1e173e24d4d7` deleted (Ticket Location widget `2795e5e2ff123100ba13ffffffffff84`, column `a77f3d50d7000200a9ad1e173e24d488`, order 2, title "Location") | Re-create the instance with those values |
+
+Also: the red "Your request has been submitted" banner was the portal record's
+`css_variables` ($brand-primary/#link-color were #cf1d25) — fixed in
+`deploy/03-portal.js`; portal vars beat theme `!default` values.
+
 ### Quick Links widget
 
 In `widgets/ahc-quick-links/template.html`, change:

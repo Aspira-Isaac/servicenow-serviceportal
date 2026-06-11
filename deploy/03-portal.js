@@ -9,18 +9,20 @@ module.exports = async function deployPortal(ctx) {
   const CAT_PAGE_SYS_ID = 'fe87a11147132100ba13a5554ee490b9'; // catalog page
 
   // Portal-level CSS variable overrides (format matches existing portals: $var:value;\n)
+  // NOTE: these beat the theme's !default values — primary/links must be navy
+  // here or OOTB widgets (e.g. the ticket page's bg-primary banner) render red
   const CSS_VARIABLES = [
     '$navbar-inverse-bg:#1c1c1c;',
     '$navbar-inverse-link-color:#ffffff;',
-    '$navbar-inverse-link-hover-color:#cf1d25;',
-    '$navbar-inverse-link-active-color:#cf1d25;',
-    '$brand-primary:#cf1d25;',
+    '$navbar-inverse-link-hover-color:#ffffff;',
+    '$navbar-inverse-link-active-color:#ffffff;',
+    '$brand-primary:#1a2980;',
     '$brand-danger:#cf1d25;',
     '$body-bg:#ffffff;',
     '$sp-homepage-bg:#f5f5f5;',
     '$text-color:#333333;',
     '$sp-tagline-color:#1c1c1c;',
-    '$link-color:#cf1d25;',
+    '$link-color:#1a2980;',
     '$btn-danger-bg:#cf1d25;',
     '$btn-danger-border:#a8161c;',
   ].join('\n');
