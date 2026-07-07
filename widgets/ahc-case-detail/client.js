@@ -29,6 +29,7 @@ function($scope, $rootScope, $element, $timeout) {
   c.selectedFontLabel = 'System Font';
   c.navigating        = false;
   c.descOpen          = true;
+  c.detailsOpen       = true;
 
   // Close dropdowns when clicking outside — removed on $destroy so SPA
   // navigation doesn't stack stale listeners on destroyed scopes

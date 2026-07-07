@@ -215,14 +215,22 @@
       var emailType = emailGr.getValue('type') || 'sent';
       var createdBy = emailGr.getValue('sys_created_by') || '';
       userNames[createdBy] = true;
+      // Received emails are created by "system" — the real sender lives in
+      // from_string ("Alexis Naill <a@b.gov>" or a bare address)
+      var senderName = '';
+      if (emailType === 'received' && emailFrom) {
+        var fromMatch = emailFrom.match(/^\s*"?([^"<]+?)"?\s*</);
+        senderName = fromMatch ? fromMatch[1].trim() : emailFrom.replace(/[<>]/g, '').trim();
+      }
       tempEntries.push({
-        username:   createdBy,
-        created:    emailGr.getDisplayValue('sys_created_on'),
-        createdRaw: emailGr.getValue('sys_created_on'),
-        value:      emailBody,
-        isEmail:    true,
-        emailFrom:  emailFrom,
-        emailType:  emailType
+        username:    createdBy,
+        displayName: senderName,
+        created:     emailGr.getDisplayValue('sys_created_on'),
+        createdRaw:  emailGr.getValue('sys_created_on'),
+        value:       emailBody,
+        isEmail:     true,
+        emailFrom:   emailFrom,
+        emailType:   emailType
       });
     }
   } catch(e) { /* sys_email not accessible */ }
@@ -266,7 +274,7 @@
   var activity = [];
   for (var i = 0; i < tempEntries.length; i++) {
     var entry    = tempEntries[i];
-    var fullName = nameMap[entry.username] || entry.username;
+    var fullName = entry.displayName || nameMap[entry.username] || entry.username;
     var entryMs  = new Date(entry.createdRaw.replace(' ', 'T')).getTime();
 
     // Correlate image attachments: same author, within 2 minutes of this entry

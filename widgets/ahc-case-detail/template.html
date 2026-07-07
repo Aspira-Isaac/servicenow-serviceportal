@@ -327,7 +327,7 @@
                     <span class="ahc-cd__entry-author">{{e.authorName}}</span>
                     <span class="ahc-cd__entry-email-tag" ng-if="e.isEmail">
                       <i class="fa fa-envelope-o"></i>
-                      {{e.emailType === 'receive' ? 'Inbound email' : 'Outbound email'}}
+                      {{e.emailType === 'received' ? 'Email received' : 'Email sent'}}
                     </span>
                     <span class="ahc-cd__entry-time" title="{{e.created}}"><sn-time-ago timestamp="e.createdRaw"></sn-time-ago></span>
                   </div>
@@ -360,12 +360,17 @@
           <!-- ── RIGHT: Details + Attachments ──────────────────────── -->
           <div class="ahc-cd__sidebar">
 
-            <!-- Case Details card -->
+            <!-- Case Details card (collapsible so Attachments stays reachable) -->
             <div class="ahc-cd__card">
-              <div class="ahc-cd__card-head">
+              <div class="ahc-cd__card-head ahc-cd__card-head--toggle"
+                   ng-click="c.detailsOpen = !c.detailsOpen">
                 <i class="fa fa-info-circle"></i> Case Details
+                <button class="ahc-cd__card-toggle" type="button">
+                  <i class="fa" ng-class="c.detailsOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                  {{c.detailsOpen ? 'Hide' : 'Show'}}
+                </button>
               </div>
-              <div class="ahc-cd__card-body">
+              <div class="ahc-cd__card-body" ng-show="c.detailsOpen">
 
                 <div class="ahc-cd__group"
                      ng-if="data.openedBy || data.contact || data.openedByEmail || data.openedByPhone">
