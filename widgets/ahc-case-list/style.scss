@@ -64,6 +64,16 @@
   background: #f8f9fc;
 }
 
+/* Fluid wrapper — use the full viewport width (capped for ultrawide) */
+.ahc-cl__wrap {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+@media (max-width: 768px) {
+  .ahc-cl__wrap { padding: 0 16px; }
+}
+
 .ahc-cl__header {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -456,13 +466,20 @@
 .ahc-cl__layout {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 232px 1fr;
-  grid-template-columns: 232px 1fr;
+  -ms-grid-columns: 232px minmax(0, 1fr);
+  grid-template-columns: 232px minmax(0, 1fr);
   gap: 22px;
   -webkit-box-align: start;
   -ms-flex-align: start;
   align-items: start;
 }
+/* Collapsed: sidebar shrinks to a slim rail, list takes the width */
+.ahc-cl__layout--closed {
+  -ms-grid-columns: 46px minmax(0, 1fr);
+  grid-template-columns: 46px minmax(0, 1fr);
+}
+/* min-width:0 lets the list column shrink instead of forcing X scroll */
+.ahc-cl__main { min-width: 0; }
 .ahc-cl__side {
   position: -webkit-sticky;
   position: sticky;
@@ -675,4 +692,120 @@
   font-size: 0.76em;
   color: #94a3b8;
   font-style: italic;
+}
+
+/* Sidebar collapse — head actions + slim rail */
+.ahc-cl__side-head-actions {
+  margin-left: auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 10px;
+}
+.ahc-cl__side-head-actions .ahc-cl__side-clear { margin-left: 0; }
+.ahc-cl__side-collapse {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  font-size: 1.05em;
+  color: #94a3b8;
+  cursor: pointer;
+  -webkit-transition: color 0.15s;
+  transition: color 0.15s;
+}
+.ahc-cl__side-collapse:hover { color: #1a2980; }
+
+.ahc-cl__side-rail {
+  position: relative;
+  width: 46px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(15,23,42,0.06), 0 1px 3px rgba(15,23,42,0.05);
+  padding: 14px 0 16px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 12px;
+  color: #475569;
+  cursor: pointer;
+  -webkit-transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.ahc-cl__side-rail:hover {
+  border-color: #c7d2fe;
+  color: #1a2980;
+  box-shadow: 0 10px 28px rgba(26,41,128,0.12), 0 1px 3px rgba(15,23,42,0.05);
+}
+.ahc-cl__side-rail i { font-size: 1.05em; }
+.ahc-cl__side-rail-label {
+  -webkit-writing-mode: vertical-rl;
+  -ms-writing-mode: tb-rl;
+  writing-mode: vertical-rl;
+  font-size: 0.68em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.6px;
+  color: inherit;
+}
+.ahc-cl__side-rail-badge {
+  position: absolute;
+  top: 6px;
+  right: 5px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #cf1d25;
+  color: #fff;
+  font-size: 0.62em;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  padding: 0 4px;
+}
+
+/* Smooth sidebar collapse/expand.
+   ngAnimate delays ng-if removal when the element has a CSS transition
+   (the rail's hover transition) — that's the laggy two-step swap. Leaving
+   elements go instantly; entering ones get a quick fade+slide; the grid
+   column width itself eases. */
+.ahc-cl__layout {
+  -webkit-transition: grid-template-columns 0.22s ease;
+  transition: grid-template-columns 0.22s ease;
+}
+.ahc-cl__side-rail.ng-leave,
+.ahc-cl__side-card.ng-leave { display: none !important; }
+.ahc-cl__side-card.ng-enter {
+  opacity: 0;
+  -webkit-transform: translateX(-10px);
+  transform: translateX(-10px);
+  -webkit-transition: opacity 0.2s ease, -webkit-transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.ahc-cl__side-card.ng-enter-active {
+  opacity: 1;
+  -webkit-transform: none;
+  transform: none;
+}
+.ahc-cl__side-rail.ng-enter {
+  opacity: 0;
+  -webkit-transition: opacity 0.18s ease 0.08s;
+  transition: opacity 0.18s ease 0.08s;
+}
+.ahc-cl__side-rail.ng-enter-active { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ahc-cl__layout { -webkit-transition: none; transition: none; }
+  .ahc-cl__side-card.ng-enter,
+  .ahc-cl__side-rail.ng-enter { -webkit-transition: none; transition: none; opacity: 1; -webkit-transform: none; transform: none; }
 }

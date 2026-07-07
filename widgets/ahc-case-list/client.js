@@ -20,6 +20,19 @@ function($scope, $location, $rootScope, $timeout) {
   c.locSearch = '';
   c.catSearch = '';
 
+  // Whole sidebar collapses to a slim rail; choice sticks for the session
+  var SIDE_KEY = 'ahc-cl-side-open';
+  c.sideOpen = true;
+  try { c.sideOpen = sessionStorage.getItem(SIDE_KEY) !== '0'; } catch(e) {}
+  c.toggleSide = function() {
+    c.sideOpen = !c.sideOpen;
+    try { sessionStorage.setItem(SIDE_KEY, c.sideOpen ? '1' : '0'); } catch(e) {}
+  };
+  c.activeCount = function() {
+    return (c.filter !== 'all' ? 1 : 0) + (c.opener !== 'everyone' ? 1 : 0) +
+           (c.location ? 1 : 0) + (c.category ? 1 : 0);
+  };
+
   function reload() {
     c.loading = true;
     c.server.get({

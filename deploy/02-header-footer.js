@@ -934,9 +934,8 @@ const FOOTER_CSS = `
    Patched instances renamed the elements (uxa-analytics-root etc.),
    so match the whole uxa-analytics family by id and class. */
 #uxa-analytics-btn,
-[id^="uxa-analytics"],
-[class^="uxa-analytics"],
-[id^="uxa_analytics"] { display: none !important; }
+[id^="uxa"],
+[class^="uxa"] { display: none !important; }
 `.trim();
 
 // ── Server script for the header (reads user + branding) ─────────────────────

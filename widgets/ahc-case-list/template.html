@@ -1,5 +1,5 @@
 <div class="ahc-cl">
-  <div class="container">
+  <div class="ahc-cl__wrap">
 
     <!-- Skeleton loader — visible while server data is in flight -->
     <div ng-if="!data.cases" class="ahc-cl__skeleton">
@@ -55,16 +55,30 @@
     </div>
 
     <!-- Sidebar + list layout -->
-    <div class="ahc-cl__layout">
+    <div class="ahc-cl__layout" ng-class="{'ahc-cl__layout--closed': !c.sideOpen}">
 
       <!-- Filter sidebar -->
       <aside class="ahc-cl__side">
-        <div class="ahc-cl__side-card">
+
+        <!-- Collapsed rail -->
+        <button class="ahc-cl__side-rail" ng-if="!c.sideOpen"
+                ng-click="c.toggleSide()" title="Show filters">
+          <i class="fa fa-sliders"></i>
+          <span class="ahc-cl__side-rail-badge" ng-if="c.activeCount()">{{c.activeCount()}}</span>
+          <span class="ahc-cl__side-rail-label">Filters</span>
+        </button>
+
+        <div class="ahc-cl__side-card" ng-if="c.sideOpen">
           <div class="ahc-cl__side-head">
             <i class="fa fa-sliders"></i> Filters
-            <button class="ahc-cl__side-clear" ng-if="c.hasFilters()" ng-click="c.clearAll()">
-              Clear all
-            </button>
+            <span class="ahc-cl__side-head-actions">
+              <button class="ahc-cl__side-clear" ng-if="c.hasFilters()" ng-click="c.clearAll()">
+                Clear all
+              </button>
+              <button class="ahc-cl__side-collapse" ng-click="c.toggleSide()" title="Hide filters">
+                <i class="fa fa-angle-double-left"></i>
+              </button>
+            </span>
           </div>
 
           <div class="ahc-cl__side-group">
