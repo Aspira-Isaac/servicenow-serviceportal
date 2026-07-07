@@ -215,12 +215,15 @@
       var emailType = emailGr.getValue('type') || 'sent';
       var createdBy = emailGr.getValue('sys_created_by') || '';
       userNames[createdBy] = true;
-      // Received emails are created by "system" — the real sender lives in
-      // from_string ("Alexis Naill <a@b.gov>" or a bare address)
+      // Received emails are created by "system" — the sender is the user_id
+      // reference when the address matched a sys_user, else in from_string
       var senderName = '';
-      if (emailType === 'received' && emailFrom) {
-        var fromMatch = emailFrom.match(/^\s*"?([^"<]+?)"?\s*</);
-        senderName = fromMatch ? fromMatch[1].trim() : emailFrom.replace(/[<>]/g, '').trim();
+      if (emailType === 'received') {
+        senderName = emailGr.getDisplayValue('user_id') || '';
+        if (!senderName && emailFrom) {
+          var fromMatch = emailFrom.match(/^\s*"?([^"<]+?)"?\s*</);
+          senderName = fromMatch ? fromMatch[1].trim() : emailFrom.replace(/[<>]/g, '').trim();
+        }
       }
       tempEntries.push({
         username:    createdBy,
