@@ -34,22 +34,21 @@
       var actActive = (actState !== '3' && actState !== '6' && actState !== '7');
       if (input.action === 'add_comment' && input.comment) {
         actGr.comments = '[code]' + input.comment + '[/code]';
-        actGr.update();
-        data.commentSaved = true;
+        data.commentSaved = !!actGr.update();
       } else if (input.action === 'close_case' && actAccess && actActive) {
+        // Mirror OOTB customer close: resolution fields set alongside the state
         actGr.state = '3';
-        actGr.update();
-        data.actionDone = true;
+        actGr.resolution_code = '4'; // Solved by Customer
+        actGr.close_notes = 'Closed by customer.';
+        data.actionDone = !!actGr.update();
       } else if (input.action === 'accept_solution' && actAccess && actState === '6') {
         actGr.state = '3';
-        actGr.update();
-        data.actionDone = true;
+        data.actionDone = !!actGr.update();
       } else if (input.action === 'reject_solution' && actAccess && actState === '6' && input.comment) {
         // Mirror OOTB Reject Solution: reason is required and posted as a comment
         actGr.comments = input.comment;
         actGr.state = '2'; // back to Assigned so the agent picks it up again
-        actGr.update();
-        data.actionDone = true;
+        data.actionDone = !!actGr.update();
       }
     } else {
       data.actionError = true;
@@ -78,6 +77,7 @@
   data.stateVal    = stateVal;
   data.badgeClass  = stateBadge[stateVal] || 'open';
   data.priority    = gr.getDisplayValue('priority');
+  data.priorityVal = gr.getValue('priority');
   data.created     = gr.getDisplayValue('sys_created_on');
   data.updated     = gr.getDisplayValue('sys_updated_on');
   data.createdRaw  = gr.getValue('sys_created_on');
@@ -101,9 +101,7 @@
   data.account        = gr.getDisplayValue('account');
   data.location       = gr.getDisplayValue('location');
 
-  // Assignment
-  data.assignmentGroup = gr.getDisplayValue('assignment_group');
-  data.assignedTo      = gr.getDisplayValue('assigned_to');
+  // Assignment intentionally omitted — not exposed to portal clients
 
   // Classification
   data.category    = gr.getDisplayValue('category');
@@ -196,6 +194,44 @@
     });
   }
 
+  // Email communications — skip during action calls so send/close/accept respond immediately;
+  // server.refresh() after each action re-runs this without an input.action.
+  if (!input || !input.action) try {
+    var emailGr = new GlideRecord('sys_email');
+    emailGr.addQuery('target_table', 'sn_customerservice_case');
+    emailGr.addQuery('instance', sysId);
+    emailGr.addQuery('type', 'IN', 'sent,received');
+    emailGr.setLimit(100);
+    emailGr.orderByDesc('sys_created_on');
+    emailGr.query();
+    while (emailGr.next()) {
+      var bodyHtml  = emailGr.getValue('body_html') || '';
+      var bodyText  = emailGr.getValue('body_text') || '';
+      var emailBody = bodyHtml || bodyText
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+      if (!emailBody) continue;
+      var emailFrom = emailGr.getValue('from_string') || '';
+      var emailType = emailGr.getValue('type') || 'sent';
+      var createdBy = emailGr.getValue('sys_created_by') || '';
+      userNames[createdBy] = true;
+      tempEntries.push({
+        username:   createdBy,
+        created:    emailGr.getDisplayValue('sys_created_on'),
+        createdRaw: emailGr.getValue('sys_created_on'),
+        value:      emailBody,
+        isEmail:    true,
+        emailFrom:  emailFrom,
+        emailType:  emailType
+      });
+    }
+  } catch(e) { /* sys_email not accessible */ }
+
+  // Sort newest first — email entries may be interleaved with journal comments
+  tempEntries.sort(function(a, b) {
+    return b.createdRaw > a.createdRaw ? 1 : b.createdRaw < a.createdRaw ? -1 : 0;
+  });
+
   // Bulk-resolve usernames → full display names
   var nameMap = {};
   var unameList = Object.keys(userNames);
@@ -251,7 +287,10 @@
       createdRaw:    entry.createdRaw,
       value:         entry.value,
       images:        entryImages,
-      isMine:        (entry.username === currentUsername)
+      isMine:        (entry.username === currentUsername),
+      isEmail:       !!entry.isEmail,
+      emailFrom:     entry.emailFrom || '',
+      emailType:     entry.emailType || ''
     });
   }
   data.activity = activity;

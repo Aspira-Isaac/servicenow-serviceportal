@@ -1,5 +1,19 @@
-function($scope, $rootScope) {
+function($scope, $rootScope, $element, $timeout) {
   var c = this;
+
+  // Always resolve elements within THIS widget instance — document-level
+  // lookups can grab a stale editor from a previous SPA page and silently
+  // read empty text.
+  function findEditor() {
+    return $element[0].querySelector('.ahc-cd__reply-editor');
+  }
+
+  // Enable editing after the template is compiled — see the template comment
+  // on why contenteditable can't live in the markup
+  $timeout(function() {
+    var ed = findEditor();
+    if (ed) ed.contentEditable = 'true';
+  });
 
   // Tell the nav which page we're on, and clear the overlay
   // (every nav path that sets ahcOverlay relies on the destination widget to clear it)
@@ -14,13 +28,19 @@ function($scope, $rootScope) {
   c.showFontPicker    = false;
   c.selectedFontLabel = 'System Font';
   c.navigating        = false;
+  c.descOpen          = true;
 
-  // Close dropdowns when clicking outside
-  document.addEventListener('click', function() {
-    $scope.$apply(function() {
+  // Close dropdowns when clicking outside — removed on $destroy so SPA
+  // navigation doesn't stack stale listeners on destroyed scopes
+  function onDocClick() {
+    $scope.$applyAsync(function() {
       c.showActions    = false;
       c.showFontPicker = false;
     });
+  }
+  document.addEventListener('click', onDocClick);
+  $scope.$on('$destroy', function() {
+    document.removeEventListener('click', onDocClick);
   });
 
   c.toggleActions = function($event) {
@@ -28,11 +48,24 @@ function($scope, $rootScope) {
     c.showActions = !c.showActions;
   };
 
+  // All widget actions go through server.get — server.update() can post the
+  // whole data object instead of the argument (same trap as the header widget).
+  // The error branch matters: without it a single failed call leaves the
+  // busy flags stuck and every later click silently does nothing.
+  function serverAction(inputObj) {
+    return c.server.get(inputObj).then(function(resp) {
+      return (resp && resp.data) ? resp.data : {};
+    }, function(err) {
+      console.error('[ahc-case-detail] server action failed:', inputObj.action, err);
+      return {};
+    });
+  }
+
   c.performAction = function(action) {
     c.showActions = false;
     c.actionError = false;
-    c.server.update({ action: action }).then(function() {
-      if (c.data.actionDone) {
+    serverAction({ action: action }).then(function(rd) {
+      if (rd.actionDone) {
         c.server.refresh();
       } else {
         c.actionError = true;
@@ -58,6 +91,24 @@ function($scope, $rootScope) {
     c.performAction('close_case');
   };
 
+  // Accept Solution confirmation
+  c.showAccept = false;
+
+  c.startAccept = function() {
+    c.showActions = false;
+    c.actionError = false;
+    c.showAccept  = true;
+  };
+
+  c.cancelAccept = function() {
+    c.showAccept = false;
+  };
+
+  c.confirmAccept = function() {
+    c.showAccept = false;
+    c.performAction('accept_solution');
+  };
+
   // Reject Solution — mirrors OOTB CSM: a reason is required and is posted
   // as a comment along with the state change
   c.showReject   = false;
@@ -79,10 +130,10 @@ function($scope, $rootScope) {
     var reason = (c.rejectReason || '').trim();
     if (!reason || c.rejecting) return;
     c.rejecting = true;
-    c.server.update({ action: 'reject_solution', comment: reason }).then(function() {
+    serverAction({ action: 'reject_solution', comment: reason }).then(function(rd) {
       c.rejecting  = false;
       c.showReject = false;
-      if (c.data.actionDone) {
+      if (rd.actionDone) {
         c.server.refresh();
       } else {
         c.actionError = true;
@@ -92,7 +143,7 @@ function($scope, $rootScope) {
 
   c.format = function(cmd, val) {
     document.execCommand(cmd, false, val || null);
-    var ed = document.querySelector('.ahc-cd__reply-editor');
+    var ed = findEditor();
     if (ed) ed.focus();
   };
 
@@ -104,7 +155,7 @@ function($scope, $rootScope) {
   c.setFont = function(fontName, label) {
     c.showFontPicker    = false;
     c.selectedFontLabel = label || 'System Font';
-    var ed = document.querySelector('.ahc-cd__reply-editor');
+    var ed = findEditor();
     if (!ed) return;
     ed.focus();
     if (fontName) {
@@ -115,7 +166,7 @@ function($scope, $rootScope) {
   };
 
   c.toggleCode = function() {
-    var ed = document.querySelector('.ahc-cd__reply-editor');
+    var ed = findEditor();
     if (!ed) return;
     ed.focus();
     var sel = window.getSelection();
@@ -132,24 +183,25 @@ function($scope, $rootScope) {
   };
 
   c.clearEditor = function() {
-    var ed = document.querySelector('.ahc-cd__reply-editor');
+    var ed = findEditor();
     if (ed) ed.innerHTML = '';
   };
 
   c.submitComment = function() {
     if (c.sending) return;
-    var ed   = document.querySelector('.ahc-cd__reply-editor');
+    var ed   = findEditor();
     var html = ed ? ed.innerHTML : '';
     var text = ed ? (ed.innerText || ed.textContent || '').trim() : '';
+    if (!ed) console.error('[ahc-case-detail] reply editor not found in widget element');
     if (!text) return;
 
     c.sending   = true;
     c.sent      = false;
     c.sendError = false;
 
-    c.server.update({ action: 'add_comment', comment: html })
-      .then(function() {
-        if (c.data.commentSaved) {
+    serverAction({ action: 'add_comment', comment: html })
+      .then(function(rd) {
+        if (rd.commentSaved) {
           c.sent = true;
           c.clearEditor();
           c.server.refresh().then(function() { c.sending = false; });

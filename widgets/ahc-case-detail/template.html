@@ -55,7 +55,7 @@
                   <i class="fa fa-times-circle-o"></i> Close Case
                 </button>
                 <button class="ahc-cd__actions-item ahc-cd__actions-item--success" ng-if="data.canAccept"
-                        ng-click="c.performAction('accept_solution')">
+                        ng-click="c.startAccept()">
                   <i class="fa fa-thumbs-o-up"></i> Accept Solution
                 </button>
                 <button class="ahc-cd__actions-item" ng-if="data.canReject"
@@ -88,6 +88,22 @@
       </div>
     </div>
 
+    <!-- Accept Solution confirmation modal -->
+    <div class="ahc-cd__modal-backdrop" ng-if="c.showAccept" ng-click="c.cancelAccept()"></div>
+    <div class="ahc-cd__modal" ng-if="c.showAccept" role="dialog" aria-label="Accept Solution">
+      <div class="ahc-cd__modal-title">Accept Solution</div>
+      <p class="ahc-cd__modal-text">
+        Are you sure this solution resolved your issue?<br />
+        The case will be closed.
+      </p>
+      <div class="ahc-cd__modal-actions">
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--ghost" type="button"
+                ng-click="c.cancelAccept()">Cancel</button>
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--success" type="button"
+                ng-click="c.confirmAccept()">Accept Solution</button>
+      </div>
+    </div>
+
     <!-- Reject Solution modal — reason is required (mirrors OOTB CSM) -->
     <div class="ahc-cd__modal-backdrop" ng-if="c.showReject" ng-click="c.cancelReject()"></div>
     <div class="ahc-cd__modal" ng-if="c.showReject" role="dialog" aria-label="Reject Solution">
@@ -106,13 +122,45 @@
       </div>
     </div>
 
-    <!-- Hero -->
+    <!-- Hero — dusk poster scene, echoes the home hero -->
     <div class="ahc-cd__hero">
+      <div class="ahc-cd__hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 1440 150" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <path id="ahc-cd-pine" d="M0 0 L-16 0 L-7 -10 L-12 -10 L-4 -22 L-9 -22 L0 -46 L9 -22 L4 -22 L12 -10 L7 -10 L16 0 Z"/>
+          </defs>
+          <g fill="#fff">
+            <circle cx="120"  cy="34" r="1.6" opacity="0.18"/>
+            <circle cx="340"  cy="22" r="1.2" opacity="0.13"/>
+            <circle cx="560"  cy="44" r="1.4" opacity="0.15"/>
+            <circle cx="820"  cy="20" r="1.7" opacity="0.19"/>
+            <circle cx="1040" cy="38" r="1.2" opacity="0.12"/>
+            <circle cx="1260" cy="26" r="1.5" opacity="0.16"/>
+            <circle cx="1400" cy="52" r="1.2" opacity="0.11"/>
+          </g>
+          <path fill="rgba(255,255,255,0.06)" d="M0 96 Q 140 72 280 86 T 560 82 T 840 92 T 1120 76 T 1440 88 L 1440 150 L 0 150 Z"/>
+          <path fill="rgba(8,12,52,0.42)" d="M0 122 Q 120 102 240 112 T 480 108 T 720 118 T 960 104 T 1200 116 T 1440 108 L 1440 150 L 0 150 Z"/>
+          <g fill="rgba(6,9,40,0.6)">
+            <use href="#ahc-cd-pine" transform="translate(90,136)"/>
+            <use href="#ahc-cd-pine" transform="translate(130,140) scale(0.7)"/>
+            <use href="#ahc-cd-pine" transform="translate(168,134) scale(0.9)"/>
+            <use href="#ahc-cd-pine" transform="translate(1270,136) scale(0.85)"/>
+            <use href="#ahc-cd-pine" transform="translate(1310,140) scale(0.65)"/>
+            <use href="#ahc-cd-pine" transform="translate(1352,134)"/>
+          </g>
+        </svg>
+      </div>
       <div class="container">
-        <p class="ahc-cd__hero-num">{{data.number}}</p>
-        <h1 class="ahc-cd__hero-title">{{data.shortDesc}}</h1>
-        <div class="ahc-cd__hero-meta" ng-if="data.account">
-          <i class="fa fa-building-o"></i> {{data.account}}
+        <div class="ahc-cd__hero-inner">
+          <span class="ahc-cd__hero-tag">
+            <i class="fa fa-hashtag"></i>{{data.number}}
+          </span>
+          <h1 class="ahc-cd__hero-title">{{data.shortDesc}}</h1>
+          <div class="ahc-cd__hero-meta" ng-if="data.account">
+            <span class="ahc-cd__hero-rule"></span>
+            <i class="fa fa-tree"></i> {{data.account}}
+            <span class="ahc-cd__hero-rule"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -124,6 +172,22 @@
 
           <!-- ── LEFT: Conversation ─────────────────────────────────── -->
           <div class="ahc-cd__main">
+
+            <!-- Description (collapsible, full-width above conversation) -->
+            <div class="ahc-cd__desc-card" ng-if="data.description">
+              <div class="ahc-cd__desc-head" ng-click="c.descOpen = !c.descOpen">
+                <span class="ahc-cd__section-title">
+                  <i class="fa fa-align-left"></i> Description
+                </span>
+                <button class="ahc-cd__desc-toggle" type="button">
+                  <i class="fa" ng-class="c.descOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                  {{c.descOpen ? 'Hide' : 'Show'}}
+                </button>
+              </div>
+              <div class="ahc-cd__desc-body" ng-show="c.descOpen">
+                <div class="ahc-cd__desc-text">{{data.description}}</div>
+              </div>
+            </div>
 
             <div class="ahc-cd__section-head">
               <span class="ahc-cd__section-title">
@@ -221,8 +285,11 @@
                   <i class="fa fa-code"></i>
                 </button>
               </div>
+              <!-- contentEditable is set from the client script: the attribute in
+                   markup triggers the platform's contenteditable directive (requires
+                   ngModel) on patched instances, and the $compile error it throws
+                   kills every binding after this node — including Send's ng-click -->
               <div class="ahc-cd__reply-editor"
-                   contenteditable="true"
                    data-placeholder="Type your message here..."></div>
               <div class="ahc-cd__reply-footer">
                 <div class="ahc-cd__reply-hints">
@@ -248,10 +315,20 @@
               <div class="ahc-cd__entry"
                    ng-repeat="e in data.activity"
                    ng-class="{'ahc-cd__entry--mine': e.isMine}">
-                <div class="ahc-cd__entry-avatar" title="{{e.authorName}}">{{e.authorInitial}}</div>
-                <div class="ahc-cd__entry-body">
+                <div class="ahc-cd__entry-avatar"
+                     ng-class="{'ahc-cd__entry-avatar--sys': e.isEmail}"
+                     title="{{e.authorName}}">
+                  <span ng-if="!e.isEmail">{{e.authorInitial}}</span>
+                  <i class="fa fa-envelope-o" ng-if="e.isEmail"></i>
+                </div>
+                <div class="ahc-cd__entry-body"
+                     ng-class="{'ahc-cd__entry-body--email': e.isEmail}">
                   <div class="ahc-cd__entry-meta">
                     <span class="ahc-cd__entry-author">{{e.authorName}}</span>
+                    <span class="ahc-cd__entry-email-tag" ng-if="e.isEmail">
+                      <i class="fa fa-envelope-o"></i>
+                      {{e.emailType === 'receive' ? 'Inbound email' : 'Outbound email'}}
+                    </span>
                     <span class="ahc-cd__entry-time" title="{{e.created}}"><sn-time-ago timestamp="e.createdRaw"></sn-time-ago></span>
                   </div>
                   <div class="ahc-cd__entry-text" ng-bind-html="e.value"></div>
@@ -290,6 +367,11 @@
               </div>
               <div class="ahc-cd__card-body">
 
+                <div class="ahc-cd__group"
+                     ng-if="data.openedBy || data.contact || data.openedByEmail || data.openedByPhone">
+                  Contact
+                </div>
+
                 <div class="ahc-cd__detail" ng-if="data.openedBy">
                   <span class="ahc-cd__detail-label">Opened by</span>
                   <span class="ahc-cd__detail-value">{{data.openedBy}}</span>
@@ -308,6 +390,11 @@
                 <div class="ahc-cd__detail" ng-if="data.openedByPhone">
                   <span class="ahc-cd__detail-label">Phone</span>
                   <span class="ahc-cd__detail-value">{{data.openedByPhone}}</span>
+                </div>
+
+                <div class="ahc-cd__group"
+                     ng-if="data.account || data.location || data.environment || data.platform || data.application">
+                  Context
                 </div>
 
                 <div class="ahc-cd__detail" ng-if="data.account">
@@ -335,14 +422,8 @@
                   <span class="ahc-cd__detail-value">{{data.application}}</span>
                 </div>
 
-                <div class="ahc-cd__detail" ng-if="data.assignmentGroup">
-                  <span class="ahc-cd__detail-label">Assignment Group</span>
-                  <span class="ahc-cd__detail-value">{{data.assignmentGroup}}</span>
-                </div>
-
-                <div class="ahc-cd__detail" ng-if="data.assignedTo">
-                  <span class="ahc-cd__detail-label">Assigned To</span>
-                  <span class="ahc-cd__detail-value">{{data.assignedTo}}</span>
+                <div class="ahc-cd__group" ng-if="data.state || data.priority || data.category">
+                  Classification
                 </div>
 
                 <div class="ahc-cd__detail" ng-if="data.state">
@@ -352,7 +433,7 @@
 
                 <div class="ahc-cd__detail" ng-if="data.priority">
                   <span class="ahc-cd__detail-label">Priority</span>
-                  <span class="ahc-cd__detail-value">{{data.priority}}</span>
+                  <span class="ahc-cd__prio ahc-cd__prio--{{data.priorityVal || '4'}}">{{data.priority}}</span>
                 </div>
 
                 <div class="ahc-cd__detail" ng-if="data.category">
@@ -368,11 +449,6 @@
                 <div class="ahc-cd__detail" ng-if="data.market">
                   <span class="ahc-cd__detail-label">Market</span>
                   <span class="ahc-cd__detail-value">{{data.market}}</span>
-                </div>
-
-                <div class="ahc-cd__detail ahc-cd__detail--full" ng-if="data.description">
-                  <span class="ahc-cd__detail-label">Description</span>
-                  <span class="ahc-cd__detail-value ahc-cd__detail-value--pre">{{data.description}}</span>
                 </div>
 
                 <!-- Catalog variables (Platform, Application, Steps to Recreate, etc.) -->
