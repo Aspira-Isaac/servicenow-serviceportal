@@ -1,0 +1,87 @@
+<div class="al">
+
+  <!-- Breadcrumb -->
+  <nav class="al__crumb" aria-label="Breadcrumb">
+    <a href="?id=ahc_kb_search" class="al__crumb-link">
+      <i class="fa fa-book" aria-hidden="true"></i> Knowledge Base
+    </a>
+    <i class="fa fa-angle-right al__crumb-sep" aria-hidden="true"></i>
+    <span class="al__crumb-here">{{data.catName || 'Articles'}}</span>
+  </nav>
+
+  <!-- Page header -->
+  <header class="al__header">
+    <h1 class="al__heading">{{data.catName || 'All Articles'}}</h1>
+    <div class="al__header-meta" ng-if="data.articles.length">
+      <span class="al__total">{{data.articles.length}} article{{data.articles.length !== 1 ? 's' : ''}}</span>
+      <span class="al__filter-badge" ng-show="c.filter">
+        — showing {{c.filtered().length}} match{{c.filtered().length !== 1 ? 'es' : ''}}
+      </span>
+    </div>
+  </header>
+
+  <!-- Filter bar (visible when enough articles) -->
+  <div class="al__filter-row" ng-if="data.articles.length > 4">
+    <div class="al__filter" ng-class="{'al__filter--on': c.filterFocused}">
+      <i class="fa fa-search al__filter-ico" aria-hidden="true"></i>
+      <input
+        type="text"
+        class="al__filter-input"
+        placeholder="Filter articles in this category..."
+        ng-model="c.filter"
+        ng-focus="c.filterFocused = true"
+        ng-blur="c.filterFocused = false"
+        aria-label="Filter articles"
+      />
+      <button
+        class="al__filter-clear"
+        ng-show="c.filter"
+        ng-click="c.filter = ''"
+        type="button"
+        aria-label="Clear filter"
+      ><i class="fa fa-times"></i></button>
+    </div>
+  </div>
+
+  <!-- No articles in category -->
+  <div class="al__empty" ng-if="!data.articles.length">
+    <i class="fa fa-map-o al__empty-ico" aria-hidden="true"></i>
+    <p class="al__empty-msg">No articles in this category yet.</p>
+    <a class="al__empty-link" href="?id=ahc_kb_search">
+      <i class="fa fa-arrow-left"></i> Back to Knowledge Base
+    </a>
+  </div>
+
+  <!-- Filter returned nothing -->
+  <div class="al__empty" ng-if="data.articles.length && !c.filtered().length">
+    <i class="fa fa-search al__empty-ico" aria-hidden="true"></i>
+    <p class="al__empty-msg">No articles match <strong>"{{c.filter}}"</strong></p>
+    <a class="al__empty-link" ng-click="c.filter = ''" href="">Clear filter</a>
+  </div>
+
+  <!-- Article reading index -->
+  <ol class="al__list" ng-if="c.filtered().length">
+    <li
+      class="al__item"
+      ng-repeat="a in c.filtered() track by a.sys_id"
+      ng-style="{'animation-delay': ($index * 35) + 'ms'}"
+    >
+      <a class="al__link" ng-href="?id=ahc_kb_article&sys_id={{::a.sys_id}}" aria-label="{{::a.short_description}}">
+        <span class="al__num" aria-hidden="true">
+          {{$index + 1 < 10 ? '0' + ($index + 1) : ($index + 1)}}
+        </span>
+        <div class="al__body">
+          <h4 class="al__title">{{::a.short_description}}</h4>
+          <p class="al__snip">{{::a.snippet}}</p>
+        </div>
+        <div class="al__end" aria-hidden="true">
+          <span class="al__views" ng-if="a.view_count">
+            <i class="fa fa-eye"></i> {{::a.view_count}}
+          </span>
+          <i class="fa fa-long-arrow-right al__arrow"></i>
+        </div>
+      </a>
+    </li>
+  </ol>
+
+</div>

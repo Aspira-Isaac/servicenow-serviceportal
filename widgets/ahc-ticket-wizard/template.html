@@ -89,6 +89,40 @@
       <span class="ahc-wizard__char-count">{{160 - (c.form.short_description.length || 0)}} characters remaining</span>
     </div>
 
+    <!-- KB Deflection panel -->
+    <div class="ahc-wizard__deflect"
+         ng-if="!c.deflection.dismissed && (c.deflection.loading || c.deflection.articles.length)">
+      <div class="ahc-wizard__deflect-head">
+        <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+        <span ng-if="c.deflection.loading">Looking for related articles…</span>
+        <span ng-if="!c.deflection.loading">Before you submit, these articles might help:</span>
+      </div>
+      <div class="ahc-wizard__deflect-dots" ng-if="c.deflection.loading">
+        <span class="ahc-wizard__deflect-dot"></span>
+        <span class="ahc-wizard__deflect-dot"></span>
+        <span class="ahc-wizard__deflect-dot"></span>
+      </div>
+      <div ng-if="!c.deflection.loading && c.deflection.articles.length">
+        <a class="ahc-wizard__deflect-item"
+           ng-repeat="a in c.deflection.articles track by a.sys_id"
+           ng-href="?id=ahc_kb_article&sys_id={{::a.sys_id}}"
+           target="_blank" rel="noopener">
+          <i class="fa fa-file-text-o ahc-wizard__deflect-ico" aria-hidden="true"></i>
+          <div class="ahc-wizard__deflect-item-body">
+            <span class="ahc-wizard__deflect-item-title">{{::a.title}}</span>
+            <span class="ahc-wizard__deflect-item-cat" ng-if="::a.cat">{{::a.cat}}</span>
+          </div>
+          <i class="fa fa-external-link ahc-wizard__deflect-ext" aria-hidden="true"></i>
+        </a>
+        <div class="ahc-wizard__deflect-footer">
+          <button class="ahc-wizard__deflect-dismiss" type="button"
+                  ng-click="c.dismissDeflection()">
+            These didn't help — continue with my ticket <i class="fa fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div class="form-group ahc-wizard__field">
       <label class="ahc-wizard__label">Additional details</label>
       <textarea

@@ -1,0 +1,101 @@
+<div class="ks">
+
+  <!-- ── Search bar ────────────────────────────────────────────── -->
+  <div class="ks__bar-wrap">
+    <div class="ks__bar">
+      <i class="fa fa-search ks__bar-ico" aria-hidden="true"></i>
+      <input
+        type="text"
+        class="ks__bar-input"
+        placeholder="Search articles, guides, and FAQs..."
+        ng-model="c.query"
+        ng-keyup="$event.keyCode == 13 && c.search()"
+        aria-label="Search knowledge base"
+        autocomplete="off"
+      />
+      <button class="ks__bar-btn" ng-click="c.search()" type="button" aria-label="Search">
+        Search
+      </button>
+    </div>
+  </div>
+
+  <!-- ── KB filter tabs (only when multiple KBs) ───────────────── -->
+  <div class="ks__tabs" ng-if="data.knowledgeBases.length > 1" role="tablist">
+    <button
+      class="ks__tab"
+      ng-class="{'ks__tab--on': c.activeKb === 'all'}"
+      ng-click="c.filterByKb('all')"
+      type="button"
+      role="tab"
+    >All</button>
+    <button
+      class="ks__tab"
+      ng-class="{'ks__tab--on': c.activeKb === kb.sys_id}"
+      ng-repeat="kb in data.knowledgeBases"
+      ng-click="c.filterByKb(kb.sys_id)"
+      type="button"
+      role="tab"
+    >{{kb.title}}</button>
+  </div>
+
+  <!-- ── Loading ──────────────────────────────────────────────── -->
+  <div class="ks__loading" ng-show="c.loading" aria-live="polite" aria-label="Searching">
+    <span class="ks__dot"></span>
+    <span class="ks__dot"></span>
+    <span class="ks__dot"></span>
+  </div>
+
+  <!-- ── Results ──────────────────────────────────────────────── -->
+  <div ng-show="!c.loading && c.hasSearched">
+
+    <div class="ks__meta" ng-show="c.results.length">
+      <strong class="ks__meta-count">{{c.results.length}}</strong>
+      result{{c.results.length !== 1 ? 's' : ''}}
+      <span ng-if="c.query"> for <em class="ks__meta-term">"{{c.query}}"</em></span>
+    </div>
+
+    <ol class="ks__list">
+      <li
+        class="ks__item"
+        ng-repeat="a in c.results"
+        ng-click="c.openArticle(a.sys_id)"
+        ng-style="{'animation-delay': ($index * 40) + 'ms'}"
+        tabindex="0"
+        ng-keyup="$event.keyCode == 13 && c.openArticle(a.sys_id)"
+        role="button"
+        aria-label="{{a.short_description}}"
+      >
+        <span class="ks__item-n" aria-hidden="true">
+          {{$index + 1 < 10 ? '0' + ($index + 1) : ($index + 1)}}
+        </span>
+        <div class="ks__item-body">
+          <span class="ks__item-tag">{{a.kb_label}}</span>
+          <h3 class="ks__item-title">{{a.short_description}}</h3>
+          <p class="ks__item-snip">{{a.snippet}}</p>
+        </div>
+        <div class="ks__item-end" aria-hidden="true">
+          <span class="ks__item-views" ng-if="a.view_count">
+            <i class="fa fa-eye"></i> {{a.view_count}}
+          </span>
+          <i class="fa fa-long-arrow-right ks__item-arrow"></i>
+        </div>
+      </li>
+    </ol>
+
+    <!-- Empty results -->
+    <div class="ks__empty" ng-show="!c.results.length">
+      <i class="fa fa-compass ks__empty-ico" aria-hidden="true"></i>
+      <p class="ks__empty-msg">No articles found for <strong>"{{c.query}}"</strong></p>
+      <p class="ks__empty-sub">Try different keywords, or
+        <a href="?id=sc_category&catalog_id=-1">open a support ticket</a> and we'll help directly.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ── Initial state ────────────────────────────────────────── -->
+  <div class="ks__prompt" ng-show="!c.hasSearched && !c.loading">
+    <p>Type a keyword above to search — or browse categories below</p>
+  </div>
+
+</div>

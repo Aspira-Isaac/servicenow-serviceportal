@@ -1,0 +1,194 @@
+<div class="ahc-cat">
+
+  <!-- ── Left sidebar ─────────────────────────────────────────────────── -->
+  <aside class="ahc-cat__sidebar">
+    <p class="ahc-cat__sidebar-heading">Browse Topics</p>
+
+    <ul class="ahc-cat__sidebar-list">
+      <li class="ahc-cat__sidebar-item"
+          ng-class="{'is-active': c.view === 'home' || c.view === 'search'}">
+        <a class="ahc-cat__sidebar-link" ng-click="c.goHome()">
+          <i class="fa fa-th-large ahc-cat__sidebar-all-icon"></i>
+          <span class="ahc-cat__sidebar-label">All categories</span>
+        </a>
+      </li>
+      <li class="ahc-cat__sidebar-item"
+          ng-class="{'is-active': c.selectedCat && c.selectedCat.sys_id === cat.sys_id}"
+          ng-repeat="cat in data.categories track by cat.sys_id">
+        <div class="ahc-cat__sidebar-link" ng-click="c.selectCategory(cat)">
+          <button class="ahc-cat__sidebar-chevron" type="button"
+                  ng-click="c.toggleSidebarCat(cat, $event)"
+                  ng-class="{'is-open': c.sidebarExpanded[cat.sys_id]}"
+                  aria-label="Toggle {{cat.label}}">
+            <i class="fa fa-chevron-right"></i>
+          </button>
+          <span class="ahc-cat__sidebar-dot" ng-style="{'background': cat.color}"></span>
+          <span class="ahc-cat__sidebar-label">{{::cat.label}}</span>
+          <span class="ahc-cat__sidebar-count">{{::cat.count}}</span>
+        </div>
+        <ul class="ahc-cat__sidebar-arts" ng-if="c.sidebarExpanded[cat.sys_id]">
+          <li ng-if="c.sidebarLoading[cat.sys_id]">
+            <span class="ahc-cat__sidebar-art-loading"><i class="fa fa-spinner fa-spin"></i></span>
+          </li>
+          <li ng-repeat="item in c.sidebarItemMap[cat.sys_id] track by item.sys_id">
+            <a class="ahc-cat__sidebar-art-link"
+               href="{{item.url}}">
+              {{item.title}}
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="ahc-cat__sidebar-cta">
+      <p class="ahc-cat__sidebar-cta-title">Need help?</p>
+      <p class="ahc-cat__sidebar-cta-body">Can't find what you need? Search or browse all categories.</p>
+      <a class="ahc-cat__sidebar-cta-btn" ng-click="c.goHome()">Browse all</a>
+    </div>
+  </aside>
+
+  <!-- ── Main content ──────────────────────────────────────────────────── -->
+  <main class="ahc-cat__main">
+
+    <!-- Loading spinner -->
+    <div class="ahc-cat__loading" ng-if="c.loading">
+      <i class="fa fa-spinner fa-spin"></i>
+    </div>
+
+    <!-- ── HOME ──────────────────────────────────────────────────────── -->
+    <div ng-if="c.view === 'home' && !c.loading">
+
+      <div class="ahc-cat__hero">
+        <div class="ahc-cat__hero-inner">
+          <h1 class="ahc-cat__hero-title">Submit a request</h1>
+          <p class="ahc-cat__hero-sub">Search for a service or browse by category below.</p>
+          <div class="ahc-cat__search-bar">
+            <i class="fa fa-search"></i>
+            <input class="ahc-cat__search-input" type="text"
+                   placeholder="Search services and requests..."
+                   ng-model="c.searchTerm"
+                   ng-keyup="c.onSearchKey($event)"
+                   aria-label="Search catalog">
+            <button class="ahc-cat__search-btn" type="button" ng-click="c.doSearch()">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ahc-cat__content-pad">
+
+        <div class="ahc-cat__section-header">
+          <h2 class="ahc-cat__section-title">Browse by category</h2>
+          <span class="ahc-cat__section-meta">{{data.totalItems}} item{{data.totalItems !== 1 ? 's' : ''}} &middot; {{data.categories.length}} categor{{data.categories.length !== 1 ? 'ies' : 'y'}}</span>
+        </div>
+
+        <div class="ahc-cat__cat-grid">
+          <a class="ahc-cat__cat-card" ng-click="c.selectCategory(cat)"
+             ng-repeat="cat in data.categories track by cat.sys_id">
+            <div class="ahc-cat__cat-icon">
+              <i class="fa" ng-class="::cat.icon"></i>
+            </div>
+            <h3 class="ahc-cat__cat-name">{{::cat.label}}</h3>
+            <p class="ahc-cat__cat-desc" ng-if="::cat.desc">{{::cat.desc}}</p>
+            <span class="ahc-cat__cat-cta">{{::cat.count}} item{{cat.count !== 1 ? 's' : ''}} &rarr;</span>
+          </a>
+        </div>
+
+        <div class="ahc-cat__popular" ng-if="data.popular.length">
+          <h3 class="ahc-cat__sub-title">
+            <i class="fa fa-star"></i> Popular requests
+          </h3>
+          <ul class="ahc-cat__art-list">
+            <li ng-repeat="item in data.popular track by item.sys_id">
+              <a class="ahc-cat__art-row" href="{{item.url}}">
+                <i class="fa fa-file-text-o"></i>
+                <span class="ahc-cat__art-info">
+                  <span class="ahc-cat__art-title">{{::item.title}}</span>
+                  <span class="ahc-cat__art-cat" ng-if="::item.cat_name">{{::item.cat_name}}</span>
+                </span>
+                <span class="ahc-cat__art-request">Request &rarr;</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── SEARCH RESULTS ────────────────────────────────────────────── -->
+    <div ng-if="c.view === 'search' && !c.loading">
+      <div class="ahc-cat__hero ahc-cat__hero--compact">
+        <div class="ahc-cat__hero-inner">
+          <div class="ahc-cat__search-bar">
+            <i class="fa fa-search"></i>
+            <input class="ahc-cat__search-input" type="text"
+                   placeholder="Search services and requests..."
+                   ng-model="c.searchTerm"
+                   ng-keyup="c.onSearchKey($event)"
+                   aria-label="Search catalog">
+            <button class="ahc-cat__search-clear" type="button" ng-click="c.clearSearch()" ng-if="c.searchTerm">
+              <i class="fa fa-times"></i>
+            </button>
+            <button class="ahc-cat__search-btn" type="button" ng-click="c.doSearch()">Search</button>
+          </div>
+        </div>
+      </div>
+      <div class="ahc-cat__content-pad">
+        <div class="ahc-cat__section-header">
+          <h2 class="ahc-cat__section-title">
+            {{c.searchResults.length ? c.searchResults.length : 'No'}} result{{c.searchResults.length !== 1 ? 's' : ''}} for &ldquo;{{c.searchTerm}}&rdquo;
+          </h2>
+        </div>
+        <div class="ahc-cat__empty" ng-if="!c.searchResults.length">
+          <i class="fa fa-search-minus fa-2x"></i>
+          <p>Try different keywords or browse by category.</p>
+          <button class="ahc-cat__empty-btn" ng-click="c.goHome()">Browse categories</button>
+        </div>
+        <ul class="ahc-cat__art-list" ng-if="c.searchResults.length">
+          <li ng-repeat="item in c.searchResults track by item.sys_id">
+            <a class="ahc-cat__art-row" href="{{item.url}}">
+              <i class="fa fa-file-text-o"></i>
+              <span class="ahc-cat__art-info">
+                <span class="ahc-cat__art-title">{{::item.title}}</span>
+                <span class="ahc-cat__art-cat" ng-if="::item.cat_name">{{::item.cat_name}}</span>
+              </span>
+              <span class="ahc-cat__art-request">Request &rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── CATEGORY ──────────────────────────────────────────────────── -->
+    <div ng-if="c.view === 'category' && !c.loading">
+      <div class="ahc-cat__page-header">
+        <button class="ahc-cat__back-btn" type="button" ng-click="c.goHome()">
+          <i class="fa fa-arrow-left"></i> All categories
+        </button>
+        <div class="ahc-cat__page-title-row">
+          <span class="ahc-cat__page-dot" ng-style="{'background': c.selectedCat.color}"></span>
+          <h2 class="ahc-cat__page-title">{{c.selectedCat.label}}</h2>
+          <span class="ahc-cat__page-count">{{c.items.length}} item{{c.items.length !== 1 ? 's' : ''}}</span>
+        </div>
+      </div>
+      <div class="ahc-cat__content-pad ahc-cat__content-pad--top0">
+        <div class="ahc-cat__empty" ng-if="!c.items.length">
+          <i class="fa fa-folder-open-o fa-2x"></i>
+          <p>No items in this category yet.</p>
+        </div>
+        <ul class="ahc-cat__art-list" ng-if="c.items.length">
+          <li ng-repeat="item in c.items track by item.sys_id">
+            <a class="ahc-cat__art-row" href="{{item.url}}">
+              <i class="fa fa-file-text-o"></i>
+              <span class="ahc-cat__art-info">
+                <span class="ahc-cat__art-title">{{::item.title}}</span>
+                <span class="ahc-cat__art-snippet" ng-if="::item.desc">{{::item.desc}}</span>
+              </span>
+              <span class="ahc-cat__art-request">Request &rarr;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </main>
+</div>

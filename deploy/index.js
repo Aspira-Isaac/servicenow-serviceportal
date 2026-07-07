@@ -1,3 +1,10 @@
+/**
+ * Aspira Help Center — PRODUCTION portal deploy
+ * Target: aspiraconnect.service-now.com  (.env)
+ * KB: Consumer Service
+ *
+ * For dev (aspiraconnecttest.service-now.com, Rainger KB): run deploy/index-dev.js
+ */
 require('dotenv').config();
 
 const steps = [

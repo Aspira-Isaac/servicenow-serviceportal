@@ -1,4 +1,4 @@
-function($scope, spUtil) {
+function($scope, $timeout, spUtil) {
   var c = this;
 
   c.step = 1;
@@ -50,6 +50,35 @@ function($scope, spUtil) {
       type: '', typeLabel: '', typeIcon: '',
       category: null, short_description: '', description: '', urgency: '3'
     };
+    c.deflection = { loading: false, articles: [], dismissed: false };
+  };
+
+  // KB deflection — debounced search as the user types the short description
+  c.deflection = { loading: false, articles: [], dismissed: false };
+  var _deflectTimer = null;
+
+  $scope.$watch(function() { return c.form.short_description; }, function(val) {
+    if (c.deflection.dismissed) return;
+    if (_deflectTimer) $timeout.cancel(_deflectTimer);
+    if (!val || val.trim().length < 4) {
+      c.deflection.articles = [];
+      c.deflection.loading = false;
+      return;
+    }
+    c.deflection.loading = true;
+    _deflectTimer = $timeout(function() {
+      c.server.get({ action: 'kb_search', term: val.trim() }).then(function(r) {
+        c.deflection.loading  = false;
+        c.deflection.articles = r.data.kbResults || [];
+      }).catch(function() {
+        c.deflection.loading = false;
+      });
+    }, 600);
+  });
+
+  c.dismissDeflection = function() {
+    if (_deflectTimer) $timeout.cancel(_deflectTimer);
+    c.deflection = { loading: false, articles: [], dismissed: true };
   };
 
   c.submit = function() {

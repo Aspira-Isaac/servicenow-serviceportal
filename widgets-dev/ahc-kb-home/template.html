@@ -1,0 +1,276 @@
+<div class="ahc-kbh" ng-if="data.kbId">
+
+  <!-- ── Left sidebar ─────────────────────────────────────────────────── -->
+  <aside class="ahc-kbh__sidebar">
+    <p class="ahc-kbh__sidebar-heading">Browse Topics</p>
+
+    <ul class="ahc-kbh__sidebar-list">
+      <li class="ahc-kbh__sidebar-item"
+          ng-class="{'is-active': c.view === 'home' || c.view === 'search'}">
+        <a class="ahc-kbh__sidebar-link" ng-click="c.goHome()">
+          <i class="fa fa-th-large ahc-kbh__sidebar-all-icon"></i>
+          <span class="ahc-kbh__sidebar-label">All categories</span>
+        </a>
+      </li>
+      <li class="ahc-kbh__sidebar-item"
+          ng-class="{'is-active': c.selectedCat && c.selectedCat.sys_id === cat.sys_id}"
+          ng-repeat="cat in data.categories track by cat.sys_id">
+        <div class="ahc-kbh__sidebar-link" ng-click="c.selectCategory(cat)">
+          <button class="ahc-kbh__sidebar-chevron" type="button"
+                  ng-click="c.toggleSidebarCat(cat, $event)"
+                  ng-class="{'is-open': c.sidebarExpanded[cat.sys_id]}"
+                  aria-label="Toggle {{cat.label}}">
+            <i class="fa fa-chevron-right"></i>
+          </button>
+          <span class="ahc-kbh__sidebar-dot" ng-style="{'background': cat.color}"></span>
+          <span class="ahc-kbh__sidebar-label">{{::cat.label}}</span>
+          <span class="ahc-kbh__sidebar-count">{{::cat.count}}</span>
+        </div>
+        <ul class="ahc-kbh__sidebar-arts" ng-if="c.sidebarExpanded[cat.sys_id]">
+          <li ng-if="c.sidebarLoading[cat.sys_id]">
+            <span class="ahc-kbh__sidebar-art-loading"><i class="fa fa-spinner fa-spin"></i></span>
+          </li>
+          <li ng-repeat="art in c.sidebarArticleMap[cat.sys_id] track by art.sys_id">
+            <a class="ahc-kbh__sidebar-art-link"
+               ng-click="c.selectArticle(art, cat)"
+               ng-class="{'is-active': c.article && c.article.sys_id === art.sys_id}">
+              {{art.title}}
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="ahc-kbh__sidebar-cta">
+      <p class="ahc-kbh__sidebar-cta-title">Still stuck?</p>
+      <p class="ahc-kbh__sidebar-cta-body">Our support team replies within one business day.</p>
+      <a class="ahc-kbh__sidebar-cta-btn" href="?id=sc_category&amp;catalog_id=-1">Submit a ticket</a>
+    </div>
+  </aside>
+
+  <!-- ── Main content ──────────────────────────────────────────────────── -->
+  <main class="ahc-kbh__main">
+
+    <!-- Loading spinner -->
+    <div class="ahc-kbh__loading" ng-if="c.loading">
+      <i class="fa fa-spinner fa-spin"></i>
+    </div>
+
+    <!-- ── HOME ──────────────────────────────────────────────────────── -->
+    <div ng-if="c.view === 'home' && !c.loading">
+
+      <div class="ahc-kbh__hero">
+        <div class="ahc-kbh__hero-inner">
+          <h1 class="ahc-kbh__hero-title">How can we help?</h1>
+          <p class="ahc-kbh__hero-sub">Search our guides and FAQs, or browse by category below.</p>
+          <div class="ahc-kbh__search-bar">
+            <i class="fa fa-search"></i>
+            <input class="ahc-kbh__search-input" type="text"
+                   placeholder="Search articles, guides, and FAQs..."
+                   ng-model="c.searchTerm"
+                   ng-keyup="c.onSearchKey($event)"
+                   aria-label="Search knowledge base">
+            <button class="ahc-kbh__search-btn" type="button" ng-click="c.doSearch()">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ahc-kbh__content-pad">
+
+        <div class="ahc-kbh__section-header">
+          <h2 class="ahc-kbh__section-title">Browse by category</h2>
+          <span class="ahc-kbh__section-meta">{{data.totalArticles}} article{{data.totalArticles !== 1 ? 's' : ''}} &middot; {{data.categories.length}} categor{{data.categories.length !== 1 ? 'ies' : 'y'}}</span>
+        </div>
+
+        <div class="ahc-kbh__cat-grid">
+          <a class="ahc-kbh__cat-card" ng-click="c.selectCategory(cat)"
+             ng-repeat="cat in data.categories track by cat.sys_id">
+            <div class="ahc-kbh__cat-icon">
+              <i class="fa" ng-class="::cat.icon"></i>
+            </div>
+            <h3 class="ahc-kbh__cat-name">{{::cat.label}}</h3>
+            <p class="ahc-kbh__cat-desc" ng-if="::cat.desc">{{::cat.desc}}</p>
+            <span class="ahc-kbh__cat-cta">{{::cat.count}} article{{cat.count !== 1 ? 's' : ''}} &rarr;</span>
+          </a>
+          <a class="ahc-kbh__cat-card ahc-kbh__cat-card--dark"
+             href="?id=sc_category&amp;catalog_id=-1">
+            <div class="ahc-kbh__cat-icon">
+              <i class="fa fa-comments"></i>
+            </div>
+            <h3 class="ahc-kbh__cat-name">Contact support</h3>
+            <p class="ahc-kbh__cat-desc">Can't find it? Reach a person.</p>
+            <span class="ahc-kbh__cat-cta">Submit a ticket &rarr;</span>
+          </a>
+        </div>
+
+        <div class="ahc-kbh__bottom-row" ng-if="data.trending.length || data.recent.length">
+
+          <div class="ahc-kbh__trending" ng-if="data.trending.length">
+            <h3 class="ahc-kbh__sub-title">
+              <i class="fa fa-line-chart"></i> Trending articles
+            </h3>
+            <ol class="ahc-kbh__trend-list">
+              <li ng-repeat="art in data.trending track by art.sys_id">
+                <a class="ahc-kbh__trend-item" ng-click="c.selectArticle(art)">
+                  <span class="ahc-kbh__trend-num">{{$index + 1}}</span>
+                  <span class="ahc-kbh__trend-body">
+                    <span class="ahc-kbh__trend-title">{{::art.title}}</span>
+                    <span class="ahc-kbh__trend-meta">{{::art.cat_name}} &middot; {{::art.views | number}} views</span>
+                  </span>
+                  <i class="fa fa-chevron-right ahc-kbh__trend-arrow"></i>
+                </a>
+              </li>
+            </ol>
+          </div>
+
+          <div class="ahc-kbh__recent" ng-if="data.recent.length">
+            <h3 class="ahc-kbh__sub-title">
+              <i class="fa fa-clock-o"></i> Recently updated
+            </h3>
+            <ul class="ahc-kbh__recent-list">
+              <li ng-repeat="art in data.recent track by art.sys_id">
+                <a class="ahc-kbh__recent-item" ng-click="c.selectArticle(art)">
+                  <span class="ahc-kbh__recent-body">
+                    <span class="ahc-kbh__recent-title">{{::art.title}}</span>
+                    <span class="ahc-kbh__recent-cat">{{::art.cat_name}}</span>
+                  </span>
+                  <span class="ahc-kbh__recent-date">{{::art.updated | date:'MMM d, y'}}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SEARCH RESULTS ────────────────────────────────────────────── -->
+    <div ng-if="c.view === 'search' && !c.loading">
+      <div class="ahc-kbh__hero ahc-kbh__hero--compact">
+        <div class="ahc-kbh__hero-inner">
+          <div class="ahc-kbh__search-bar">
+            <i class="fa fa-search"></i>
+            <input class="ahc-kbh__search-input" type="text"
+                   placeholder="Search articles, guides, and FAQs..."
+                   ng-model="c.searchTerm"
+                   ng-keyup="c.onSearchKey($event)"
+                   aria-label="Search knowledge base">
+            <button class="ahc-kbh__search-clear" type="button" ng-click="c.clearSearch()" ng-if="c.searchTerm">
+              <i class="fa fa-times"></i>
+            </button>
+            <button class="ahc-kbh__search-btn" type="button" ng-click="c.doSearch()">Search</button>
+          </div>
+        </div>
+      </div>
+      <div class="ahc-kbh__content-pad">
+        <div class="ahc-kbh__section-header">
+          <h2 class="ahc-kbh__section-title">
+            {{c.searchResults.length ? c.searchResults.length : 'No'}} result{{c.searchResults.length !== 1 ? 's' : ''}} for &ldquo;{{c.searchTerm}}&rdquo;
+          </h2>
+        </div>
+        <div class="ahc-kbh__empty" ng-if="!c.searchResults.length">
+          <i class="fa fa-search-minus fa-2x"></i>
+          <p>Try different keywords or browse by category.</p>
+          <button class="ahc-kbh__empty-btn" ng-click="c.goHome()">Browse categories</button>
+        </div>
+        <ul class="ahc-kbh__art-list" ng-if="c.searchResults.length">
+          <li ng-repeat="art in c.searchResults track by art.sys_id">
+            <a class="ahc-kbh__art-row" ng-click="c.selectArticle(art)">
+              <i class="fa fa-file-text-o"></i>
+              <span class="ahc-kbh__art-info">
+                <span class="ahc-kbh__art-title">{{::art.title}}</span>
+                <span class="ahc-kbh__art-cat" ng-if="::art.cat_name">{{::art.cat_name}}</span>
+              </span>
+              <i class="fa fa-chevron-right ahc-kbh__art-arrow"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── CATEGORY ──────────────────────────────────────────────────── -->
+    <div ng-if="c.view === 'category' && !c.loading">
+      <div class="ahc-kbh__page-header">
+        <button class="ahc-kbh__back-btn" type="button" ng-click="c.goHome()">
+          <i class="fa fa-arrow-left"></i> All categories
+        </button>
+        <div class="ahc-kbh__page-title-row">
+          <span class="ahc-kbh__page-dot" ng-style="{'background': c.selectedCat.color}"></span>
+          <h2 class="ahc-kbh__page-title">{{c.selectedCat.label}}</h2>
+          <span class="ahc-kbh__page-count">{{c.articles.length}} article{{c.articles.length !== 1 ? 's' : ''}}</span>
+        </div>
+      </div>
+      <div class="ahc-kbh__content-pad ahc-kbh__content-pad--top0">
+        <div class="ahc-kbh__empty" ng-if="!c.articles.length">
+          <i class="fa fa-folder-open-o fa-2x"></i>
+          <p>No articles in this category yet.</p>
+        </div>
+        <ul class="ahc-kbh__art-list" ng-if="c.articles.length">
+          <li ng-repeat="art in c.articles track by art.sys_id">
+            <a class="ahc-kbh__art-row" ng-click="c.selectArticle(art, c.selectedCat)">
+              <i class="fa fa-file-text-o"></i>
+              <span class="ahc-kbh__art-info">
+                <span class="ahc-kbh__art-title">{{::art.title}}</span>
+                <span class="ahc-kbh__art-snippet" ng-if="::art.snippet">{{::art.snippet}}</span>
+              </span>
+              <i class="fa fa-chevron-right ahc-kbh__art-arrow"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ── ARTICLE ───────────────────────────────────────────────────── -->
+    <div ng-if="c.view === 'article' && !c.loading">
+      <div class="ahc-kbh__page-header">
+        <button class="ahc-kbh__back-btn" type="button"
+                ng-click="c.selectedCat ? c.selectCategory(c.selectedCat) : c.goHome()">
+          <i class="fa fa-arrow-left"></i>
+          {{c.selectedCat ? c.selectedCat.label : 'All categories'}}
+        </button>
+      </div>
+      <div class="ahc-kbh__content-pad ahc-kbh__content-pad--top0 ahc-kbh__content-pad--article">
+        <h1 class="ahc-kbh__art-page-title">{{c.article.title}}</h1>
+        <div class="ahc-kbh__art-page-meta">
+          <span ng-if="c.article.author"><i class="fa fa-user-o"></i> {{c.article.author}}</span>
+          <span ng-if="c.article.updated"><i class="fa fa-clock-o"></i> {{c.article.updated}}</span>
+          <span ng-if="c.article.views"><i class="fa fa-eye"></i> {{c.article.views | number}} views</span>
+        </div>
+        <div class="ahc-kbh__art-body" ng-bind-html="c.articleHtml"></div>
+
+        <div class="ahc-kbh__rating" ng-if="!c.rated">
+          <span class="ahc-kbh__rating-label">Was this article helpful?</span>
+          <button class="ahc-kbh__rating-btn ahc-kbh__rating-btn--yes" type="button" ng-click="c.rate(true)">
+            <i class="fa fa-thumbs-up"></i> Yes
+          </button>
+          <button class="ahc-kbh__rating-btn ahc-kbh__rating-btn--no" type="button" ng-click="c.rate(false)">
+            <i class="fa fa-thumbs-down"></i> No
+          </button>
+        </div>
+        <div class="ahc-kbh__rating-thanks" ng-if="c.rated">
+          <i class="fa fa-check-circle"></i> Thank you for your feedback!
+        </div>
+
+        <div class="ahc-kbh__related" ng-if="c.related.length">
+          <h3 class="ahc-kbh__sub-title">Related articles</h3>
+          <ul class="ahc-kbh__art-list">
+            <li ng-repeat="rel in c.related track by rel.sys_id">
+              <a class="ahc-kbh__art-row" ng-click="c.selectArticle(rel)">
+                <i class="fa fa-file-text-o"></i>
+                <span class="ahc-kbh__art-info">
+                  <span class="ahc-kbh__art-title">{{::rel.title}}</span>
+                </span>
+                <i class="fa fa-chevron-right ahc-kbh__art-arrow"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="ahc-kbh__no-kb" ng-if="!data.kbId">
+  <p>No knowledge base configured for this portal.</p>
+</div>

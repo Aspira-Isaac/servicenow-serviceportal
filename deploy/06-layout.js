@@ -147,14 +147,74 @@ async function wireCatalogPage(pageSysId) {
   await ensureInstance(rightColId, SC_CATEGORY_WIDGET, { page: pageSysId });
 }
 
+// Stub all sp_instances inside the order=100 container of a page (used to hide OOTB catalog)
+async function stubTwoColumnPage(pageSysId, stubWidgetSysId) {
+  console.log('  Stubbing OOTB catalog widgets...');
+  const cResp = await client.get('/api/now/table/sp_container', {
+    params: { sysparm_query: `sp_page=${pageSysId}^order=100`, sysparm_fields: 'sys_id', sysparm_limit: 1 }
+  });
+  if (!cResp.data.result.length) { console.log('    [skip] no order=100 container found'); return; }
+  const cId = cResp.data.result[0].sys_id;
+
+  const rResp = await client.get('/api/now/table/sp_row', {
+    params: { sysparm_query: `sp_container=${cId}`, sysparm_fields: 'sys_id', sysparm_limit: 1 }
+  });
+  if (!rResp.data.result.length) return;
+  const rId = rResp.data.result[0].sys_id;
+
+  const colResp = await client.get('/api/now/table/sp_column', {
+    params: { sysparm_query: `sp_row=${rId}`, sysparm_fields: 'sys_id', sysparm_limit: 10 }
+  });
+  for (const col of colResp.data.result) {
+    const instResp = await client.get('/api/now/table/sp_instance', {
+      params: { sysparm_query: `sp_column=${col.sys_id}`, sysparm_fields: 'sys_id,sp_widget', sysparm_limit: 1 }
+    });
+    if (!instResp.data.result.length) continue;
+    const inst = instResp.data.result[0];
+    if (inst.sp_widget && inst.sp_widget.value !== stubWidgetSysId) {
+      await client.patch(`/api/now/table/sp_instance/${inst.sys_id}`, { sp_widget: stubWidgetSysId });
+      console.log(`    [updated] stubbed sp_instance`);
+    } else {
+      console.log(`    [exists]  already stubbed`);
+    }
+  }
+}
+
 module.exports = async function deployLayout(ctx) {
   await wireWidgetToPage('Homepage Hero',        ctx.pageHome,          ctx.widgetHero,       100);
   await wireWidgetToPage('Homepage Stats',       ctx.pageHome,          ctx.widgetStats,      150);
   await wireWidgetToPage('Homepage Quick Links', ctx.pageHome,          ctx.widgetQuickLinks, 200);
-  await wireCatalogPage(ctx.pageTicket);
-  await wireWidgetToPage('KB Search',            ctx.pageKb,            ctx.widgetKb,         100);
+  if (ctx.widgetCatalogHome) {
+    await wireWidgetToPage('Catalog Home',       ctx.pageTicket,        ctx.widgetCatalogHome, 50);
+    if (ctx.widgetKbStub) {
+      await stubTwoColumnPage(ctx.pageTicket, ctx.widgetKbStub);
+    }
+  } else {
+    await wireCatalogPage(ctx.pageTicket);
+  }
+  if (ctx.widgetKbHome) {
+    await wireWidgetToPage('KB Home',              ctx.pageKb, ctx.widgetKbHome, 50);
+    // Stub out old KB search + categories slots so they render nothing
+    if (ctx.widgetKbStub) {
+      await wireWidgetToPage('KB Search (stub)',   ctx.pageKb, ctx.widgetKbStub, 100);
+      await wireWidgetToPage('KB Categories (stub)', ctx.pageKb, ctx.widgetKbStub, 200);
+    }
+  } else {
+    await wireWidgetToPage('KB Search',            ctx.pageKb, ctx.widgetKb, 100);
+    if (ctx.widgetKbCategories) {
+      await wireWidgetToPage('KB Categories',      ctx.pageKb, ctx.widgetKbCategories, 200);
+    }
+  }
   await wireWidgetToPage('Case List',            ctx.pageTickets,       ctx.widgetCaseList,   100);
   await wireWidgetToPage('Case Detail',          ctx.pageTicketDetail,  ctx.widgetCaseDetail, 100);
+  // Dev only: wire article list to KB category page
+  if (ctx.widgetArticleList && ctx.pageCategoryArticles) {
+    await wireWidgetToPage('KB Article List',    ctx.pageCategoryArticles, ctx.widgetArticleList,  100);
+  }
+  // Dev only: wire article view to portal-scoped kb_article page
+  if (ctx.widgetArticleView && ctx.pageArticle) {
+    await wireWidgetToPage('KB Article View',    ctx.pageArticle,          ctx.widgetArticleView,  100);
+  }
 };
 
 if (require.main === module) {

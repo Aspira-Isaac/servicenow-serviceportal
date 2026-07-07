@@ -2,10 +2,11 @@ const { upsert } = require('../lib/idempotent');
 const client = require('../lib/client');
 
 module.exports = async function deployPortal(ctx) {
-  // Consumer Service KB and catalog — same as CSP portal
-  const KB_SYS_ID      = '2b292926c3302200e7c7d44d81d3ae10'; // Consumer Service KB
-  const CATALOG_SYS_ID = '0f910a2ac3112200b12d9f2974d3ae3c'; // Consumer Service catalog
-  const KB_PAGE_SYS_ID = 'e1c919e4dbd3220099f93691f0b8f535'; // shared KB article page
+  // KB can be overridden via ctx.portalKbSysId (e.g. dev uses Rainger KB)
+  // KB can be overridden via ctx.portalKbSysId (e.g. dev uses Rainger KB)
+  const KB_SYS_ID       = ctx.portalKbSysId || '2b292926c3302200e7c7d44d81d3ae10'; // default: Consumer Service KB
+  const CATALOG_SYS_ID  = '0f910a2ac3112200b12d9f2974d3ae3c'; // Consumer Service catalog
+  const KB_PAGE_SYS_ID  = 'e1c919e4dbd3220099f93691f0b8f535'; // shared KB home page (dev overrides this after page creation)
   const CAT_PAGE_SYS_ID = 'fe87a11147132100ba13a5554ee490b9'; // catalog page
 
   // Portal-level CSS variable overrides (format matches existing portals: $var:value;\n)

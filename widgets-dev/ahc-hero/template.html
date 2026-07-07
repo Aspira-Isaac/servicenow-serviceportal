@@ -1,0 +1,110 @@
+<style>
+  .ahc-hero-wrap {
+    --ahc-primary:       {{data.branding.primaryColor}};
+    --ahc-accent:        {{data.branding.accentColor}};
+    --ahc-primary-light: {{data.branding.primaryLight}};
+  }
+</style>
+
+<div class="ahc-hero-wrap">
+  <div class="ahc-hero" ng-class="{'ahc-hero--overlap': data.isLoggedIn}">
+
+    <!-- Park panorama — layered ridgelines, pines, and stars at dusk -->
+    <div class="ahc-hero__scene" aria-hidden="true">
+      <svg viewBox="0 0 2880 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path id="ahc-pine" d="M0 0 L-22 0 L-9 -14 L-16 -14 L-6 -30 L-12 -30 L0 -64 L12 -30 L6 -30 L16 -14 L9 -14 L22 0 Z"/>
+        </defs>
+
+        <!-- stars -->
+        <g fill="#fff">
+          <circle cx="160"  cy="60"  r="2"   opacity="0.20"/>
+          <circle cx="420"  cy="40"  r="1.5" opacity="0.14"/>
+          <circle cx="700"  cy="90"  r="1.6" opacity="0.16"/>
+          <circle cx="980"  cy="38"  r="2"   opacity="0.18"/>
+          <circle cx="1230" cy="72"  r="1.4" opacity="0.13"/>
+          <circle cx="1500" cy="46"  r="2.2" opacity="0.22"/>
+          <circle cx="1760" cy="86"  r="1.5" opacity="0.14"/>
+          <circle cx="2050" cy="42"  r="1.8" opacity="0.17"/>
+          <circle cx="2320" cy="76"  r="1.5" opacity="0.13"/>
+          <circle cx="2600" cy="52"  r="2"   opacity="0.19"/>
+          <circle cx="2750" cy="100" r="1.4" opacity="0.12"/>
+          <circle cx="880"  cy="120" r="1.3" opacity="0.10"/>
+          <circle cx="1980" cy="118" r="1.3" opacity="0.10"/>
+          <circle cx="300"  cy="110" r="1.3" opacity="0.11"/>
+        </g>
+
+        <!-- far haze ridge -->
+        <path fill="rgba(255,255,255,0.07)" d="M0 168 Q 180 128 360 150 T 720 142 T 1080 158 T 1440 136 T 1800 154 T 2160 132 T 2520 152 T 2880 140 L 2880 300 L 0 300 Z"/>
+        <!-- mid ridge -->
+        <path fill="rgba(13,20,75,0.32)" d="M0 208 Q 160 168 320 188 T 640 182 T 960 196 T 1280 174 T 1600 192 T 1920 172 T 2240 190 T 2560 178 T 2880 192 L 2880 300 L 0 300 Z"/>
+        <!-- near ridge -->
+        <path fill="rgba(8,12,52,0.45)" d="M0 248 Q 140 216 280 232 T 560 226 T 840 240 T 1120 222 T 1400 238 T 1680 226 T 1960 242 T 2240 228 T 2520 242 T 2880 230 L 2880 300 L 0 300 Z"/>
+
+        <!-- pine clusters -->
+        <g fill="rgba(6,9,40,0.55)">
+          <use href="#ahc-pine" transform="translate(150,262)"/>
+          <use href="#ahc-pine" transform="translate(205,266) scale(0.7)"/>
+          <use href="#ahc-pine" transform="translate(255,258) scale(1.15)"/>
+          <use href="#ahc-pine" transform="translate(315,266) scale(0.8)"/>
+          <use href="#ahc-pine" transform="translate(370,262) scale(0.95)"/>
+          <use href="#ahc-pine" transform="translate(425,268) scale(0.65)"/>
+          <use href="#ahc-pine" transform="translate(2430,260) scale(1.05)"/>
+          <use href="#ahc-pine" transform="translate(2487,266) scale(0.7)"/>
+          <use href="#ahc-pine" transform="translate(2540,258) scale(1.2)"/>
+          <use href="#ahc-pine" transform="translate(2602,266) scale(0.85)"/>
+          <use href="#ahc-pine" transform="translate(2660,262) scale(0.6)"/>
+          <use href="#ahc-pine" transform="translate(2715,264) scale(0.95)"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="ahc-hero__inner">
+
+      <!-- Account eyebrow — park-poster style title line -->
+      <div class="ahc-hero__account" ng-if="data.isLoggedIn && data.accountName">
+        <span class="ahc-hero__account-rule ahc-hero__account-rule--l"></span>
+        <i class="fa fa-tree" aria-hidden="true"></i>
+        <span class="ahc-hero__account-name">{{data.accountName}}</span>
+        <i class="fa fa-tree" aria-hidden="true"></i>
+        <span class="ahc-hero__account-rule ahc-hero__account-rule--r"></span>
+      </div>
+
+      <p class="ahc-hero__greeting" ng-if="data.isLoggedIn">
+        Welcome back, <strong>{{data.userName}}</strong>
+      </p>
+      <h1 class="ahc-hero__title">{{data.branding.welcomeTitle}}</h1>
+      <p class="ahc-hero__subtitle">{{data.branding.welcomeSubtitle}}</p>
+
+      <div class="ahc-hero__search-wrap">
+        <div class="input-group ahc-hero__search">
+          <span class="ahc-hero__search-icon"><i class="fa fa-search"></i></span>
+          <input
+            type="text"
+            class="form-control ahc-hero__search-input"
+            placeholder="Search articles, how-tos, and FAQs..."
+            ng-model="c.searchQuery"
+            ng-keyup="$event.keyCode == 13 && c.search()"
+            aria-label="Search knowledge base"
+          />
+          <span class="input-group-btn">
+            <button class="btn ahc-hero__search-btn" ng-click="c.search()" type="button">Search</button>
+          </span>
+        </div>
+      </div>
+
+      <div class="ahc-hero__ctas">
+        <a href="?id=sc_category&catalog_id=-1" class="ahc-hero__cta-pill">
+          <i class="fa fa-ticket"></i> Submit a Ticket
+        </a>
+        <a href="?id=ticket_list" class="ahc-hero__cta-pill"
+           ng-click="$root.currentPageId !== 'ticket_list' && ($root.ahcOverlay = true)">
+          <i class="fa fa-list-alt"></i> My Tickets
+        </a>
+        <a href="?id=ahc_kb_search" class="ahc-hero__cta-pill">
+          <i class="fa fa-book"></i> Browse Knowledge Base
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
