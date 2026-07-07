@@ -111,12 +111,11 @@
     resolvedLast: countResolved(lastMonthStart, monthStart)
   };
 
-  // Account insights — top locations / categories over the last 90 days
-  // (account scope only; not meaningful for a personal case list)
-  // Some cases carry the account-level location instead of a real park, so the
-  // location list excludes any entry named after the account itself.
+  // Top locations / categories over the last 90 days — both scopes.
+  // For account scope: exclude any location named after the account itself
+  // (cases sometimes inherit the company-level location rather than a real park).
   var accountName = '';
-  if (isAccount) {
+  if (isAccount && accountId) {
     var accGr = new GlideRecord('core_company');
     if (accGr.get(accountId)) accountName = String(accGr.getValue('name') || '').toLowerCase();
   }
@@ -124,7 +123,7 @@
   function topGroups(field) {
     var out = [];
     var ag = new GlideAggregate('sn_customerservice_case');
-    ag.addQuery('account', accountId);
+    addScope(ag);
     ag.addQuery('opened_at', '>=', gs.daysAgo(90));
     ag.addNotNullQuery(field);
     ag.groupBy(field);
@@ -145,11 +144,10 @@
     }
     return out;
   }
-  data.insights = { locations: [], categories: [] };
-  if (isAccount) {
-    data.insights.locations  = topGroups('location');
-    data.insights.categories = topGroups('category');
-  }
+  data.insights = {
+    locations:  topGroups('location'),
+    categories: topGroups('category')
+  };
 
   // 5 most recently updated cases
   var gr = new GlideRecord('sn_customerservice_case');
