@@ -54,7 +54,129 @@
       </a>
     </div>
 
-    <!-- Search + filter bar -->
+    <!-- Sidebar + list layout -->
+    <div class="ahc-cl__layout">
+
+      <!-- Filter sidebar -->
+      <aside class="ahc-cl__side">
+        <div class="ahc-cl__side-card">
+          <div class="ahc-cl__side-head">
+            <i class="fa fa-sliders"></i> Filters
+            <button class="ahc-cl__side-clear" ng-if="c.hasFilters()" ng-click="c.clearAll()">
+              Clear all
+            </button>
+          </div>
+
+          <div class="ahc-cl__side-group">
+            <button class="ahc-cl__side-title ahc-cl__side-title--btn"
+                    ng-click="c.groupOpen.status = !c.groupOpen.status">
+              Status
+              <i class="fa" ng-class="c.groupOpen.status ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div ng-show="c.groupOpen.status">
+              <button class="ahc-cl__side-opt" ng-class="{active: c.filter === 'all'}"
+                      ng-click="c.setFilter('all')">
+                <span class="ahc-cl__side-opt-label">All</span>
+              </button>
+              <button class="ahc-cl__side-opt"
+                      ng-class="{active: c.filter === s.value}"
+                      ng-click="c.setFilter(s.value)"
+                      ng-repeat="s in data.states track by s.value">
+                <span class="ahc-cl__side-opt-label">{{s.label}}</span>
+                <span class="ahc-cl__side-count">{{s.count}}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ahc-cl__side-group" ng-if="data.scopeLabel === 'account'">
+            <button class="ahc-cl__side-title ahc-cl__side-title--btn"
+                    ng-click="c.groupOpen.opener = !c.groupOpen.opener">
+              Opened by
+              <i class="fa" ng-class="c.groupOpen.opener ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div ng-show="c.groupOpen.opener">
+              <button class="ahc-cl__side-opt" ng-class="{active: c.opener === 'everyone'}"
+                      ng-click="c.setOpener('everyone')">
+                <span class="ahc-cl__side-opt-label">All</span>
+              </button>
+              <button class="ahc-cl__side-opt" ng-class="{active: c.opener === 'me'}"
+                      ng-click="c.setOpener('me')">
+                <span class="ahc-cl__side-opt-label">Me</span>
+              </button>
+              <button class="ahc-cl__side-opt" ng-class="{active: c.opener === 'team'}"
+                      ng-click="c.setOpener('team')">
+                <span class="ahc-cl__side-opt-label">My Team</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="ahc-cl__side-group" ng-if="data.locations.length">
+            <button class="ahc-cl__side-title ahc-cl__side-title--btn"
+                    ng-click="c.groupOpen.location = !c.groupOpen.location">
+              Location
+              <i class="fa" ng-class="c.groupOpen.location ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div ng-show="c.groupOpen.location">
+              <div class="ahc-cl__side-search" ng-if="data.locations.length > 8">
+                <i class="fa fa-search"></i>
+                <input type="text" ng-model="c.locSearch" placeholder="Find location…" />
+                <button type="button" ng-if="c.locSearch" ng-click="c.locSearch = ''">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+              <div class="ahc-cl__side-scroll">
+                <button class="ahc-cl__side-opt"
+                        ng-class="{active: c.location === l.value}"
+                        ng-click="c.setLocation(l.value)"
+                        ng-repeat="l in data.locations | filter:{label: c.locSearch} track by l.value"
+                        title="{{l.label}}">
+                  <span class="ahc-cl__side-opt-label">{{l.label}}</span>
+                  <span class="ahc-cl__side-count">{{l.count}}</span>
+                </button>
+                <div class="ahc-cl__side-none"
+                     ng-if="c.locSearch && !(data.locations | filter:{label: c.locSearch}).length">
+                  No matching locations
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ahc-cl__side-group" ng-if="data.categories.length">
+            <button class="ahc-cl__side-title ahc-cl__side-title--btn"
+                    ng-click="c.groupOpen.category = !c.groupOpen.category">
+              Category
+              <i class="fa" ng-class="c.groupOpen.category ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+            <div ng-show="c.groupOpen.category">
+              <div class="ahc-cl__side-search" ng-if="data.categories.length > 8">
+                <i class="fa fa-search"></i>
+                <input type="text" ng-model="c.catSearch" placeholder="Find category…" />
+                <button type="button" ng-if="c.catSearch" ng-click="c.catSearch = ''">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+              <div class="ahc-cl__side-scroll">
+                <button class="ahc-cl__side-opt"
+                        ng-class="{active: c.category === cat.value}"
+                        ng-click="c.setCategory(cat.value)"
+                        ng-repeat="cat in data.categories | filter:{label: c.catSearch} track by cat.value"
+                        title="{{cat.label}}">
+                  <span class="ahc-cl__side-opt-label">{{cat.label}}</span>
+                  <span class="ahc-cl__side-count">{{cat.count}}</span>
+                </button>
+                <div class="ahc-cl__side-none"
+                     ng-if="c.catSearch && !(data.categories | filter:{label: c.catSearch}).length">
+                  No matching categories
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- List column -->
+      <div class="ahc-cl__main">
+
     <div class="ahc-cl__toolbar">
       <div class="ahc-cl__search-wrap">
         <i class="fa fa-search ahc-cl__search-icon"></i>
@@ -67,32 +189,6 @@
         <button class="ahc-cl__search-clear" ng-if="c.search" ng-click="c.clearSearch()">
           <i class="fa fa-times"></i>
         </button>
-      </div>
-
-      <div class="ahc-cl__filter-rows">
-        <div class="ahc-cl__filter-group">
-          <span class="ahc-cl__filter-label">Status</span>
-          <div class="ahc-cl__filters">
-            <button class="ahc-cl__filter-btn" ng-class="{active: c.filter === 'all'}"
-                    ng-click="c.setFilter('all')">All</button>
-            <button class="ahc-cl__filter-btn"
-                    ng-class="{active: c.filter === s.value}"
-                    ng-click="c.setFilter(s.value)"
-                    ng-repeat="s in data.states track by s.value">{{s.label}}</button>
-          </div>
-        </div>
-
-        <div class="ahc-cl__filter-group" ng-if="data.scopeLabel === 'account'">
-          <span class="ahc-cl__filter-label">Opened by</span>
-          <div class="ahc-cl__filters">
-            <button class="ahc-cl__filter-btn" ng-class="{active: c.opener === 'everyone'}"
-                    ng-click="c.setOpener('everyone')">All</button>
-            <button class="ahc-cl__filter-btn" ng-class="{active: c.opener === 'me'}"
-                    ng-click="c.setOpener('me')">Me</button>
-            <button class="ahc-cl__filter-btn" ng-class="{active: c.opener === 'team'}"
-                    ng-click="c.setOpener('team')">My Team</button>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -153,6 +249,9 @@
         </button>
       </div>
     </div>
+
+      </div><!-- /main column -->
+    </div><!-- /layout -->
 
     </div><!-- /ng-if data.cases -->
 

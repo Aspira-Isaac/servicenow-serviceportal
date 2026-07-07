@@ -7,19 +7,28 @@ function($scope, $location, $rootScope, $timeout) {
 
   // Server-side pagination/filtering: every change round-trips through
   // server.get and replaces the current page of rows
-  c.filter  = c.data.filter || 'all';
-  c.opener  = c.data.opener || 'everyone';
-  c.search  = c.data.search || '';
-  c.page    = c.data.page   || 0;
-  c.loading = false;
+  c.filter   = c.data.filter   || 'all';
+  c.opener   = c.data.opener   || 'everyone';
+  c.search   = c.data.search   || '';
+  c.location = c.data.location || '';
+  c.category = c.data.category || '';
+  c.page     = c.data.page     || 0;
+  c.loading  = false;
+
+  // Sidebar UI state — collapsible groups + in-facet search
+  c.groupOpen = { status: true, opener: true, location: true, category: true };
+  c.locSearch = '';
+  c.catSearch = '';
 
   function reload() {
     c.loading = true;
     c.server.get({
-      filter: c.filter,
-      opener: c.opener,
-      search: c.search.trim(),
-      page:   c.page
+      filter:   c.filter,
+      opener:   c.opener,
+      search:   c.search.trim(),
+      location: c.location,
+      category: c.category,
+      page:     c.page
     }).then(function(resp) {
       var rd = (resp && resp.data) ? resp.data : {};
       ['cases', 'total', 'page'].forEach(function(k) {
@@ -34,12 +43,17 @@ function($scope, $location, $rootScope, $timeout) {
 
   c.setFilter = function(f) { c.filter = f; c.page = 0; reload(); };
   c.setOpener = function(o) { c.opener = o; c.page = 0; reload(); };
+  // Clicking the active location/category toggles it back off
+  c.setLocation = function(l) { c.location = (c.location === l) ? '' : l; c.page = 0; reload(); };
+  c.setCategory = function(cat) { c.category = (c.category === cat) ? '' : cat; c.page = 0; reload(); };
 
   c.clearAll = function() {
-    c.filter = 'all';
-    c.opener = 'everyone';
-    c.search = '';
-    c.page   = 0;
+    c.filter   = 'all';
+    c.opener   = 'everyone';
+    c.search   = '';
+    c.location = '';
+    c.category = '';
+    c.page     = 0;
     reload();
   };
 
@@ -60,7 +74,8 @@ function($scope, $location, $rootScope, $timeout) {
   };
 
   c.hasFilters = function() {
-    return c.filter !== 'all' || c.opener !== 'everyone' || !!c.search;
+    return c.filter !== 'all' || c.opener !== 'everyone' || !!c.search ||
+           !!c.location || !!c.category;
   };
 
   function fmt(n) { return n.toLocaleString('en-US'); }

@@ -49,10 +49,12 @@
   var urlFilter = '';
   try { urlFilter = String($sp.getParameter('filter') || ''); } catch(e) {}
 
-  var filter = String((input && input.filter) || urlFilter || 'all');
-  var opener = String((input && input.opener) || 'everyone');
-  var search = String((input && input.search) || '').substring(0, 200).trim();
-  var page   = parseInt((input && input.page) || 0, 10);
+  var filter   = String((input && input.filter) || urlFilter || 'all');
+  var opener   = String((input && input.opener) || 'everyone');
+  var search   = String((input && input.search) || '').substring(0, 200).trim();
+  var location = String((input && input.location) || '');
+  var category = String((input && input.category) || '');
+  var page     = parseInt((input && input.page) || 0, 10);
   if (isNaN(page) || page < 0) page = 0;
 
   function addConditions(gr) {
@@ -71,6 +73,8 @@
     }
     if (opener === 'me')   gr.addQuery('opened_by', userId);
     if (opener === 'team') gr.addQuery('opened_by', '!=', userId);
+    if (location) gr.addQuery('location', location);
+    if (category) gr.addQuery('category', category);
     if (search) {
       gr.addQuery('number', 'CONTAINS', search)
         .addOrCondition('short_description', 'CONTAINS', search)
@@ -120,9 +124,37 @@
   data.filter   = filter;
   data.opener   = opener;
   data.search   = search;
+  data.location = location;
+  data.category = category;
 
-  // Filter chips: distinct states across the whole scope (unfiltered), so
-  // chips don't vanish while one of them is selected
+  // Facet options: distinct values across the whole scope (unfiltered), so
+  // options don't vanish while one of them is selected. First load only —
+  // filter round-trips reuse the client's copy.
+  function facetOptions(field, cap) {
+    var agg = new GlideAggregate('sn_customerservice_case');
+    if (isAccount) {
+      agg.addQuery('account', accountId);
+    } else {
+      agg.addQuery('contact', userId).addOrCondition('opened_by', userId);
+    }
+    agg.addNotNullQuery(field);
+    agg.groupBy(field);
+    agg.addAggregate('COUNT');
+    agg.query();
+    var opts = [];
+    while (agg.next()) {
+      var label = String(agg.getDisplayValue(field) || '').trim();
+      if (!label) continue;
+      opts.push({
+        value: agg.getValue(field),
+        label: label,
+        count: parseInt(agg.getAggregate('COUNT'), 10) || 0
+      });
+    }
+    opts.sort(function(a, b) { return b.count - a.count; });
+    return cap ? opts.slice(0, cap) : opts;
+  }
+
   if (!input) {
     var stAgg = new GlideAggregate('sn_customerservice_case');
     if (isAccount) {
@@ -135,9 +167,17 @@
     stAgg.query();
     var states = [];
     while (stAgg.next()) {
-      states.push({ value: stAgg.getValue('state'), label: stAgg.getDisplayValue('state') });
+      states.push({
+        value: stAgg.getValue('state'),
+        label: stAgg.getDisplayValue('state'),
+        count: parseInt(stAgg.getAggregate('COUNT'), 10) || 0
+      });
     }
     states.sort(function(a, b) { return Number(a.value) - Number(b.value); });
     data.states = states;
+
+    // Generous caps — the sidebar has an in-facet search box for long lists
+    data.locations  = facetOptions('location', 100);
+    data.categories = facetOptions('category', 50);
   }
 })();
