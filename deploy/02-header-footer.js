@@ -135,22 +135,27 @@ const HEADER_TEMPLATE = `
   .category-widget .list-group { box-shadow: none !important; border-radius: 0 !important; margin-bottom: 0 !important; }
   .category-widget .list-group-item,
   .category-widget .group-item {
-    background: transparent !important; border: none !important; border-radius: 8px !important;
-    padding: 9px 14px !important; font-size: 13.5px !important; color: #475569 !important;
-    cursor: pointer; transition: background 0.12s, color 0.12s, padding-left 0.12s;
-    margin-bottom: 1px; border-left: 2px solid transparent !important;
+    background: transparent !important; border: none !important; border-radius: 6px !important;
+    padding: 8px 14px !important; font-size: 13.5px !important; color: #374151 !important;
+    font-weight: 700 !important; cursor: pointer; line-height: 1.35 !important;
+    transition: background 0.12s, color 0.12s, padding-left 0.12s;
+    margin-bottom: 1px; border-left: 3px solid transparent !important;
+  }
+  .category-widget .list-group-item a,
+  .category-widget .group-item a {
+    color: inherit !important; font-weight: inherit !important; text-decoration: none !important;
   }
   .category-widget .list-group-item:hover,
   .category-widget .group-item:hover {
     background: #eef2ff !important; color: #1a2980 !important;
-    border-left-color: #a5b4fc !important; padding-left: 16px !important;
+    border-left-color: #a5b4fc !important; padding-left: 17px !important;
   }
   .category-widget [aria-current="true"],
   .category-widget .text-active,
   .category-widget [class*="sc_category_treeitem"][aria-current="true"] {
     background: #e8edf8 !important; color: #1a2980 !important;
-    font-weight: 600 !important; border-left-color: #1a2980 !important;
-    padding-left: 16px !important;
+    font-weight: 700 !important; border-left-color: #1a2980 !important;
+    padding-left: 17px !important;
   }
 
   /* ── Catalog category title + view toggle ────────────────────────────────── */
@@ -218,34 +223,76 @@ const HEADER_TEMPLATE = `
 
       <!-- Desktop Nav Links -->
       <ul class="ahc-nav__links">
-        <!-- KB hidden until ready: <li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li> -->
         <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog</a></li>
         <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link" ng-click="$root.currentPageId !== 'ticket_list' && ($root.ahcOverlay = true)">My Tickets</a></li>
       </ul>
 
       <!-- Right side: notifications + user -->
       <div class="ahc-nav__right">
-        <!-- Notification bell -->
-        <button class="ahc-nav__notif-btn" type="button" aria-label="Notifications"
-                ng-click="toggleNotifs()">
-          <i class="fa fa-bell"></i>
-          <span class="ahc-nav__notif-badge" ng-if="data.notifCount && !$root.ahcNotifOpen">{{data.notifCount}}</span>
-        </button>
+        <!-- Notification bell + panel wrapper (position:relative anchors the dropdown) -->
+        <div class="ahc-nav__notif-wrap">
+          <button class="ahc-nav__notif-btn" type="button" aria-label="Notifications"
+                  ng-click="toggleNotifs()">
+            <i class="fa fa-bell"></i>
+            <span class="ahc-nav__notif-badge" ng-if="data.notifCount && !$root.ahcNotifOpen">{{data.notifCount}}</span>
+          </button>
 
-        <!-- Divider -->
-        <span class="ahc-nav__divider"></span>
-
-        <!-- User pill -->
-        <div class="ahc-nav__user" ng-if="data.isLoggedIn">
-          <div class="ahc-nav__avatar" ng-style="{'background': data.avatarColor}">
-            {{data.userInitials}}
+          <!-- Notification panel — anchored to the bell button -->
+          <div class="ahc-notif-panel" ng-if="$root.ahcNotifOpen">
+          <div class="ahc-notif-panel__header">
+            <span class="ahc-notif-panel__title">Notifications</span>
+            <button class="ahc-notif-panel__close" ng-click="$root.ahcNotifOpen = false" type="button">
+              <i class="fa fa-times"></i>
+            </button>
           </div>
-          <span class="ahc-nav__username">{{data.userName}}</span>
+
+          <div class="ahc-notif-panel__list">
+            <!-- Empty state -->
+            <div class="ahc-notif-panel__empty" ng-if="!data.notifications || !data.notifications.length">
+              <i class="fa fa-bell-o ahc-notif-panel__empty-icon"></i>
+              <p>You're all caught up</p>
+            </div>
+
+            <!-- Action items: cases waiting on the user (mirrors OOTB CSM bell) -->
+            <a ng-repeat="n in data.notifications track by n.sys_id"
+               href="?id=ticket_detail&sys_id={{n.docSysId}}"
+               class="ahc-notif-item"
+               ng-click="$root.navToCase(n.docSysId)">
+              <div class="ahc-notif-item__icon" ng-class="'ahc-notif-item__icon--' + n.kind">
+                <i class="fa" ng-class="n.kind === 'resolved' ? 'fa-check-circle-o' : 'fa-question-circle-o'"></i>
+              </div>
+              <div class="ahc-notif-item__body">
+                <div class="ahc-notif-item__case">{{n.caseNum}}</div>
+                <div class="ahc-notif-item__msg">{{n.message}}</div>
+                <div class="ahc-notif-item__meta">{{n.stateLabel}} · Updated {{n.updatedOn}}</div>
+              </div>
+              <i class="fa fa-chevron-right ahc-notif-item__arrow"></i>
+            </a>
+          </div>
+
+          <div class="ahc-notif-panel__footer">
+            <a href="?id=ticket_list" class="ahc-notif-panel__footer-link"
+               ng-click="$root.navToTicketList()">
+              View all my cases <i class="fa fa-arrow-right"></i>
+            </a>
+          </div>
         </div>
-        <a class="ahc-nav__link" href="login.do" ng-if="!data.isLoggedIn">
-          <i class="fa fa-sign-in"></i> Sign In
-        </a>
       </div>
+      <!-- End notif wrap -->
+
+      <!-- Divider -->
+      <span class="ahc-nav__divider"></span>
+
+      <!-- User pill -->
+      <div class="ahc-nav__user" ng-if="data.isLoggedIn">
+        <div class="ahc-nav__avatar" ng-style="{'background': data.avatarColor}">
+          {{data.userInitials}}
+        </div>
+        <span class="ahc-nav__username">{{data.userName}}</span>
+      </div>
+      <a class="ahc-nav__link" href="login.do" ng-if="!data.isLoggedIn">
+        <i class="fa fa-sign-in"></i> Sign In
+      </a>
 
     </div>
   </nav>
@@ -253,47 +300,6 @@ const HEADER_TEMPLATE = `
 
 <!-- Notification backdrop — click outside to close -->
 <div class="ahc-notif-backdrop" ng-if="$root.ahcNotifOpen" ng-click="$root.ahcNotifOpen = false"></div>
-
-<!-- Notification panel -->
-<div class="ahc-notif-panel" ng-if="$root.ahcNotifOpen">
-  <div class="ahc-notif-panel__header">
-    <span class="ahc-notif-panel__title">Notifications</span>
-    <button class="ahc-notif-panel__close" ng-click="$root.ahcNotifOpen = false" type="button">
-      <i class="fa fa-times"></i>
-    </button>
-  </div>
-
-  <div class="ahc-notif-panel__list">
-    <!-- Empty state -->
-    <div class="ahc-notif-panel__empty" ng-if="!data.notifications || !data.notifications.length">
-      <i class="fa fa-bell-o ahc-notif-panel__empty-icon"></i>
-      <p>You're all caught up</p>
-    </div>
-
-    <!-- Action items: cases waiting on the user (mirrors OOTB CSM bell) -->
-    <a ng-repeat="n in data.notifications track by n.sys_id"
-       href="?id=ticket_detail&sys_id={{n.docSysId}}"
-       class="ahc-notif-item"
-       ng-click="$root.navToCase(n.docSysId)">
-      <div class="ahc-notif-item__icon" ng-class="'ahc-notif-item__icon--' + n.kind">
-        <i class="fa" ng-class="n.kind === 'resolved' ? 'fa-check-circle-o' : 'fa-question-circle-o'"></i>
-      </div>
-      <div class="ahc-notif-item__body">
-        <div class="ahc-notif-item__case">{{n.caseNum}}</div>
-        <div class="ahc-notif-item__msg">{{n.message}}</div>
-        <div class="ahc-notif-item__meta">{{n.stateLabel}} · Updated {{n.updatedOn}}</div>
-      </div>
-      <i class="fa fa-chevron-right ahc-notif-item__arrow"></i>
-    </a>
-  </div>
-
-  <div class="ahc-notif-panel__footer">
-    <a href="?id=ticket_list" class="ahc-notif-panel__footer-link"
-       ng-click="$root.navToTicketList()">
-      View all my cases <i class="fa fa-arrow-right"></i>
-    </a>
-  </div>
-</div>
 
 <!-- Page transition overlay — visible during SPA navigation -->
 <div class="ahc-nav__page-overlay" ng-show="$root.ahcOverlay">
@@ -476,6 +482,9 @@ const HEADER_CSS = `
   -ms-flex-negative: 0;
   flex-shrink: 0;
 }
+.ahc-nav__notif-wrap {
+  position: relative;
+}
 
 /* Notification bell */
 .ahc-nav__notif-btn {
@@ -585,12 +594,14 @@ const HEADER_CSS = `
 .ahc-notif-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 6999;
+  z-index: 99;
 }
 .ahc-notif-panel {
-  position: fixed;
-  top: 62px;
-  right: 16px;
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
   width: 360px;
   background: #fff;
   border-radius: 12px;
@@ -876,7 +887,6 @@ const FOOTER_TEMPLATE = `
       </div>
       <div class="ahc-footer__links">
         <a class="ahc-footer__link" href="/help?id=sc_category&catalog_id=-1" target="_self">Submit a Ticket</a>
-        <!-- KB hidden until ready: <a class="ahc-footer__link" href="/help?id=ahc_kb_search">Knowledge Base</a> -->
       </div>
       <p class="ahc-footer__copy">&copy; Aspira Connect. All rights reserved.</p>
     </div>
@@ -919,6 +929,14 @@ const FOOTER_CSS = `
 .ahc-footer__links a { color: rgba(255,255,255,0.45); font-size: 0.8em; transition: color 0.2s; }
 .ahc-footer__links a:hover { color: rgba(255,255,255,0.8); text-decoration: none; }
 .ahc-footer__copy { color: rgba(255,255,255,0.25); font-size: 0.75em; margin: 0; width: 100%; }
+
+/* Hide SNOW UXA analytics floating button ("Open Usage Insights").
+   Patched instances renamed the elements (uxa-analytics-root etc.),
+   so match the whole uxa-analytics family by id and class. */
+#uxa-analytics-btn,
+[id^="uxa-analytics"],
+[class^="uxa-analytics"],
+[id^="uxa_analytics"] { display: none !important; }
 `.trim();
 
 // ── Server script for the header (reads user + branding) ─────────────────────
@@ -932,9 +950,33 @@ const HEADER_CLIENT = fs.readFileSync(
 );
 
 module.exports = async function deployHeaderFooter(ctx) {
+  let headerTpl = HEADER_TEMPLATE;
+  let footerTpl = FOOTER_TEMPLATE;
+
+  if (ctx.showKbNav) {
+    const catUrl = ctx.catalogId
+      ? `?id=sc_category&catalog_id=${ctx.catalogId}`
+      : `?id=sc_category&catalog_id=-1`;
+    // Scope Catalog nav link to the portal's catalog (dev only)
+    headerTpl = headerTpl.replace(
+      `href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog`,
+      `href="{{data.portalUrl}}${catUrl}" class="ahc-nav__link">Catalog`
+    );
+    // Add Knowledge link before My Tickets
+    headerTpl = headerTpl.replace(
+      `<li><a href="{{data.portalUrl}}?id=ticket_list"`,
+      `<li><a href="{{data.portalUrl}}?id=ahc_kb_search" class="ahc-nav__link">Knowledge</a></li>\n        <li><a href="{{data.portalUrl}}?id=ticket_list"`
+    );
+    // Scope footer Submit a Ticket link + add Knowledge Base link
+    footerTpl = footerTpl.replace(
+      `<a class="ahc-footer__link" href="/help?id=sc_category&catalog_id=-1" target="_self">Submit a Ticket</a>`,
+      `<a class="ahc-footer__link" href="/help?id=ahc_kb_search" target="_self">Knowledge Base</a>\n        <a class="ahc-footer__link" href="/help${catUrl}" target="_self">Submit a Ticket</a>`
+    );
+  }
+
   const header = await upsert('sp_header_footer', 'name', 'Aspira Help Center Header', {
     name: 'Aspira Help Center Header',
-    template: HEADER_TEMPLATE,
+    template: headerTpl,
     css: HEADER_CSS,
     script: HEADER_SERVER,
     client_script: HEADER_CLIENT,
@@ -945,7 +987,7 @@ module.exports = async function deployHeaderFooter(ctx) {
 
   const footer = await upsert('sp_header_footer', 'name', 'Aspira Help Center Footer', {
     name: 'Aspira Help Center Footer',
-    template: FOOTER_TEMPLATE,
+    template: footerTpl,
     css: FOOTER_CSS,
     public: true
   });
