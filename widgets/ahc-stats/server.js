@@ -80,37 +80,6 @@
     resolved: breakdown(['6', '3', '7'])
   };
 
-  // Monthly momentum — opened / resolved this calendar month vs last.
-  // Resolved uses closed_at within the resolved-group states; plain
-  // addQuery/addOrCondition only (encoded ^NQ would drop the scope filter).
-  function countOpened(from, to) {
-    var ag = new GlideAggregate('sn_customerservice_case');
-    addScope(ag);
-    ag.addQuery('opened_at', '>=', from);
-    if (to) ag.addQuery('opened_at', '<', to);
-    ag.addAggregate('COUNT');
-    ag.query();
-    return ag.next() ? (parseInt(ag.getAggregate('COUNT'), 10) || 0) : 0;
-  }
-  function countResolved(from, to) {
-    var ag = new GlideAggregate('sn_customerservice_case');
-    addScope(ag);
-    ag.addQuery('state', 'IN', '3,6,7');
-    ag.addQuery('closed_at', '>=', from);
-    if (to) ag.addQuery('closed_at', '<', to);
-    ag.addAggregate('COUNT');
-    ag.query();
-    return ag.next() ? (parseInt(ag.getAggregate('COUNT'), 10) || 0) : 0;
-  }
-  var monthStart     = gs.beginningOfThisMonth();
-  var lastMonthStart = gs.beginningOfLastMonth();
-  data.trend = {
-    openedThis:   countOpened(monthStart),
-    openedLast:   countOpened(lastMonthStart, monthStart),
-    resolvedThis: countResolved(monthStart),
-    resolvedLast: countResolved(lastMonthStart, monthStart)
-  };
-
   // Top locations / categories over the last 90 days — both scopes.
   // For account scope: exclude any location named after the account itself
   // (cases sometimes inherit the company-level location rather than a real park).

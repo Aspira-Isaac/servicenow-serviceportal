@@ -11,14 +11,6 @@
           <span class="ahc-st__icon"><i class="fa fa-folder-open-o"></i></span>
         </div>
         <div class="ahc-st__num">{{data.stats.total | number}}</div>
-        <div class="ahc-st__trend" ng-if="data.trend">
-          <span class="ahc-st__trend-num">{{data.trend.openedThis | number}}</span> opened this month
-          <span class="ahc-st__trend-cmp" title="{{data.trend.openedLast | number}} opened last month">
-            <i class="fa" ng-class="data.trend.openedThis > data.trend.openedLast ? 'fa-long-arrow-up' :
-              (data.trend.openedThis < data.trend.openedLast ? 'fa-long-arrow-down' : 'fa-minus')"></i>
-            {{data.trend.openedLast | number}} last month
-          </span>
-        </div>
         <div class="ahc-st__cta">View all <i class="fa fa-arrow-right"></i></div>
       </div>
 
@@ -75,14 +67,6 @@
             <span class="ahc-st__break-label">{{b.label}}</span>
             <span class="ahc-st__break-count">{{b.count | number}}</span>
           </button>
-        </div>
-        <div class="ahc-st__trend" ng-if="data.trend">
-          <span class="ahc-st__trend-num">{{data.trend.resolvedThis | number}}</span> resolved this month
-          <span class="ahc-st__trend-cmp" title="{{data.trend.resolvedLast | number}} resolved last month">
-            <i class="fa" ng-class="data.trend.resolvedThis > data.trend.resolvedLast ? 'fa-long-arrow-up' :
-              (data.trend.resolvedThis < data.trend.resolvedLast ? 'fa-long-arrow-down' : 'fa-minus')"></i>
-            {{data.trend.resolvedLast | number}} last month
-          </span>
         </div>
         <div class="ahc-st__cta">View resolved <i class="fa fa-arrow-right"></i></div>
       </div>

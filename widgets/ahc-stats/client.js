@@ -19,7 +19,7 @@ function($scope, $location, $rootScope) {
     c.scopeLoading = true;
     c.server.get({ scope: scope }).then(function(resp) {
       var rd = (resp && resp.data) ? resp.data : {};
-      ['stats', 'breakdown', 'trend', 'insights', 'recent', 'scope', 'scopeLabel'].forEach(function(k) {
+      ['stats', 'breakdown', 'insights', 'recent', 'scope', 'scopeLabel'].forEach(function(k) {
         if (typeof rd[k] !== 'undefined') c.data[k] = rd[k];
       });
       c.scopeLoading = false;

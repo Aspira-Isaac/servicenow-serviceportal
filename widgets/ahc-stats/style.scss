@@ -370,18 +370,6 @@
   }
 }
 
-/* ── Monthly momentum line on Total / Resolved cards ─────────── */
-.ahc-st__trend {
-  font-size: 0.75em;
-  color: #64748b;
-  border-top: 1px dashed #e8edf5;
-  padding-top: 8px;
-  margin: 2px 0 10px;
-}
-.ahc-st__trend-num { font-weight: 700; color: #334155; font-variant-numeric: tabular-nums; }
-.ahc-st__trend-cmp { color: #94a3b8; white-space: nowrap; }
-.ahc-st__trend-cmp i { font-size: 0.85em; margin: 0 1px 0 4px; }
-
 /* ── Lower section: recent + insights ────────────────────────── */
 .ahc-st__lower {
   display: -webkit-box;
