@@ -217,14 +217,15 @@
 .ahc-cd__grid {
   display: -ms-grid;
   display: grid;
-  -ms-grid-columns: 1fr 330px;
-  grid-template-columns: 1fr 330px;
+  -ms-grid-columns: minmax(0, 1fr) 330px;
+  grid-template-columns: minmax(0, 1fr) 330px;
   gap: 26px;
   -webkit-box-align: start;
   -ms-flex-align: start;
   align-items: start;
 }
 .ahc-cd__main {
+  min-width: 0; /* let long unbroken strings wrap instead of widening the column */
   -webkit-animation: ahc-cd-rise 0.5s ease-out 0.08s both;
   animation: ahc-cd-rise 0.5s ease-out 0.08s both;
 }
@@ -317,6 +318,8 @@
   color: #475569;
   white-space: pre-wrap;
   line-height: 1.65;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 .ahc-cd__desc-toggle {
   background: none;
@@ -657,7 +660,9 @@
 }
 .ahc-cd__entry-author { font-size: 0.83em; font-weight: 600; color: #334155; }
 .ahc-cd__entry-time   { font-size: 0.75em; color: #94a3b8; }
-.ahc-cd__entry-text   { font-size: 0.875em; color: #475569; line-height: 1.65; }
+.ahc-cd__entry-text   { font-size: 0.875em; color: #475569; line-height: 1.65; word-wrap: break-word; overflow-wrap: anywhere; }
+/* Email HTML can carry fixed-width tables — keep them inside the card */
+.ahc-cd__entry-text table { max-width: 100%; }
 .ahc-cd__entry-text img { max-width: 100%; height: auto; border-radius: 4px; margin-top: 8px; display: block; }
 .ahc-cd__entry-text p   { margin: 0 0 6px; }
 .ahc-cd__entry-text p:last-child { margin-bottom: 0; }
@@ -875,6 +880,8 @@
   white-space: pre-wrap;
   line-height: 1.55;
   font-size: 0.95em;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Attachments in sidebar */
