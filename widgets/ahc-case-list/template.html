@@ -222,11 +222,37 @@
       <div class="ahc-cl__list">
 
         <div class="ahc-cl__row ahc-cl__row--head">
-          <div class="ahc-cl__col ahc-cl__col--num">Number</div>
-          <div class="ahc-cl__col ahc-cl__col--desc">Description</div>
-          <div class="ahc-cl__col ahc-cl__col--opener" ng-if="data.scopeLabel === 'account'">Opened By</div>
-          <div class="ahc-cl__col ahc-cl__col--state">Status</div>
-          <div class="ahc-cl__col ahc-cl__col--date">Updated</div>
+          <div class="ahc-cl__col ahc-cl__col--num ahc-cl__col--sortable"
+               ng-class="{'ahc-cl__col--sorted': c.sortBy === 'number'}"
+               ng-click="c.setSort('number')" role="button" tabindex="0">
+            Number <i class="fa {{c.sortIcon('number')}}"></i>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--desc ahc-cl__col--sortable"
+               ng-class="{'ahc-cl__col--sorted': c.sortBy === 'desc'}"
+               ng-click="c.setSort('desc')" role="button" tabindex="0">
+            Description <i class="fa {{c.sortIcon('desc')}}"></i>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--cat ahc-cl__col--sortable"
+               ng-class="{'ahc-cl__col--sorted': c.sortBy === 'category'}"
+               ng-click="c.setSort('category')" role="button" tabindex="0">
+            Category <i class="fa {{c.sortIcon('category')}}"></i>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--opener ahc-cl__col--sortable"
+               ng-class="{'ahc-cl__col--sorted': c.sortBy === 'opener'}"
+               ng-if="data.scopeLabel === 'account'"
+               ng-click="c.setSort('opener')" role="button" tabindex="0">
+            Opened By <i class="fa {{c.sortIcon('opener')}}"></i>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--state ahc-cl__col--sortable"
+               ng-class="{'ahc-cl__col--sorted': c.sortBy === 'state'}"
+               ng-click="c.setSort('state')" role="button" tabindex="0">
+            Status <i class="fa {{c.sortIcon('state')}}"></i>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--date ahc-cl__col--sortable"
+               ng-class="{'ahc-cl__col--sorted': c.sortBy === 'updated'}"
+               ng-click="c.setSort('updated')" role="button" tabindex="0">
+            Updated <i class="fa {{c.sortIcon('updated')}}"></i>
+          </div>
         </div>
 
         <div class="ahc-cl__row ahc-cl__row--data" ng-repeat="cs in data.cases track by cs.sys_id"
@@ -236,6 +262,9 @@
           </div>
           <div class="ahc-cl__col ahc-cl__col--desc">
             <span class="ahc-cl__desc">{{cs.short_description}}</span>
+          </div>
+          <div class="ahc-cl__col ahc-cl__col--cat">
+            <span class="ahc-cl__cat" title="{{cs.category}}">{{cs.category || '—'}}</span>
           </div>
           <div class="ahc-cl__col ahc-cl__col--opener" ng-if="data.scopeLabel === 'account'">
             <span class="ahc-cl__opener" ng-class="{'ahc-cl__opener--me': cs.openedById === data.currentUserId}">

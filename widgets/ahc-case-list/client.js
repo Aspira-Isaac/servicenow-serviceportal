@@ -33,7 +33,40 @@ function($scope, $location, $rootScope, $timeout) {
            (c.location ? 1 : 0) + (c.category ? 1 : 0);
   };
 
+  // A selected option can drop to zero matches under the other filters — keep
+  // it in the list (count 0) so the user can see it's active and unselect it
+  function keepSelected(fresh, old, selectedVal) {
+    if (!selectedVal || !fresh) return fresh;
+    for (var i = 0; i < fresh.length; i++) {
+      if (fresh[i].value === selectedVal) return fresh;
+    }
+    for (var j = 0; j < (old || []).length; j++) {
+      if (old[j].value === selectedVal) {
+        fresh.unshift({ value: old[j].value, label: old[j].label, count: 0 });
+        break;
+      }
+    }
+    return fresh;
+  }
+
+  // Persist filter/sort state so it survives opening a case and coming back
+  var STATE_KEY = 'ahc-cl-state';
+  function persistState() {
+    try {
+      sessionStorage.setItem(STATE_KEY, JSON.stringify({
+        filter:   c.filter,
+        opener:   c.opener,
+        search:   c.search,
+        location: c.location,
+        category: c.category,
+        sortBy:   c.sortBy,
+        sortDir:  c.sortDir
+      }));
+    } catch(e) {}
+  }
+
   function reload() {
+    persistState();
     c.loading = true;
     c.server.get({
       filter:   c.filter,
@@ -41,18 +74,70 @@ function($scope, $location, $rootScope, $timeout) {
       search:   c.search.trim(),
       location: c.location,
       category: c.category,
+      sortBy:   c.sortBy,
+      sortDir:  c.sortDir,
       page:     c.page
     }).then(function(resp) {
       var rd = (resp && resp.data) ? resp.data : {};
       ['cases', 'total', 'page'].forEach(function(k) {
         if (typeof rd[k] !== 'undefined') c.data[k] = rd[k];
       });
+      if (rd.states)     c.data.states     = keepSelected(rd.states,     c.data.states,     c.filter !== 'all' ? c.filter : '');
+      if (rd.locations)  c.data.locations  = keepSelected(rd.locations,  c.data.locations,  c.location);
+      if (rd.categories) c.data.categories = keepSelected(rd.categories, c.data.categories, c.category);
       c.page    = c.data.page;
       c.loading = false;
     }, function() {
       c.loading = false;
     });
   }
+
+  // Column sorting — click toggles direction, new column starts with its
+  // natural direction (dates newest-first, text A→Z)
+  c.sortBy  = c.data.sortBy  || 'updated';
+  c.sortDir = c.data.sortDir || 'desc';
+
+  c.setSort = function(key) {
+    if (c.sortBy === key) {
+      c.sortDir = (c.sortDir === 'asc') ? 'desc' : 'asc';
+    } else {
+      c.sortBy  = key;
+      c.sortDir = (key === 'updated' || key === 'number') ? 'desc' : 'asc';
+    }
+    c.page = 0;
+    reload();
+  };
+
+  c.sortIcon = function(key) {
+    if (c.sortBy !== key) return 'fa-sort';
+    return c.sortDir === 'asc' ? 'fa-sort-asc' : 'fa-sort-desc';
+  };
+
+  // Restore the saved state when returning from a case. An explicit ?filter=
+  // in the URL (stats card deep-links) takes precedence over the saved state.
+  try {
+    var savedState = JSON.parse(sessionStorage.getItem(STATE_KEY) || 'null');
+    var urlFilter  = ($location.search() || {}).filter;
+    if (savedState && !urlFilter) {
+      c.filter   = savedState.filter   || c.filter;
+      c.opener   = savedState.opener   || c.opener;
+      c.search   = savedState.search   || '';
+      c.location = savedState.location || '';
+      c.category = savedState.category || '';
+      c.sortBy   = savedState.sortBy   || c.sortBy;
+      c.sortDir  = savedState.sortDir  || c.sortDir;
+      // First-load data came from server defaults — refetch if they differ
+      if (c.filter   !== (c.data.filter   || 'all')      ||
+          c.opener   !== (c.data.opener   || 'everyone') ||
+          c.search   !== (c.data.search   || '')         ||
+          c.location !== (c.data.location || '')         ||
+          c.category !== (c.data.category || '')         ||
+          c.sortBy   !== (c.data.sortBy   || 'updated')  ||
+          c.sortDir  !== (c.data.sortDir  || 'desc')) {
+        reload();
+      }
+    }
+  } catch(e) { /* corrupted saved state — start clean */ }
 
   c.setFilter = function(f) { c.filter = f; c.page = 0; reload(); };
   c.setOpener = function(o) { c.opener = o; c.page = 0; reload(); };

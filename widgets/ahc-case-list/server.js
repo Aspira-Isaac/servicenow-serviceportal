@@ -57,13 +57,27 @@
   var page     = parseInt((input && input.page) || 0, 10);
   if (isNaN(page) || page < 0) page = 0;
 
-  function addConditions(gr) {
+  // Sorting — whitelisted columns only
+  var SORT_FIELDS = {
+    number:  'number',
+    desc:    'short_description',
+    opener:  'opened_by.name',
+    category:'category',
+    state:   'state',
+    updated: 'sys_updated_on'
+  };
+  var sortBy  = SORT_FIELDS[String((input && input.sortBy) || '')] ? String(input.sortBy) : 'updated';
+  var sortDir = String((input && input.sortDir) || '') === 'asc' ? 'asc' : 'desc';
+
+  // exclude: facet dimension to leave out — each facet's counts reflect every
+  // OTHER active filter ("what do I get if I click this?") but not its own group
+  function addConditions(gr, exclude) {
     if (isAccount) {
       gr.addQuery('account', accountId);
     } else {
       gr.addQuery('contact', userId).addOrCondition('opened_by', userId);
     }
-    if (filter !== 'all') {
+    if (exclude !== 'state' && filter !== 'all') {
       var group = FILTER_GROUPS[filter];
       if (group) {
         gr.addQuery('state', 'IN', group.join(','));
@@ -71,10 +85,12 @@
         gr.addQuery('state', filter);
       }
     }
-    if (opener === 'me')   gr.addQuery('opened_by', userId);
-    if (opener === 'team') gr.addQuery('opened_by', '!=', userId);
-    if (location) gr.addQuery('location', location);
-    if (category) gr.addQuery('category', category);
+    if (exclude !== 'opener') {
+      if (opener === 'me')   gr.addQuery('opened_by', userId);
+      if (opener === 'team') gr.addQuery('opened_by', '!=', userId);
+    }
+    if (exclude !== 'location' && location) gr.addQuery('location', location);
+    if (exclude !== 'category' && category) gr.addQuery('category', category);
     if (search) {
       gr.addQuery('number', 'CONTAINS', search)
         .addOrCondition('short_description', 'CONTAINS', search)
@@ -96,7 +112,11 @@
   // One page of rows
   var gr = new GlideRecord('sn_customerservice_case');
   addConditions(gr);
-  gr.orderByDesc('sys_updated_on');
+  if (sortDir === 'asc') {
+    gr.orderBy(SORT_FIELDS[sortBy]);
+  } else {
+    gr.orderByDesc(SORT_FIELDS[sortBy]);
+  }
   gr.chooseWindow(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
   gr.query();
 
@@ -111,6 +131,7 @@
       state:             gr.getDisplayValue('state'),
       stateVal:          stateVal,
       badgeClass:        stateBadge[stateVal] || 'open',
+      category:          gr.getDisplayValue('category') || '',
       updated:           gr.getDisplayValue('sys_updated_on'),
       openedById:        gr.getValue('opened_by'),
       openedByName:      gr.getDisplayValue('opened_by')
@@ -126,17 +147,15 @@
   data.search   = search;
   data.location = location;
   data.category = category;
+  data.sortBy   = sortBy;
+  data.sortDir  = sortDir;
 
-  // Facet options: distinct values across the whole scope (unfiltered), so
-  // options don't vanish while one of them is selected. First load only —
-  // filter round-trips reuse the client's copy.
-  function facetOptions(field, cap) {
+  // Facet options recompute on EVERY request so counts answer "what do I get
+  // if I click this?" under the other active filters. Each facet excludes its
+  // own dimension so sibling options stay switchable.
+  function facetOptions(field, cap, exclude) {
     var agg = new GlideAggregate('sn_customerservice_case');
-    if (isAccount) {
-      agg.addQuery('account', accountId);
-    } else {
-      agg.addQuery('contact', userId).addOrCondition('opened_by', userId);
-    }
+    addConditions(agg, exclude);
     agg.addNotNullQuery(field);
     agg.groupBy(field);
     agg.addAggregate('COUNT');
@@ -155,29 +174,23 @@
     return cap ? opts.slice(0, cap) : opts;
   }
 
-  if (!input) {
-    var stAgg = new GlideAggregate('sn_customerservice_case');
-    if (isAccount) {
-      stAgg.addQuery('account', accountId);
-    } else {
-      stAgg.addQuery('contact', userId).addOrCondition('opened_by', userId);
-    }
-    stAgg.groupBy('state');
-    stAgg.addAggregate('COUNT');
-    stAgg.query();
-    var states = [];
-    while (stAgg.next()) {
-      states.push({
-        value: stAgg.getValue('state'),
-        label: stAgg.getDisplayValue('state'),
-        count: parseInt(stAgg.getAggregate('COUNT'), 10) || 0
-      });
-    }
-    states.sort(function(a, b) { return Number(a.value) - Number(b.value); });
-    data.states = states;
-
-    // Generous caps — the sidebar has an in-facet search box for long lists
-    data.locations  = facetOptions('location', 100);
-    data.categories = facetOptions('category', 50);
+  var stAgg = new GlideAggregate('sn_customerservice_case');
+  addConditions(stAgg, 'state');
+  stAgg.groupBy('state');
+  stAgg.addAggregate('COUNT');
+  stAgg.query();
+  var states = [];
+  while (stAgg.next()) {
+    states.push({
+      value: stAgg.getValue('state'),
+      label: stAgg.getDisplayValue('state'),
+      count: parseInt(stAgg.getAggregate('COUNT'), 10) || 0
+    });
   }
+  states.sort(function(a, b) { return Number(a.value) - Number(b.value); });
+  data.states = states;
+
+  // Generous caps — the sidebar has an in-facet search box for long lists
+  data.locations  = facetOptions('location', 100, 'location');
+  data.categories = facetOptions('category', 50, 'category');
 })();
