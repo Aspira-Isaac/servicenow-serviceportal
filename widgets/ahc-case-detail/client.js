@@ -1,4 +1,4 @@
-function($scope, $rootScope, $element, $timeout) {
+function($scope, $rootScope, $element, $timeout, $http) {
   var c = this;
 
   // Always resolve elements within THIS widget instance — document-level
@@ -14,6 +14,57 @@ function($scope, $rootScope, $element, $timeout) {
     var ed = findEditor();
     if (ed) ed.contentEditable = 'true';
   });
+
+  // ── Reply attachments ────────────────────────────────────────
+  c.pendingFiles = [];
+  var fileInput = null;
+  $timeout(function() {
+    fileInput = $element[0].querySelector('.ahc-cd__file-input');
+    if (!fileInput) return;
+    fileInput.addEventListener('change', function() {
+      $scope.$applyAsync(function() {
+        for (var i = 0; i < fileInput.files.length; i++) {
+          c.pendingFiles.push(fileInput.files[i]);
+        }
+        fileInput.value = '';
+      });
+    });
+  });
+
+  c.pickFiles = function() {
+    if (fileInput) fileInput.click();
+  };
+
+  c.removeFile = function(idx) {
+    c.pendingFiles.splice(idx, 1);
+  };
+
+  // SP's $http carries the session token, so the Attachment API just works
+  function uploadFile(file) {
+    var fd = new FormData();
+    fd.append('table_name', 'sn_customerservice_case');
+    fd.append('table_sys_id', c.data.sys_id);
+    fd.append('uploadFile', file, file.name);
+    return $http.post('/api/now/attachment/upload', fd, {
+      headers: { 'Content-Type': undefined },
+      transformRequest: angular.identity
+    });
+  }
+
+  function uploadAll() {
+    // Sequential so a mid-list failure leaves the remaining files in the chips
+    var files = c.pendingFiles.slice();
+    var chain = Promise.resolve();
+    files.forEach(function(f) {
+      chain = chain.then(function() {
+        return uploadFile(f).then(function() {
+          var i = c.pendingFiles.indexOf(f);
+          if (i >= 0) c.pendingFiles.splice(i, 1);
+        });
+      });
+    });
+    return chain;
+  }
 
   // Tell the nav which page we're on, and clear the overlay
   // (every nav path that sets ahcOverlay relies on the destination widget to clear it)
@@ -194,22 +245,36 @@ function($scope, $rootScope, $element, $timeout) {
     var html = ed ? ed.innerHTML : '';
     var text = ed ? (ed.innerText || ed.textContent || '').trim() : '';
     if (!ed) console.error('[ahc-case-detail] reply editor not found in widget element');
-    if (!text) return;
+    if (!text && !c.pendingFiles.length) return;
 
-    c.sending   = true;
-    c.sent      = false;
-    c.sendError = false;
+    c.sending      = true;
+    c.sent         = false;
+    c.sendError    = false;
+    c.sendErrorMsg = '';
 
-    serverAction({ action: 'add_comment', comment: html })
+    // Attachments go up first so images correlate with the comment entry
+    uploadAll()
+      .then(function() {
+        if (!text) return {};  // attachments-only send
+        return serverAction({ action: 'add_comment', comment: html });
+      })
       .then(function(rd) {
-        if (rd.commentSaved) {
-          c.sent = true;
-          c.clearEditor();
-          c.server.refresh().then(function() { c.sending = false; });
-        } else {
+        if (text && !rd.commentSaved) {
           c.sendError = true;
           c.sending   = false;
+          $scope.$applyAsync();
+          return;
         }
+        c.sent = true;
+        if (text) c.clearEditor();
+        c.server.refresh().then(function() { c.sending = false; });
+      })
+      .catch(function(err) {
+        console.error('[ahc-case-detail] attachment upload failed:', err);
+        c.sendError    = true;
+        c.sendErrorMsg = 'Attachment upload failed.';
+        c.sending      = false;
+        $scope.$applyAsync();
       });
   };
 

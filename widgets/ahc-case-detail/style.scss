@@ -531,6 +531,84 @@
   margin: 4px 0;
 }
 
+/* Pending attachment chips */
+.ahc-cd__attach-list {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 14px 0;
+}
+.ahc-cd__attach-chip {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+  max-width: 260px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 3px 6px 3px 10px;
+  font-size: 0.78em;
+  color: #334155;
+}
+.ahc-cd__attach-chip i { color: #1a2980; font-size: 0.95em; }
+.ahc-cd__attach-chip-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.ahc-cd__attach-chip-size { color: #94a3b8; -ms-flex-negative: 0; flex-shrink: 0; }
+.ahc-cd__attach-chip-x {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  -webkit-transition: color 0.12s;
+  transition: color 0.12s;
+}
+.ahc-cd__attach-chip-x:hover { color: #cf1d25; }
+.ahc-cd__attach-chip-x i { color: inherit; font-size: 0.9em; }
+
+/* Attach button in the footer */
+.ahc-cd__attach-btn {
+  background: none;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.8em;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  gap: 6px;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  -webkit-transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.ahc-cd__attach-btn:hover:not([disabled]) {
+  border-color: #1a2980;
+  color: #1a2980;
+  background: #f8faff;
+}
+.ahc-cd__attach-btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.ahc-cd__attach-btn i { font-size: 0.95em; }
+
 .ahc-cd__reply-footer {
   display: -webkit-box;
   display: -ms-flexbox;

@@ -291,13 +291,33 @@
                    kills every binding after this node — including Send's ng-click -->
               <div class="ahc-cd__reply-editor"
                    data-placeholder="Type your message here..."></div>
+              <!-- Pending attachments -->
+              <div class="ahc-cd__attach-list" ng-if="c.pendingFiles.length">
+                <span class="ahc-cd__attach-chip" ng-repeat="f in c.pendingFiles track by $index">
+                  <i class="fa {{c.fileIcon(f.type)}}"></i>
+                  <span class="ahc-cd__attach-chip-name">{{f.name}}</span>
+                  <span class="ahc-cd__attach-chip-size">{{c.formatBytes(f.size)}}</span>
+                  <button class="ahc-cd__attach-chip-x" type="button"
+                          ng-click="c.removeFile($index)" title="Remove">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </span>
+              </div>
+
               <div class="ahc-cd__reply-footer">
+                <input type="file" class="ahc-cd__file-input" multiple
+                       style="display:none" aria-hidden="true" tabindex="-1" />
+                <button class="ahc-cd__attach-btn" type="button"
+                        ng-click="c.pickFiles()" ng-disabled="c.sending"
+                        title="Attach files">
+                  <i class="fa fa-paperclip"></i> Attach
+                </button>
                 <div class="ahc-cd__reply-hints">
                   <span class="ahc-cd__reply-hint" ng-if="c.sent">
                     <i class="fa fa-check-circle"></i> Sent.
                   </span>
                   <span class="ahc-cd__reply-hint ahc-cd__reply-hint--err" ng-if="c.sendError">
-                    <i class="fa fa-exclamation-circle"></i> Could not send.
+                    <i class="fa fa-exclamation-circle"></i> {{c.sendErrorMsg || 'Could not send.'}}
                   </span>
                 </div>
                 <button class="ahc-cd__send-btn"
@@ -305,7 +325,7 @@
                         ng-disabled="c.sending">
                   <i class="fa fa-paper-plane-o" ng-if="!c.sending"></i>
                   <i class="fa fa-spinner fa-spin" ng-if="c.sending"></i>
-                  Send
+                  {{c.sending && c.pendingFiles.length ? 'Uploading…' : 'Send'}}
                 </button>
               </div>
             </div>
