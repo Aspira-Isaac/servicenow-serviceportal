@@ -120,3 +120,27 @@ The case list widget (`ahc-case-list/client.js`) clears `$rootScope.ahcOverlay` 
 ## Future Polish
 
 - Replace the spinner on case detail back-navigation (`c.navigating = true`) with a skeleton that mirrors the case list layout for a seamless transition.
+
+## Next-Gen Portal Password Gate (July 2026, dev)
+
+`/nextgen` no longer forces login — the `nextgen_kb` page is **public** and
+`ahc-kb-home` shows a password overlay to anonymous visitors instead.
+
+- Password lives in sys_property `ahc.nextgen.gate_password` (private; seed
+  value `aspiranext` from `deploy/15`, but the script never overwrites it —
+  rotate in the instance UI, which also invalidates outstanding tokens).
+- Unlock TTL: `ahc.nextgen.gate_ttl_hours` (24). Client stores a stateless
+  token = SHA256(secret + expiry) in localStorage key `ahcNextgenGate` and
+  sends it with every `server.get`; the server re-validates each request and
+  returns `gateDenied` on expiry (client re-locks).
+- Server withholds ALL article data without a valid token — on a locked page
+  load the widget returns only the shell; data arrives via `{action:'init'}`.
+- Gate engages only when portal `url_suffix=nextgen` AND `!gs.isLoggedIn()` —
+  logged-in users (and the /help portal) never see it. **Test in incognito.**
+- To make guest read work, the "Guest User" **cannot-read** criteria was
+  removed from the Next Gen KB (cannot-read beats can-read) and "Guest User"
+  was added to can-read. The password is now the only barrier for anonymous
+  visitors on dev.
+- Prod (`deploy/16`) does NOT pass `passwordGate` — still login-forced.
+- Pure-KB portals (`data.noCatalog`) sort category article lists
+  alphabetically; /help keeps views-based sort.

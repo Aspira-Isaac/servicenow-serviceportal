@@ -19,10 +19,54 @@
     kbId = portalGr ? String(portalGr.getValue('kb_knowledge_base') || '') : '';
   }
   data.kbId = kbId;
+
+  // Pure-KB portals (no catalog, e.g. /nextgen) never show ticket CTAs — this is
+  // portal-based, so it also covers /help pages rendered under ?id= on that portal.
+  var ctaPortalGr = $sp.getPortalRecord();
+  data.noCatalog = !ctaPortalGr || !String(ctaPortalGr.getValue('sc_catalog') || '');
+
+  // ── Password gate (anonymous visitors on /nextgen) ────────────────────────
+  // Replaces the login bounce: the page is public, but no article data leaves
+  // the server without a valid gate token. The token is stateless —
+  // SHA256(secret + expiry) — so any node can verify it without a session.
+  // Fails closed: if the password property is unset, nobody gets in.
+  var gateSuffix  = ctaPortalGr ? String(ctaPortalGr.getValue('url_suffix') || '') : '';
+  var gateEnabled = gateSuffix === 'nextgen' && !gs.isLoggedIn();
+  data.gateRequired = gateEnabled;
+
+  function gateToken(exp) {
+    var secret = gs.getProperty('ahc.nextgen.gate_password', '');
+    if (!secret) return '';
+    return new GlideDigest().getSHA256Hex(secret + '|' + exp + '|ahc-kbh-gate');
+  }
+  function gateOk() {
+    if (!gateEnabled) return true;
+    if (!input || !input.gate_token || !input.gate_exp) return false;
+    var exp = parseInt(input.gate_exp, 10) || 0;
+    if (exp < new GlideDateTime().getNumericValue()) return false;
+    var expected = gateToken(String(exp));
+    return expected !== '' && expected === String(input.gate_token);
+  }
+
   if (!kbId) return;
+
+  // ── AJAX: unlock the gate ─────────────────────────────────────────────────
+  if (input && input.action === 'gate_unlock') {
+    data.gateOk = false;
+    var gateSecret = gs.getProperty('ahc.nextgen.gate_password', '');
+    if (gateEnabled && gateSecret && String(input.password || '') === gateSecret) {
+      var ttlHours = parseInt(gs.getProperty('ahc.nextgen.gate_ttl_hours', '24'), 10) || 24;
+      var gateExp  = new GlideDateTime().getNumericValue() + ttlHours * 3600000;
+      data.gateOk    = true;
+      data.gateToken = gateToken(String(gateExp));
+      data.gateExp   = gateExp;
+    }
+    return;
+  }
 
   // ── AJAX: load articles for a category ────────────────────────────────────
   if (input && input.action === 'load_category') {
+    if (!gateOk()) { data.gateDenied = true; return; }
     data.articles = [];
     var catId = String(input.catId || '');
     if (!catId) return;
@@ -31,7 +75,12 @@
     catArtGr.addQuery('kb_knowledge_base', kbId);
     catArtGr.addQuery('workflow_state', 'published');
     catArtGr.addQuery('kb_category', catId);
-    catArtGr.orderByDesc('sys_view_count');
+    if (data.noCatalog) {
+      // Pure-KB portals (e.g. /nextgen): alphabetical, per stakeholder request
+      catArtGr.orderBy('short_description');
+    } else {
+      catArtGr.orderByDesc('sys_view_count');
+    }
     catArtGr.setLimit(50);
     catArtGr.query();
     var catArts = [];
@@ -52,6 +101,7 @@
 
   // ── AJAX: load full article content ───────────────────────────────────────
   if (input && input.action === 'load_article') {
+    if (!gateOk()) { data.gateDenied = true; return; }
     data.article = null;
     data.related  = [];
     var fetchId = String(input.artId || '');
@@ -87,6 +137,7 @@
 
   // ── AJAX: rate article ─────────────────────────────────────────────────────
   if (input && input.action === 'rate') {
+    if (!gateOk()) { data.gateDenied = true; return; }
     var rateFb = new GlideRecord('kb_feedback');
     rateFb.user    = gs.getUserID();
     rateFb.article = String(input.artId || '');
@@ -98,6 +149,7 @@
 
   // ── AJAX: search ──────────────────────────────────────────────────────────
   if (input && input.action === 'search') {
+    if (!gateOk()) { data.gateDenied = true; return; }
     data.results = [];
     var term = (input.term || '').trim();
     if (term.length < 2) return;
@@ -123,6 +175,12 @@
   }
 
   // ── Initial page load ──────────────────────────────────────────────────────
+  // Also serves {action:'init'}: locked visitors get the shell only on page
+  // load; once unlocked, the client re-requests this block with its token.
+  if (!gateOk()) {
+    if (input) data.gateDenied = true; // stored token expired → client re-locks
+    return;
+  }
 
   // Build category map from published articles
   var initGr = new GlideRecord('kb_knowledge');
