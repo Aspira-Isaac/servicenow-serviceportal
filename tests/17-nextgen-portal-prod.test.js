@@ -191,8 +191,10 @@ async function run() {
   });
 
   await test('all 5 team-authored articles still exist', async () => {
-    const arts = await get('kb_knowledge', `kb_knowledge_base=${PROD_KB_ID}^numberIN${TEAM_ARTICLES.join(',')}`, 'sys_id,number', 10);
-    const found = arts.map(a => a.number).sort();
+    // Knowledge v3 versioning: one kb_knowledge row PER REVISION (same number),
+    // so team edits create duplicates — compare the distinct number set
+    const arts = await get('kb_knowledge', `kb_knowledge_base=${PROD_KB_ID}^numberIN${TEAM_ARTICLES.join(',')}`, 'sys_id,number', 50);
+    const found = [...new Set(arts.map(a => a.number))].sort();
     assert.deepStrictEqual(found, [...TEAM_ARTICLES].sort(), `missing articles: found ${found.join(', ')}`);
   });
 
