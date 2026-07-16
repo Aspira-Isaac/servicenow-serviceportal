@@ -121,7 +121,7 @@ The case list widget (`ahc-case-list/client.js`) clears `$rootScope.ahcOverlay` 
 
 - Replace the spinner on case detail back-navigation (`c.navigating = true`) with a skeleton that mirrors the case list layout for a seamless transition.
 
-## Next-Gen Portal Password Gate (July 2026, dev)
+## Next-Gen Portal Password Gate (July 2026, dev + prod)
 
 `/nextgen` no longer forces login — the `nextgen_kb` page is **public** and
 `ahc-kb-home` shows a password overlay to anonymous visitors instead.
@@ -138,9 +138,12 @@ The case list widget (`ahc-case-list/client.js`) clears `$rootScope.ahcOverlay` 
 - Gate engages only when portal `url_suffix=nextgen` AND `!gs.isLoggedIn()` —
   logged-in users (and the /help portal) never see it. **Test in incognito.**
 - To make guest read work, the "Guest User" **cannot-read** criteria was
-  removed from the Next Gen KB (cannot-read beats can-read) and "Guest User"
-  was added to can-read. The password is now the only barrier for anonymous
-  visitors on dev.
-- Prod (`deploy/16`) does NOT pass `passwordGate` — still login-forced.
+  removed from the KB (cannot-read beats can-read) and "Guest User" was added
+  to can-read. The password is now the only barrier for anonymous visitors.
+- **Prod deployed 2026-07-16** (`deploy/16`, approved after dev incognito
+  test): same gate, same seed password, on the prod Rainger KB — its published
+  articles are effectively public content now. The portal↔KB allowlist keeps
+  other SP portals from listing them, but don't put anything in the Rainger KB
+  that must stay behind real auth.
 - Pure-KB portals (`data.noCatalog`) sort category article lists
   alphabetically; /help keeps views-based sort.
