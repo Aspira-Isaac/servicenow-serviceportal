@@ -24,7 +24,11 @@ module.exports = async function deployPages(ctx) {
         title: page.title,
         id: page.id,
         sp_portal: ctx.portalSysId,
-        public: 'true'
+        // NEVER public: anonymous visitors must hit login. public:'true' here
+        // exposed the case list to logged-out users until 2026-07-17 — cases
+        // opened via inbound email have opened_by=guest, which the widget's
+        // personal scope happily matched for anonymous sessions.
+        public: 'false'
       });
       const sysId = resp.data.result.sys_id;
       ctx[page.key] = sysId;

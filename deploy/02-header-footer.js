@@ -221,16 +221,19 @@ const HEADER_TEMPLATE = `
         <img class="ahc-nav__logo-img" src="/cb8f9beb8762c1104c76ed7e0ebb35cc.iix" alt="Aspira" />
       </a>
 
-      <!-- Desktop Nav Links -->
-      <ul class="ahc-nav__links">
+      <!-- Desktop Nav Links — hidden for anonymous visitors so they can't
+           navigate into (login-required) ticket/catalog pages and hit a stuck
+           loading overlay; they get only the brand + Sign In (2026-07-17). -->
+      <ul class="ahc-nav__links" ng-if="data.isLoggedIn">
         <li><a href="{{data.portalUrl}}?id=sc_category&catalog_id=-1" class="ahc-nav__link">Catalog</a></li>
         <li><a href="{{data.portalUrl}}?id=ticket_list" class="ahc-nav__link" ng-click="$root.currentPageId !== 'ticket_list' && ($root.ahcOverlay = true)">My Tickets</a></li>
       </ul>
 
       <!-- Right side: notifications + user -->
       <div class="ahc-nav__right">
-        <!-- Notification bell + panel wrapper (position:relative anchors the dropdown) -->
-        <div class="ahc-nav__notif-wrap">
+        <!-- Notification bell + panel wrapper (position:relative anchors the dropdown).
+             Account-specific — hidden for anonymous visitors (2026-07-17). -->
+        <div class="ahc-nav__notif-wrap" ng-if="data.isLoggedIn">
           <button class="ahc-nav__notif-btn" type="button" aria-label="Notifications"
                   ng-click="toggleNotifs()">
             <i class="fa fa-bell"></i>
@@ -931,11 +934,15 @@ const FOOTER_CSS = `
 .ahc-footer__copy { color: rgba(255,255,255,0.25); font-size: 0.75em; margin: 0; width: 100%; }
 
 /* Hide SNOW UXA analytics floating button ("Open Usage Insights").
-   Patched instances renamed the elements (uxa-analytics-root etc.),
-   so match the whole uxa-analytics family by id and class. */
+   Angular prepends its own classes (ng-scope …) to the class attribute at
+   runtime, so prefix matches ([class^=]) miss — use substring matches and
+   the aria-label as a belt-and-braces set. */
 #uxa-analytics-btn,
-[id^="uxa"],
-[class^="uxa"] { display: none !important; }
+#uxa-iframe,
+[id*="uxa"],
+[class*="uxa-analytics"],
+.uxa-analytics-root,
+[aria-label="Agent analytics window"] { display: none !important; }
 `.trim();
 
 // ── Server script for the header (reads user + branding) ─────────────────────

@@ -88,7 +88,8 @@ async function run() {
       return r.data.result[0].sys_id;
     }
     const created = await client.post('/api/now/table/sp_page', {
-      title, id, sp_portal: ctx.portalSysId, public: 'true'
+      // NEVER public — see deploy/04-pages.js (2026-07-17 anonymous case leak)
+      title, id, sp_portal: ctx.portalSysId, public: 'false'
     });
     console.log(`  [created] ${stored}: ${created.data.result.sys_id}`);
     return created.data.result.sys_id;

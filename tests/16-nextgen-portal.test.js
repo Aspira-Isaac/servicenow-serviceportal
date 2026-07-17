@@ -214,6 +214,44 @@ async function run() {
     assert.ok(hdr[0].template.includes('?id=ticket_list'), '/help header lost its My Tickets link');
   });
 
+  console.log('\n─── /help pages locked down (2026-07-17 leak fix) ───');
+
+  // Cases opened via unauthenticated channels (inbound email) have
+  // opened_by=guest, so any public page hosting the case list handed all such
+  // cases to anonymous visitors. nextgen_kb is the ONLY page we own that may
+  // be public (its widget carries the password gate).
+  await test('nextgen_kb is the only public page we created', async () => {
+    const pages = await get('sp_page', 'public=true^sys_created_byINeasyBI,isaacn,inavarrete', 'id', 40);
+    const ids = pages.map(p => p.id).sort();
+    assert.deepStrictEqual(ids, ['nextgen_kb'], `unexpected public pages: ${ids.join(', ')}`);
+  });
+
+  await test('all /help pages require login (non-public)', async () => {
+    for (const id of ['ahc_index', 'ahc_submit_ticket', 'ahc_kb_search', 'ticket_list', 'ticket_detail', 'ahc_kb_category', 'ahc_kb_article']) {
+      const pages = await get('sp_page', `id=${id}`, 'id,public', 5);
+      assert.ok(pages.length >= 1, `page ${id} not found`);
+      for (const p of pages) {
+        assert.strictEqual(p.public, 'false', `page ${id} is public — anonymous visitors can reach it`);
+      }
+    }
+  });
+
+  await test('case-list widget refuses anonymous sessions (defense in depth)', async () => {
+    const widgets = await get('sp_widget', 'id=ahc-case-list', 'script', 1);
+    assert.strictEqual(widgets.length, 1, 'ahc-case-list widget not found');
+    assert.ok(widgets[0].script.includes('gs.isLoggedIn()'), 'case-list server script has no login guard');
+  });
+
+  await test('/help header hides nav links + bell for anonymous visitors', async () => {
+    const hdr = await get('sp_header_footer', 'name=Aspira Help Center Header', 'template', 1);
+    assert.strictEqual(hdr.length, 1, 'header not found');
+    const t = hdr[0].template;
+    assert.ok(t.includes('<ul class="ahc-nav__links" ng-if="data.isLoggedIn">'), 'nav links not gated on login');
+    assert.ok(t.includes('<div class="ahc-nav__notif-wrap" ng-if="data.isLoggedIn">'), 'notification bell not gated on login');
+    // The Sign In link stays for logged-out users
+    assert.ok(t.includes('ng-if="!data.isLoggedIn"'), 'Sign In affordance lost for anonymous visitors');
+  });
+
   // ─── summary ────────────────────────────────────────────────────────────────
   console.log(`\n${passed + failed} tests: ${passed} passed, ${failed} failed\n`);
   if (failed > 0) process.exit(1);
