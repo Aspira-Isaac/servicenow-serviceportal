@@ -147,3 +147,24 @@ The case list widget (`ahc-case-list/client.js`) clears `$rootScope.ahcOverlay` 
   that must stay behind real auth.
 - Pure-KB portals (`data.noCatalog`) sort category article lists
   alphabetically; /help keeps views-based sort.
+
+### ⚠ Anonymous case leak — fixed 2026-07-17 (regression guard)
+
+The gate work didn't cause this, but surfaced it: the /help pages were created
+`public=true` back on 2026-05-21 (`deploy/04-pages.js`). Cases opened via
+unauthenticated channels (inbound email) carry **opened_by=guest**, and the
+case-list widget's personal-scope fallback (`opened_by=<current user>`) matched
+them for anonymous sessions — ~220k cases were readable at
+`/help?id=ticket_list` with no login.
+
+Rules to keep it closed:
+- **`nextgen_kb` is the ONLY sp_page we own that may be public** (its widget
+  carries the password gate). Every /help page MUST be `public=false`.
+  `deploy/04-pages.js` + `index-dev.js` now create them non-public.
+- `ahc-case-list/server.js` bails on `!gs.isLoggedIn()` (defense in depth).
+- The /help header hides nav links + bell via `ng-if="data.isLoggedIn"` so
+  anonymous visitors can't navigate into login-required pages (and hit the
+  stuck `ahcOverlay` spinner — set by the My Tickets link, only cleared by the
+  case-list controller, which never runs when SP redirects to login).
+- Re-runnable fix: `lib/lock-help-pages.js` (scripts 19 dev / 20 prod).
+- Next Gen is a separate portal/header/page — untouched by this fix.
