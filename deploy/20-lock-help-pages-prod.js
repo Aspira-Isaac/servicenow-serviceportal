@@ -1,12 +1,14 @@
 /**
- * Lock down public /help pages + harden ahc-case-list (PROD)
+ * Secure the /help portal against the anonymous case leak (PROD)
  *
  * ⚠ PRODUCTION FIX (aspiraconnect.service-now.com) — approved 2026-07-17.
- * Fixes the anonymous case leak: /help pages were created public on
- * 2026-05-21 and inbound-email cases (opened_by=guest) matched the case
- * list's personal scope for logged-out visitors. See lib/lock-help-pages.js.
+ * The leak (inbound-email cases with opened_by=guest matched the case list's
+ * personal scope for logged-out visitors) is closed at the WIDGET layer.
+ * Pages stay PUBLIC — the first attempt made them non-public, which broke the
+ * portal for external customers (non-public sp_pages need the admin role to
+ * read → "Not Found"); corrected 2026-07-21. See lib/lock-help-pages.js.
  *
- * Prod runs an OLDER ahc-case-list than the repo, so only the login guard is
+ * Prod may run an OLDER ahc-case-list than the repo, so only the login guard is
  * inserted into the deployed script — no other widget changes ship.
  *
  * Run: node deploy/20-lock-help-pages-prod.js

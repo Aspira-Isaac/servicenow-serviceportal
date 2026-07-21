@@ -235,29 +235,23 @@ async function run() {
     assert.ok(hdr[0].template.includes('?id=ticket_list'), '/help header lost its My Tickets link');
   });
 
-  console.log('\n─── /help pages locked down (2026-07-17 leak fix) ───');
+  console.log('\n─── /help leak fix (widget-guarded, pages stay public) ───');
 
-  // Cases opened via unauthenticated channels (inbound email) have
-  // opened_by=guest, so any public page hosting the case list handed ~220k
-  // cases to anonymous visitors. nextgen_kb is the ONLY page we own that may
-  // be public (its widget carries the password gate).
-  await test('nextgen_kb is the only public page we created', async () => {
-    const pages = await get('sp_page', 'public=true^sys_created_by=easyBI', 'id', 40);
-    const ids = pages.map(p => p.id).sort();
-    assert.deepStrictEqual(ids, ['nextgen_kb'], `unexpected public pages: ${ids.join(', ')}`);
-  });
-
-  await test('all /help pages require login (non-public)', async () => {
+  // The leak (inbound-email cases with opened_by=guest matched the case list's
+  // personal scope for anonymous visitors) is closed at the WIDGET layer, NOT
+  // by page publicity. Pages MUST stay public: external CSM customers lack the
+  // `admin` role and cannot read a non-public sp_page (renders "Not Found").
+  await test('all /help pages are public (external customers can read them)', async () => {
     for (const id of ['ahc_index', 'ahc_submit_ticket', 'ahc_kb_search', 'ticket_list', 'ticket_detail']) {
       const pages = await get('sp_page', `id=${id}`, 'id,public', 5);
       assert.ok(pages.length >= 1, `page ${id} not found`);
       for (const p of pages) {
-        assert.strictEqual(p.public, 'false', `page ${id} is public — anonymous visitors can reach it`);
+        assert.strictEqual(p.public, 'true', `page ${id} is non-public — external customers get "Not Found"`);
       }
     }
   });
 
-  await test('case-list widget refuses anonymous sessions (defense in depth)', async () => {
+  await test('case-list widget refuses anonymous sessions (the actual leak fix)', async () => {
     const widgets = await get('sp_widget', 'id=ahc-case-list', 'script', 1);
     assert.strictEqual(widgets.length, 1, 'ahc-case-list widget not found');
     assert.ok(widgets[0].script.includes('gs.isLoggedIn()'), 'case-list server script has no login guard');

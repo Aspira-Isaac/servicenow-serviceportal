@@ -1,9 +1,10 @@
 /**
- * Lock down public /help pages + harden ahc-case-list (DEV)
+ * Secure the /help portal against the anonymous case leak (DEV)
  *
- * Fixes the 2026-07-17 anonymous case leak — see lib/lock-help-pages.js.
+ * Keeps /help pages PUBLIC (external customers can't read non-public pages)
+ * and closes the leak at the widget layer — see lib/lock-help-pages.js.
  * Dev widget matches the repo, so the widget is fully redeployed from
- * widgets-dev/ (which now includes the login guard).
+ * widgets-dev/ (which includes the login guard).
  *
  * Run: node deploy/19-lock-help-pages-dev.js
  */

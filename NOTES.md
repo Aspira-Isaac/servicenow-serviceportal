@@ -148,23 +148,33 @@ The case list widget (`ahc-case-list/client.js`) clears `$rootScope.ahcOverlay` 
 - Pure-KB portals (`data.noCatalog`) sort category article lists
   alphabetically; /help keeps views-based sort.
 
-### ⚠ Anonymous case leak — fixed 2026-07-17 (regression guard)
+### ⚠ Anonymous case leak — fixed 2026-07-17, approach corrected 2026-07-21
 
 The gate work didn't cause this, but surfaced it: the /help pages were created
-`public=true` back on 2026-05-21 (`deploy/04-pages.js`). Cases opened via
-unauthenticated channels (inbound email) carry **opened_by=guest**, and the
-case-list widget's personal-scope fallback (`opened_by=<current user>`) matched
-them for anonymous sessions — ~220k cases were readable at
-`/help?id=ticket_list` with no login.
+`public=true` on 2026-05-21 (`deploy/04-pages.js`). Cases opened via inbound
+email carry **opened_by=guest**, and the case-list widget's personal-scope
+fallback (`opened_by=<current user>`) matched them for anonymous sessions —
+~220k cases were readable at `/help?id=ticket_list` with no login.
 
-Rules to keep it closed:
-- **`nextgen_kb` is the ONLY sp_page we own that may be public** (its widget
-  carries the password gate). Every /help page MUST be `public=false`.
-  `deploy/04-pages.js` + `index-dev.js` now create them non-public.
-- `ahc-case-list/server.js` bails on `!gs.isLoggedIn()` (defense in depth).
-- The /help header hides nav links + bell via `ng-if="data.isLoggedIn"` so
-  anonymous visitors can't navigate into login-required pages (and hit the
-  stuck `ahcOverlay` spinner — set by the My Tickets link, only cleared by the
-  case-list controller, which never runs when SP redirects to login).
-- Re-runnable fix: `lib/lock-help-pages.js` (scripts 19 dev / 20 prod).
-- Next Gen is a separate portal/header/page — untouched by this fix.
+**The fix is at the WIDGET layer, NOT page publicity:**
+- `ahc-case-list/server.js` (and `ahc-stats`) bail to empty when
+  `!gs.isLoggedIn()`. This is what actually closes the leak — verified:
+  anonymous gets 0 cases even though the page is public.
+- The /help header hides nav links + bell via `ng-if="data.isLoggedIn"`
+  (nicety: anonymous visitors don't see ticket/catalog nav).
+- Re-runnable: `lib/lock-help-pages.js` (scripts 19 dev / 20 prod).
+- Next Gen is a separate portal/header/page — untouched.
+
+**⚠ /help pages MUST stay `public=true`.** The first fix set them
+`public=false`; that broke the portal for real customers. External CSM users
+(`sn_customerservice.customer` / `snc_external`) do NOT have the `admin` role,
+and the stock **sp_page read ACL** ("Allow read … for users with role admin")
+means they cannot read a non-public `sp_page` — every /help page rendered
+**"Not Found"** for them (found 2026-07-21 while impersonating an active
+customer_admin, `AWO-elgrove`). Page publicity is the wrong lever; the widget
+guards are publicity-independent. `deploy/04-pages.js` + `index-dev.js` create
+pages `public=true`.
+
+Note: internal admins don't hit this (they pass the ACL), so a non-public page
+looks fine when you test as yourself — always verify portal changes as an
+actual external customer.
