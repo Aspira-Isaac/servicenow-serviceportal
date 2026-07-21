@@ -61,16 +61,23 @@ async function linkUserCriteriaToKb(kbSysId, ucSysId) {
   return r.data.result.sys_id;
 }
 
-// kb_category has no kb_knowledge_base field — categories are global in SNOW.
-// Articles reference both kb_knowledge_base (KB) and kb_category (category) independently.
-// We check by label only; if a category with this label already exists globally, reuse it.
-async function upsertCategory(label) {
-  const existing = await findOne('kb_category', `label=${label}`);
+// A kb_category belongs to a KB via parent_id + parent_table — the native
+// category picker on the Knowledge form builds its tree from these, so a
+// category created without a parent is invisible there (portal widgets still
+// find it by bridging through articles, which masked this for a while).
+// Lookup is scoped to the KB so same-label categories in other KBs are not reused.
+async function upsertCategory(label, kbSysId) {
+  const existing = await findOne('kb_category', `label=${label}^parent_id=${kbSysId}`);
   if (existing) {
     console.log(`  [skip]    category "${label}" (${existing.sys_id})`);
     return existing.sys_id;
   }
-  const r = await client.post('/api/now/table/kb_category', { label, active: true });
+  const r = await client.post('/api/now/table/kb_category', {
+    label,
+    parent_id:    kbSysId,
+    parent_table: 'kb_knowledge_base',
+    active:       true
+  });
   console.log(`  [created] category "${label}" (${r.data.result.sys_id})`);
   return r.data.result.sys_id;
 }
@@ -454,6 +461,15 @@ const AGENT_ARTICLES = [
 
 module.exports = async function seedRaingerDev(ctx) {
 
+  // SUPERSEDED for customer content (2026-07-09): the dev customer KB was renamed
+  // "Next Gen" and reseeded from prod by deploy/14-nexgen-import-dev.js. Re-running
+  // this script would fail to find it by title and create a duplicate "Rainger" KB.
+  const nexGen = await findOne('kb_knowledge_base', 'title=Next Gen');
+  if (nexGen) {
+    console.log('\n  [abort] "Next Gen" KB exists — this seed is superseded by 14-nexgen-import-dev.js.');
+    return;
+  }
+
   // 1. Create both KBs
   console.log('\n  Creating Rainger customer KB...');
   const { sys_id: kbSysId } = await upsert('kb_knowledge_base', 'title', 'Rainger', {
@@ -502,19 +518,19 @@ module.exports = async function seedRaingerDev(ctx) {
   // 4. Create customer KB categories
   console.log('\n  Creating customer KB categories...');
   const customerCats = {
-    getting_started:  await upsertCategory('Getting Started'),
-    account_settings: await upsertCategory('Account & Settings'),
-    billing:          await upsertCategory('Payments & Billing'),
-    reservations:     await upsertCategory('Reservations'),
-    troubleshooting:  await upsertCategory('Troubleshooting')
+    getting_started:  await upsertCategory('Getting Started', kbSysId),
+    account_settings: await upsertCategory('Account & Settings', kbSysId),
+    billing:          await upsertCategory('Payments & Billing', kbSysId),
+    reservations:     await upsertCategory('Reservations', kbSysId),
+    troubleshooting:  await upsertCategory('Troubleshooting', kbSysId)
   };
 
   // 5. Create internal KB categories
   console.log('\n  Creating internal KB categories...');
   const internalCats = {
-    agent_reference:   await upsertCategory('Agent Reference'),
-    known_issues:      await upsertCategory('Known Issues'),
-    escalation_guides: await upsertCategory('Escalation Guides')
+    agent_reference:   await upsertCategory('Agent Reference', agentKbSysId),
+    known_issues:      await upsertCategory('Known Issues', agentKbSysId),
+    escalation_guides: await upsertCategory('Escalation Guides', agentKbSysId)
   };
 
   // 6. Upsert customer articles

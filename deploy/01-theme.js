@@ -229,6 +229,21 @@ a:focus {
 .input-group-btn .btn:hover {
   background-color: #141f6a !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   HIDE SNOW UXA ANALYTICS floating button/panel ("usage insights").
+   Lives in theme CSS (compiled stylesheet) so it applies on first
+   paint; Angular prepends classes at runtime so use substring
+   matches, not prefix matches.
+   ═══════════════════════════════════════════════════════════════ */
+#uxa-analytics-btn,
+#uxa-iframe,
+[id*="uxa"],
+[class*="uxa-analytics"],
+.uxa-analytics-root,
+[aria-label="Agent analytics window"] {
+  display: none !important;
+}
 `;
 
 module.exports = async function deployTheme(ctx) {

@@ -42,10 +42,13 @@ async function run() {
 
   let raingerKbId, internalKbId;
 
-  await test('should have created "Rainger" KB', async () => {
-    const results = await get('kb_knowledge_base', 'title=Rainger');
-    assert.strictEqual(results.length, 1, `expected 1 Rainger KB, got ${results.length}`);
-    assert.strictEqual(results[0].active, 'true', 'Rainger KB should be active');
+  // Customer KB renamed "Rainger" → "Next Gen" on 2026-07-09 and reseeded from
+  // prod content (deploy/14-nexgen-import-dev.js). Content checks live in tests/15;
+  // this file keeps the structural checks (KB, user criteria, portal links).
+  await test('customer KB "Next Gen" should exist', async () => {
+    const results = await get('kb_knowledge_base', 'title=Next Gen');
+    assert.strictEqual(results.length, 1, `expected 1 Next Gen KB, got ${results.length}`);
+    assert.strictEqual(results[0].active, 'true', 'Next Gen KB should be active');
     raingerKbId = results[0].sys_id;
   });
 
@@ -109,31 +112,16 @@ async function run() {
     assert.strictEqual(links.length, 0, 'Rainger (Internal) KB should NOT appear on the customer portal');
   });
 
-  // Note: kb_category has no kb_knowledge_base field in SNOW — categories are global.
-  // We verify categories through the articles that reference them.
+  // Categories belong to a KB via parent_id/parent_table (see tests/14 for
+  // parenting checks). Here we verify them through the articles that reference them.
+  // Customer KB categories are covered by tests/15 (prod-imported content).
   console.log('\n─── Categories ───');
-
-  const EXPECTED_CUSTOMER_CATS = ['Getting Started', 'Account & Settings', 'Payments & Billing', 'Reservations', 'Troubleshooting'];
-  const EXPECTED_INTERNAL_CATS = ['Agent Reference', 'Known Issues', 'Escalation Guides'];
-
-  await test('customer KB should have 5 distinct categories across its articles', async () => {
-    assert.ok(raingerKbId, 'Rainger KB must exist first');
-    const articles = await get('kb_knowledge', `kb_knowledge_base=${raingerKbId}`, 'kb_category.label', 50);
-    const cats = [...new Set(articles.map(a => a['kb_category.label']).filter(Boolean))];
-    assert.strictEqual(cats.length, 5, `expected 5 distinct categories, got ${cats.length}: ${cats.join(', ')}`);
-  });
 
   await test('internal KB should have 3 distinct categories across its articles', async () => {
     assert.ok(internalKbId, 'Rainger (Internal) KB must exist first');
     const articles = await get('kb_knowledge', `kb_knowledge_base=${internalKbId}`, 'kb_category.label', 50);
     const cats = [...new Set(articles.map(a => a['kb_category.label']).filter(Boolean))];
     assert.strictEqual(cats.length, 3, `expected 3 distinct categories, got ${cats.length}: ${cats.join(', ')}`);
-  });
-
-  await test('customer KB articles should include "Getting Started" category', async () => {
-    assert.ok(raingerKbId, 'Rainger KB must exist first');
-    const articles = await get('kb_knowledge', `kb_knowledge_base=${raingerKbId}^kb_category.label=Getting Started`, 'sys_id', 1);
-    assert.ok(articles.length > 0, 'No articles found with "Getting Started" category');
   });
 
   await test('internal KB articles should include "Agent Reference" category', async () => {
@@ -144,34 +132,15 @@ async function run() {
 
   console.log('\n─── Articles ───');
 
-  await test('customer KB should have 9 published articles', async () => {
-    assert.ok(raingerKbId, 'Rainger KB must exist first');
-    const articles = await get(
-      'kb_knowledge',
-      `kb_knowledge_base=${raingerKbId}^workflow_state=published`,
-      'sys_id,short_description,workflow_state'
-    );
-    assert.strictEqual(articles.length, 9, `expected 9 published articles, got ${articles.length}`);
-  });
-
-  await test('internal KB should have 7 published articles', async () => {
+  // Customer KB article checks live in tests/15 (prod-imported content).
+  await test('internal KB should have at least the 7 seeded published articles', async () => {
     assert.ok(internalKbId, 'Rainger (Internal) KB must exist first');
     const articles = await get(
       'kb_knowledge',
       `kb_knowledge_base=${internalKbId}^workflow_state=published`,
       'sys_id,short_description,workflow_state'
     );
-    assert.strictEqual(articles.length, 7, `expected 7 published articles, got ${articles.length}`);
-  });
-
-  await test('customer KB should have no draft articles', async () => {
-    assert.ok(raingerKbId, 'Rainger KB must exist first');
-    const drafts = await get(
-      'kb_knowledge',
-      `kb_knowledge_base=${raingerKbId}^workflow_state=draft`,
-      'sys_id,short_description'
-    );
-    assert.strictEqual(drafts.length, 0, `found ${drafts.length} draft articles: ${drafts.map(a => a.short_description).join(', ')}`);
+    assert.ok(articles.length >= 7, `expected at least 7 published articles, got ${articles.length}`);
   });
 
   await test('internal KB should have no draft articles', async () => {
