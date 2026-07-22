@@ -7,11 +7,12 @@ function($scope, $location, $rootScope, $timeout) {
 
   // Server-side pagination/filtering: every change round-trips through
   // server.get and replaces the current page of rows
-  c.filter   = c.data.filter   || 'all';
+  // Multi-select filters: arrays of selected values. Empty array = All.
+  c.states     = (c.data.selectedStates     || []).slice();
+  c.locations  = (c.data.selectedLocations  || []).slice();
+  c.categories = (c.data.selectedCategories || []).slice();
   c.opener   = c.data.opener   || 'everyone';
   c.search   = c.data.search   || '';
-  c.location = c.data.location || '';
-  c.category = c.data.category || '';
   c.page     = c.data.page     || 0;
   c.loading  = false;
 
@@ -45,23 +46,20 @@ function($scope, $location, $rootScope, $timeout) {
     try { sessionStorage.setItem(SIDE_KEY, c.sideOpen ? '1' : '0'); } catch(e) {}
   };
   c.activeCount = function() {
-    return (c.filter !== 'all' ? 1 : 0) + (c.opener !== 'everyone' ? 1 : 0) +
-           (c.location ? 1 : 0) + (c.category ? 1 : 0);
+    return (c.states.length ? 1 : 0) + (c.opener !== 'everyone' ? 1 : 0) +
+           (c.locations.length ? 1 : 0) + (c.categories.length ? 1 : 0);
   };
 
   // A selected option can drop to zero matches under the other filters — keep
-  // it in the list (count 0) so the user can see it's active and unselect it
-  function keepSelected(fresh, old, selectedVal) {
-    if (!selectedVal || !fresh) return fresh;
-    for (var i = 0; i < fresh.length; i++) {
-      if (fresh[i].value === selectedVal) return fresh;
-    }
-    for (var j = 0; j < (old || []).length; j++) {
-      if (old[j].value === selectedVal) {
-        fresh.unshift({ value: old[j].value, label: old[j].label, count: 0 });
-        break;
-      }
-    }
+  // EVERY still-selected value visible (count 0) so the user can always uncheck
+  // it even if it currently matches nothing. Works for any multi-select facet.
+  function keepSelectedMulti(fresh, old, selectedArr) {
+    if (!fresh) return fresh;
+    selectedArr.forEach(function(val) {
+      if (fresh.some(function(o) { return o.value === val; })) return;
+      var prev = (old || []).filter(function(o) { return o.value === val; })[0];
+      fresh.unshift({ value: val, label: prev ? prev.label : val, count: 0 });
+    });
     return fresh;
   }
 
@@ -70,13 +68,13 @@ function($scope, $location, $rootScope, $timeout) {
   function persistState() {
     try {
       sessionStorage.setItem(STATE_KEY, JSON.stringify({
-        filter:   c.filter,
-        opener:   c.opener,
-        search:   c.search,
-        location: c.location,
-        category: c.category,
-        sortBy:   c.sortBy,
-        sortDir:  c.sortDir
+        states:     c.states,
+        locations:  c.locations,
+        categories: c.categories,
+        opener:     c.opener,
+        search:     c.search,
+        sortBy:     c.sortBy,
+        sortDir:    c.sortDir
       }));
     } catch(e) {}
   }
@@ -85,22 +83,22 @@ function($scope, $location, $rootScope, $timeout) {
     persistState();
     c.loading = true;
     c.server.get({
-      filter:   c.filter,
-      opener:   c.opener,
-      search:   c.search.trim(),
-      location: c.location,
-      category: c.category,
-      sortBy:   c.sortBy,
-      sortDir:  c.sortDir,
-      page:     c.page
+      states:     c.states.join(','),
+      locations:  c.locations.join(','),
+      categories: c.categories.join(','),
+      opener:     c.opener,
+      search:     c.search.trim(),
+      sortBy:     c.sortBy,
+      sortDir:    c.sortDir,
+      page:       c.page
     }).then(function(resp) {
       var rd = (resp && resp.data) ? resp.data : {};
       ['cases', 'total', 'page', 'exportQuery'].forEach(function(k) {
         if (typeof rd[k] !== 'undefined') c.data[k] = rd[k];
       });
-      if (rd.states)     c.data.states     = keepSelected(rd.states,     c.data.states,     c.filter !== 'all' ? c.filter : '');
-      if (rd.locations)  c.data.locations  = keepSelected(rd.locations,  c.data.locations,  c.location);
-      if (rd.categories) c.data.categories = keepSelected(rd.categories, c.data.categories, c.category);
+      if (rd.states)     c.data.states     = keepSelectedMulti(rd.states,     c.data.states,     c.states);
+      if (rd.locations)  c.data.locations  = keepSelectedMulti(rd.locations,  c.data.locations,  c.locations);
+      if (rd.categories) c.data.categories = keepSelectedMulti(rd.categories, c.data.categories, c.categories);
       c.page    = c.data.page;
       c.loading = false;
     }, function() {
@@ -135,19 +133,19 @@ function($scope, $location, $rootScope, $timeout) {
     var savedState = JSON.parse(sessionStorage.getItem(STATE_KEY) || 'null');
     var urlFilter  = ($location.search() || {}).filter;
     if (savedState && !urlFilter) {
-      c.filter   = savedState.filter   || c.filter;
+      c.states     = Array.isArray(savedState.states)     ? savedState.states.slice()     : c.states;
+      c.locations  = Array.isArray(savedState.locations)  ? savedState.locations.slice()  : c.locations;
+      c.categories = Array.isArray(savedState.categories) ? savedState.categories.slice() : c.categories;
       c.opener   = savedState.opener   || c.opener;
       c.search   = savedState.search   || '';
-      c.location = savedState.location || '';
-      c.category = savedState.category || '';
       c.sortBy   = savedState.sortBy   || c.sortBy;
       c.sortDir  = savedState.sortDir  || c.sortDir;
       // First-load data came from server defaults — refetch if they differ
-      if (c.filter   !== (c.data.filter   || 'all')      ||
+      if (c.states.join(',')     !== (c.data.selectedStates     || []).join(',') ||
+          c.locations.join(',')  !== (c.data.selectedLocations  || []).join(',') ||
+          c.categories.join(',') !== (c.data.selectedCategories || []).join(',') ||
           c.opener   !== (c.data.opener   || 'everyone') ||
           c.search   !== (c.data.search   || '')         ||
-          c.location !== (c.data.location || '')         ||
-          c.category !== (c.data.category || '')         ||
           c.sortBy   !== (c.data.sortBy   || 'updated')  ||
           c.sortDir  !== (c.data.sortDir  || 'desc')) {
         reload();
@@ -155,18 +153,34 @@ function($scope, $location, $rootScope, $timeout) {
     }
   } catch(e) { /* corrupted saved state — start clean */ }
 
-  c.setFilter = function(f) { c.filter = f; c.page = 0; reload(); };
+  // Multi-select facets: clicking a value toggles it in/out; the group's "All"
+  // clears that facet. Empty array = no constraint on that dimension.
+  function toggleIn(arr, val) {
+    var i = arr.indexOf(val);
+    if (i === -1) arr.push(val);
+    else arr.splice(i, 1);
+    c.page = 0;
+    reload();
+  }
+  c.isStateSelected    = function(val) { return c.states.indexOf(val)     !== -1; };
+  c.isLocationSelected = function(val) { return c.locations.indexOf(val)  !== -1; };
+  c.isCategorySelected = function(val) { return c.categories.indexOf(val) !== -1; };
+
+  c.toggleState    = function(val) { toggleIn(c.states, val); };
+  c.toggleLocation = function(val) { toggleIn(c.locations, val); };
+  c.toggleCategory = function(val) { toggleIn(c.categories, val); };
+
+  c.setAllStates     = function() { c.states     = []; c.page = 0; reload(); };
+  c.setAllLocations  = function() { c.locations  = []; c.page = 0; reload(); };
+  c.setAllCategories = function() { c.categories = []; c.page = 0; reload(); };
   c.setOpener = function(o) { c.opener = o; c.page = 0; reload(); };
-  // Clicking the active location/category toggles it back off
-  c.setLocation = function(l) { c.location = (c.location === l) ? '' : l; c.page = 0; reload(); };
-  c.setCategory = function(cat) { c.category = (c.category === cat) ? '' : cat; c.page = 0; reload(); };
 
   c.clearAll = function() {
-    c.filter   = 'all';
+    c.states     = [];
+    c.locations  = [];
+    c.categories = [];
     c.opener   = 'everyone';
     c.search   = '';
-    c.location = '';
-    c.category = '';
     c.page     = 0;
     reload();
   };
@@ -188,8 +202,8 @@ function($scope, $location, $rootScope, $timeout) {
   };
 
   c.hasFilters = function() {
-    return c.filter !== 'all' || c.opener !== 'everyone' || !!c.search ||
-           !!c.location || !!c.category;
+    return c.states.length > 0 || c.locations.length > 0 || c.categories.length > 0 ||
+           c.opener !== 'everyone' || !!c.search;
   };
 
   function fmt(n) { return n.toLocaleString('en-US'); }

@@ -31,22 +31,26 @@ function($scope, $rootScope, $location) {
   $scope.toggleNotifs = toggleNotifs;
   c.toggleNotifs = toggleNotifs;
 
-  // Notification panel footer: "View all my cases"
+  // Notification panel footer: "View all my cases".
+  // Must drive the SPA navigation itself — a bare href="?id=..." anchor is
+  // dropped by Angular's HTML5-mode handler, so the click did nothing before.
   $rootScope.navToTicketList = function() {
     $rootScope.ahcNotifOpen = false;
     if (search().id !== 'ticket_list') {
       $rootScope.ahcOverlay = true;
+      $location.search({ id: 'ticket_list' });
     }
   };
 
   // Notification item: open a case. Guard against the no-navigation case —
   // clicking a notification for the case already on screen leaves the URL
-  // unchanged, so nothing would ever clear the overlay.
+  // unchanged, so nothing would ever clear the overlay (don't set it either).
   $rootScope.navToCase = function(sysId) {
     $rootScope.ahcNotifOpen = false;
     var s = search();
     if (s.id !== 'ticket_detail' || s.sys_id !== sysId) {
       $rootScope.ahcOverlay = true;
+      $location.search({ id: 'ticket_detail', sys_id: sysId });
     }
   };
 

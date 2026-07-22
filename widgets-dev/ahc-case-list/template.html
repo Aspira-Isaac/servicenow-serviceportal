@@ -105,15 +105,20 @@
               <i class="fa" ng-class="c.groupOpen.status ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
             </button>
             <div ng-show="c.groupOpen.status">
-              <button class="ahc-cl__side-opt" ng-class="{active: c.filter === 'all'}"
-                      ng-click="c.setFilter('all')">
+              <!-- Multi-select: check any combination of statuses; "All" clears
+                   the selection. Empty selection shows every status. -->
+              <button class="ahc-cl__side-opt" ng-class="{active: !c.states.length}"
+                      ng-click="c.setAllStates()">
                 <span class="ahc-cl__side-opt-label">All</span>
               </button>
-              <button class="ahc-cl__side-opt"
-                      ng-class="{active: c.filter === s.value}"
-                      ng-click="c.setFilter(s.value)"
+              <button class="ahc-cl__side-opt ahc-cl__side-opt--check"
+                      ng-class="{active: c.isStateSelected(s.value)}"
+                      ng-click="c.toggleState(s.value)"
                       ng-repeat="s in data.states track by s.value">
-                <span class="ahc-cl__side-opt-label">{{s.label}}</span>
+                <span class="ahc-cl__side-opt-label">
+                  <i class="fa" ng-class="c.isStateSelected(s.value) ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                  {{s.label}}
+                </span>
                 <span class="ahc-cl__side-count">{{s.count}}</span>
               </button>
             </div>
@@ -156,12 +161,19 @@
                 </button>
               </div>
               <div class="ahc-cl__side-scroll">
-                <button class="ahc-cl__side-opt"
-                        ng-class="{active: c.location === l.value}"
-                        ng-click="c.setLocation(l.value)"
+                <button class="ahc-cl__side-opt" ng-class="{active: !c.locations.length}"
+                        ng-if="!c.locSearch" ng-click="c.setAllLocations()">
+                  <span class="ahc-cl__side-opt-label">All</span>
+                </button>
+                <button class="ahc-cl__side-opt ahc-cl__side-opt--check"
+                        ng-class="{active: c.isLocationSelected(l.value)}"
+                        ng-click="c.toggleLocation(l.value)"
                         ng-repeat="l in data.locations | filter:{label: c.locSearch} track by l.value"
                         title="{{l.label}}">
-                  <span class="ahc-cl__side-opt-label">{{l.label}}</span>
+                  <span class="ahc-cl__side-opt-label">
+                    <i class="fa" ng-class="c.isLocationSelected(l.value) ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                    {{l.label}}
+                  </span>
                   <span class="ahc-cl__side-count">{{l.count}}</span>
                 </button>
                 <div class="ahc-cl__side-none"
@@ -187,12 +199,19 @@
                 </button>
               </div>
               <div class="ahc-cl__side-scroll">
-                <button class="ahc-cl__side-opt"
-                        ng-class="{active: c.category === cat.value}"
-                        ng-click="c.setCategory(cat.value)"
+                <button class="ahc-cl__side-opt" ng-class="{active: !c.categories.length}"
+                        ng-if="!c.catSearch" ng-click="c.setAllCategories()">
+                  <span class="ahc-cl__side-opt-label">All</span>
+                </button>
+                <button class="ahc-cl__side-opt ahc-cl__side-opt--check"
+                        ng-class="{active: c.isCategorySelected(cat.value)}"
+                        ng-click="c.toggleCategory(cat.value)"
                         ng-repeat="cat in data.categories | filter:{label: c.catSearch} track by cat.value"
                         title="{{cat.label}}">
-                  <span class="ahc-cl__side-opt-label">{{cat.label}}</span>
+                  <span class="ahc-cl__side-opt-label">
+                    <i class="fa" ng-class="c.isCategorySelected(cat.value) ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                    {{cat.label}}
+                  </span>
                   <span class="ahc-cl__side-count">{{cat.count}}</span>
                 </button>
                 <div class="ahc-cl__side-none"

@@ -1,0 +1,613 @@
+<div class="ahc-cd">
+
+  <!-- Navigation loading screen -->
+  <div class="ahc-cd__nav-loading" ng-if="c.navigating">
+    <i class="fa fa-spinner fa-spin ahc-cd__nav-loading-icon"></i>
+    <p class="ahc-cd__nav-loading-label">Loading cases…</p>
+  </div>
+
+  <!-- Error state -->
+  <div class="container" ng-if="data.error && !c.navigating">
+    <div class="ahc-cd__error">
+      <i class="fa fa-exclamation-triangle"></i>
+      {{data.error}}
+      <a href="?id=ticket_list">Back to My Cases</a>
+    </div>
+  </div>
+
+  <div ng-if="!data.error && !c.navigating">
+
+    <!-- Meta bar -->
+    <div class="ahc-cd__meta-bar">
+      <div class="container">
+        <div class="ahc-cd__meta-inner">
+          <div class="ahc-cd__meta-left">
+            <a href="?id=ticket_list" class="ahc-cd__back" ng-click="c.navigating = true">
+              <i class="fa fa-arrow-left"></i> My Cases
+            </a>
+            <span class="ahc-cd__meta-sep">›</span>
+            <span class="ahc-cd__meta-num">{{data.number}}</span>
+          </div>
+          <div class="ahc-cd__meta-right">
+            <div class="ahc-cd__meta-item">
+              <span class="ahc-cd__meta-label">Created</span>
+              <span class="ahc-cd__meta-val" title="{{data.created}}"><sn-time-ago timestamp="data.createdRaw"></sn-time-ago></span>
+            </div>
+            <div class="ahc-cd__meta-item">
+              <span class="ahc-cd__meta-label">Updated</span>
+              <span class="ahc-cd__meta-val" title="{{data.updated}}"><sn-time-ago timestamp="data.updatedRaw"></sn-time-ago></span>
+            </div>
+            <div class="ahc-cd__meta-item">
+              <span class="ahc-cd__meta-label">Status</span>
+              <span class="ahc-cd__badge ahc-cd__badge--{{data.badgeClass}}">{{data.state}}</span>
+            </div>
+            <!-- Quick watch toggle — only on cases the current user didn't open -->
+            <button class="ahc-cd__watch-btn"
+                    ng-if="data.canWatch && !data.isOpener"
+                    ng-class="{'ahc-cd__watch-btn--on': data.isWatching}"
+                    ng-click="data.isWatching ? c.unwatchThis() : c.watchThis()"
+                    ng-disabled="c.watchBusy"
+                    title="{{data.isWatching ? 'Stop watching this case' : 'Get notified about updates to this case'}}">
+              <i class="fa" ng-class="data.isWatching ? 'fa-eye-slash' : 'fa-eye'"></i>
+              {{data.isWatching ? 'Watching' : 'Watch this'}}
+            </button>
+            <!-- Actions dropdown -->
+            <div class="ahc-cd__actions-wrap"
+                 ng-if="data.canCloseCase || data.canAccept || data.canReject">
+              <button class="ahc-cd__actions-btn"
+                      ng-click="c.toggleActions($event)"
+                      ng-class="{'ahc-cd__actions-btn--open': c.showActions}">
+                Actions <i class="fa fa-caret-down"></i>
+              </button>
+              <div class="ahc-cd__actions-menu" ng-show="c.showActions">
+                <button class="ahc-cd__actions-item" ng-if="data.canCloseCase"
+                        ng-click="c.startClose()">
+                  <i class="fa fa-times-circle-o"></i> Close Case
+                </button>
+                <button class="ahc-cd__actions-item ahc-cd__actions-item--success" ng-if="data.canAccept"
+                        ng-click="c.startAccept()">
+                  <i class="fa fa-thumbs-o-up"></i> Accept Solution
+                </button>
+                <button class="ahc-cd__actions-item" ng-if="data.canReject"
+                        ng-click="c.startReject()">
+                  <i class="fa fa-thumbs-o-down"></i> Reject Solution
+                </button>
+              </div>
+              <span class="ahc-cd__action-err" ng-if="c.actionError">
+                <i class="fa fa-exclamation-circle"></i> Action failed.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Close Case confirmation modal (mirrors OOTB CSM — closed is final) -->
+    <div class="ahc-cd__modal-backdrop" ng-if="c.showCloseConfirm" ng-click="c.cancelClose()"></div>
+    <div class="ahc-cd__modal" ng-if="c.showCloseConfirm" role="dialog" aria-label="Close Case">
+      <div class="ahc-cd__modal-title">Close Case</div>
+      <p class="ahc-cd__modal-text">
+        Are you sure that you want to close this case?<br />
+        Once closed, this case cannot be reopened.
+      </p>
+      <div class="ahc-cd__modal-actions">
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--ghost" type="button"
+                ng-click="c.cancelClose()">Cancel</button>
+        <button class="ahc-cd__modal-btn" type="button"
+                ng-click="c.confirmClose()">Close Case</button>
+      </div>
+    </div>
+
+    <!-- Accept Solution confirmation modal -->
+    <div class="ahc-cd__modal-backdrop" ng-if="c.showAccept" ng-click="c.cancelAccept()"></div>
+    <div class="ahc-cd__modal" ng-if="c.showAccept" role="dialog" aria-label="Accept Solution">
+      <div class="ahc-cd__modal-title">Accept Solution</div>
+      <p class="ahc-cd__modal-text">
+        Are you sure this solution resolved your issue?<br />
+        The case will be closed.
+      </p>
+      <div class="ahc-cd__modal-actions">
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--ghost" type="button"
+                ng-click="c.cancelAccept()">Cancel</button>
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--success" type="button"
+                ng-click="c.confirmAccept()">Accept Solution</button>
+      </div>
+    </div>
+
+    <!-- Reject Solution modal — reason is required (mirrors OOTB CSM) -->
+    <div class="ahc-cd__modal-backdrop" ng-if="c.showReject" ng-click="c.cancelReject()"></div>
+    <div class="ahc-cd__modal" ng-if="c.showReject" role="dialog" aria-label="Reject Solution">
+      <div class="ahc-cd__modal-title">Reject Solution</div>
+      <p class="ahc-cd__modal-text">What is the reason for rejecting this solution?</p>
+      <textarea class="ahc-cd__modal-input" rows="4" ng-model="c.rejectReason"
+                placeholder="Tell us why the solution didn't resolve your issue..."></textarea>
+      <div class="ahc-cd__modal-actions">
+        <button class="ahc-cd__modal-btn ahc-cd__modal-btn--ghost" type="button"
+                ng-click="c.cancelReject()">Cancel</button>
+        <button class="ahc-cd__modal-btn" type="button"
+                ng-click="c.confirmReject()"
+                ng-disabled="!c.rejectReason.trim() || c.rejecting">
+          {{c.rejecting ? 'Submitting…' : 'Reject Solution'}}
+        </button>
+      </div>
+    </div>
+
+    <!-- Hero — dusk poster scene, echoes the home hero -->
+    <div class="ahc-cd__hero">
+      <div class="ahc-cd__hero-scene" aria-hidden="true">
+        <svg viewBox="0 0 1440 150" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <path id="ahc-cd-pine" d="M0 0 L-16 0 L-7 -10 L-12 -10 L-4 -22 L-9 -22 L0 -46 L9 -22 L4 -22 L12 -10 L7 -10 L16 0 Z"/>
+          </defs>
+          <g fill="#fff">
+            <circle cx="120"  cy="34" r="1.6" opacity="0.18"/>
+            <circle cx="340"  cy="22" r="1.2" opacity="0.13"/>
+            <circle cx="560"  cy="44" r="1.4" opacity="0.15"/>
+            <circle cx="820"  cy="20" r="1.7" opacity="0.19"/>
+            <circle cx="1040" cy="38" r="1.2" opacity="0.12"/>
+            <circle cx="1260" cy="26" r="1.5" opacity="0.16"/>
+            <circle cx="1400" cy="52" r="1.2" opacity="0.11"/>
+          </g>
+          <path fill="rgba(255,255,255,0.06)" d="M0 96 Q 140 72 280 86 T 560 82 T 840 92 T 1120 76 T 1440 88 L 1440 150 L 0 150 Z"/>
+          <path fill="rgba(8,12,52,0.42)" d="M0 122 Q 120 102 240 112 T 480 108 T 720 118 T 960 104 T 1200 116 T 1440 108 L 1440 150 L 0 150 Z"/>
+          <g fill="rgba(6,9,40,0.6)">
+            <use href="#ahc-cd-pine" transform="translate(90,136)"/>
+            <use href="#ahc-cd-pine" transform="translate(130,140) scale(0.7)"/>
+            <use href="#ahc-cd-pine" transform="translate(168,134) scale(0.9)"/>
+            <use href="#ahc-cd-pine" transform="translate(1270,136) scale(0.85)"/>
+            <use href="#ahc-cd-pine" transform="translate(1310,140) scale(0.65)"/>
+            <use href="#ahc-cd-pine" transform="translate(1352,134)"/>
+          </g>
+        </svg>
+      </div>
+      <div class="container">
+        <div class="ahc-cd__hero-inner">
+          <span class="ahc-cd__hero-tag">
+            <i class="fa fa-hashtag"></i>{{data.number}}
+          </span>
+          <h1 class="ahc-cd__hero-title">{{data.shortDesc}}</h1>
+          <div class="ahc-cd__hero-meta" ng-if="data.account">
+            <span class="ahc-cd__hero-rule"></span>
+            <i class="fa fa-tree"></i> {{data.account}}
+            <span class="ahc-cd__hero-rule"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-column body -->
+    <div class="ahc-cd__body">
+      <div class="container">
+        <div class="ahc-cd__grid">
+
+          <!-- ── LEFT: Conversation ─────────────────────────────────── -->
+          <div class="ahc-cd__main">
+
+            <!-- Description (collapsible, full-width above conversation) -->
+            <div class="ahc-cd__desc-card" ng-if="data.description">
+              <div class="ahc-cd__desc-head" ng-click="c.descOpen = !c.descOpen">
+                <span class="ahc-cd__section-title">
+                  <i class="fa fa-align-left"></i> Description
+                </span>
+                <button class="ahc-cd__desc-toggle" type="button">
+                  <i class="fa" ng-class="c.descOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                  {{c.descOpen ? 'Hide' : 'Show'}}
+                </button>
+              </div>
+              <div class="ahc-cd__desc-body" ng-show="c.descOpen">
+                <div class="ahc-cd__desc-text">{{data.description}}</div>
+              </div>
+            </div>
+
+            <div class="ahc-cd__section-head">
+              <span class="ahc-cd__section-title">
+                <i class="fa fa-comments-o"></i> Conversation
+              </span>
+              <span class="ahc-cd__section-count" ng-if="data.activity.length > 0">
+                {{data.activity.length}}
+              </span>
+            </div>
+
+            <!-- Reply editor -->
+            <div class="ahc-cd__reply" ng-if="data.canComment">
+              <div class="ahc-cd__reply-hdr">
+                <i class="fa fa-comment-o"></i> Add a Reply
+              </div>
+              <div class="ahc-cd__fmt-bar">
+                <!-- Bold / Italic / Underline -->
+                <button class="ahc-cd__fmt-btn" type="button" title="Bold"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('bold')">
+                  <strong>B</strong>
+                </button>
+                <button class="ahc-cd__fmt-btn ahc-cd__fmt-btn--i" type="button" title="Italic"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('italic')">
+                  <em>I</em>
+                </button>
+                <button class="ahc-cd__fmt-btn ahc-cd__fmt-btn--u" type="button" title="Underline"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('underline')">
+                  <u>U</u>
+                </button>
+
+                <span class="ahc-cd__fmt-sep"></span>
+
+                <!-- Font picker -->
+                <div class="ahc-cd__font-wrap" ng-click="$event.stopPropagation()">
+                  <button class="ahc-cd__font-btn" type="button"
+                          ng-mousedown="$event.preventDefault()"
+                          ng-click="c.toggleFontPicker($event)">
+                    {{c.selectedFontLabel}} <i class="fa fa-caret-down"></i>
+                  </button>
+                  <div class="ahc-cd__font-menu" ng-if="c.showFontPicker">
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('',            'System Font')">System Font</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Andale Mono',  'Andale Mono')"  style="font-family:Andale Mono">Andale Mono</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Arial',        'Arial')"         style="font-family:Arial">Arial</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Arial Black',  'Arial Black')"   style="font-family:Arial Black">Arial Black</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Book Antiqua', 'Book Antiqua')"  style="font-family:Book Antiqua">Book Antiqua</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Comic Sans MS','Comic Sans MS')" style="font-family:Comic Sans MS">Comic Sans MS</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Courier New',  'Courier New')"   style="font-family:Courier New">Courier New</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Georgia',      'Georgia')"       style="font-family:Georgia">Georgia</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Helvetica',    'Helvetica')"     style="font-family:Helvetica">Helvetica</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Impact',       'Impact')"        style="font-family:Impact">Impact</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Tahoma',       'Tahoma')"        style="font-family:Tahoma">Tahoma</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Times New Roman','Times New Roman')" style="font-family:Times New Roman">Times New Roman</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Trebuchet MS', 'Trebuchet MS')"  style="font-family:Trebuchet MS">Trebuchet MS</button>
+                    <button class="ahc-cd__font-item" ng-mousedown="$event.preventDefault()" ng-click="c.setFont('Verdana',      'Verdana')"       style="font-family:Verdana">Verdana</button>
+                  </div>
+                </div>
+
+                <span class="ahc-cd__fmt-sep"></span>
+
+                <!-- Alignment -->
+                <button class="ahc-cd__fmt-btn" type="button" title="Align left"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyLeft')">
+                  <i class="fa fa-align-left"></i>
+                </button>
+                <button class="ahc-cd__fmt-btn" type="button" title="Align center"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyCenter')">
+                  <i class="fa fa-align-center"></i>
+                </button>
+                <button class="ahc-cd__fmt-btn" type="button" title="Align right"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyRight')">
+                  <i class="fa fa-align-right"></i>
+                </button>
+                <button class="ahc-cd__fmt-btn" type="button" title="Justify"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('justifyFull')">
+                  <i class="fa fa-align-justify"></i>
+                </button>
+
+                <span class="ahc-cd__fmt-sep"></span>
+
+                <!-- Lists -->
+                <button class="ahc-cd__fmt-btn" type="button" title="Bullet list"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('insertUnorderedList')">
+                  <i class="fa fa-list-ul"></i>
+                </button>
+                <button class="ahc-cd__fmt-btn" type="button" title="Numbered list"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.format('insertOrderedList')">
+                  <i class="fa fa-list-ol"></i>
+                </button>
+
+                <span class="ahc-cd__fmt-sep"></span>
+
+                <!-- Code block -->
+                <button class="ahc-cd__fmt-btn" type="button" title="Code block"
+                        ng-mousedown="$event.preventDefault()" ng-click="c.toggleCode()">
+                  <i class="fa fa-code"></i>
+                </button>
+              </div>
+              <!-- contentEditable is set from the client script: the attribute in
+                   markup triggers the platform's contenteditable directive (requires
+                   ngModel) on patched instances, and the $compile error it throws
+                   kills every binding after this node — including Send's ng-click -->
+              <div class="ahc-cd__reply-editor"
+                   data-placeholder="Type your message here..."></div>
+              <!-- Pending attachments -->
+              <div class="ahc-cd__attach-list" ng-if="c.pendingFiles.length">
+                <span class="ahc-cd__attach-chip" ng-repeat="f in c.pendingFiles track by $index">
+                  <i class="fa {{c.fileIcon(f.type)}}"></i>
+                  <span class="ahc-cd__attach-chip-name">{{f.name}}</span>
+                  <span class="ahc-cd__attach-chip-size">{{c.formatBytes(f.size)}}</span>
+                  <button class="ahc-cd__attach-chip-x" type="button"
+                          ng-click="c.removeFile($index)" title="Remove">
+                    <i class="fa fa-times"></i>
+                  </button>
+                </span>
+              </div>
+
+              <div class="ahc-cd__reply-footer">
+                <input type="file" class="ahc-cd__file-input" multiple
+                       style="display:none" aria-hidden="true" tabindex="-1" />
+                <button class="ahc-cd__attach-btn" type="button"
+                        ng-click="c.pickFiles()" ng-disabled="c.sending"
+                        title="Attach files">
+                  <i class="fa fa-paperclip"></i> Attach
+                </button>
+                <div class="ahc-cd__reply-hints">
+                  <span class="ahc-cd__reply-hint" ng-if="c.sent">
+                    <i class="fa fa-check-circle"></i> Sent.
+                  </span>
+                  <span class="ahc-cd__reply-hint ahc-cd__reply-hint--err" ng-if="c.sendError">
+                    <i class="fa fa-exclamation-circle"></i> {{c.sendErrorMsg || 'Could not send.'}}
+                  </span>
+                </div>
+                <button class="ahc-cd__send-btn"
+                        ng-click="c.submitComment()"
+                        ng-disabled="c.sending">
+                  <i class="fa fa-paper-plane-o" ng-if="!c.sending"></i>
+                  <i class="fa fa-spinner fa-spin" ng-if="c.sending"></i>
+                  {{c.sending && c.pendingFiles.length ? 'Uploading…' : 'Send'}}
+                </button>
+              </div>
+            </div>
+
+            <!-- Activity thread -->
+            <div class="ahc-cd__thread" ng-if="data.activity.length > 0">
+              <div class="ahc-cd__entry"
+                   ng-repeat="e in data.activity"
+                   ng-class="{'ahc-cd__entry--mine': e.isMine}">
+                <div class="ahc-cd__entry-avatar"
+                     ng-class="{'ahc-cd__entry-avatar--sys': e.isEmail}"
+                     title="{{e.authorName}}">
+                  <span ng-if="!e.isEmail">{{e.authorInitial}}</span>
+                  <i class="fa fa-envelope-o" ng-if="e.isEmail"></i>
+                </div>
+                <div class="ahc-cd__entry-body"
+                     ng-class="{'ahc-cd__entry-body--email': e.isEmail}">
+                  <div class="ahc-cd__entry-meta">
+                    <span class="ahc-cd__entry-author">{{e.authorName}}</span>
+                    <span class="ahc-cd__entry-email-tag" ng-if="e.isEmail">
+                      <i class="fa fa-envelope-o"></i>
+                      {{e.emailType === 'received' ? 'Email received' : 'Email sent'}}
+                    </span>
+                    <span class="ahc-cd__entry-time" title="{{e.created}}"><sn-time-ago timestamp="e.createdRaw"></sn-time-ago></span>
+                  </div>
+                  <div class="ahc-cd__entry-text" ng-bind-html="e.value"></div>
+                  <div class="ahc-cd__entry-images" ng-if="e.images && e.images.length > 0">
+                    <a class="ahc-cd__entry-image"
+                       ng-repeat="img in e.images"
+                       ng-href="/sys_attachment.do?sys_id={{img.sys_id}}" target="_blank">
+                      <img ng-src="/sys_attachment.do?sys_id={{img.sys_id}}"
+                           alt="{{img.file_name}}"
+                           class="ahc-cd__entry-img-thumb">
+                      <span class="ahc-cd__entry-img-name">{{img.file_name}}</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ahc-cd__thread-empty" ng-if="data.activity.length === 0 && !data.canComment">
+              <i class="fa fa-comments-o"></i>
+              <p>No messages on this case.</p>
+            </div>
+            <div class="ahc-cd__thread-empty" ng-if="data.activity.length === 0 && data.canComment">
+              <i class="fa fa-comments-o"></i>
+              <p>No messages yet. Use the editor above to send a reply.</p>
+            </div>
+
+          </div>
+
+          <!-- ── RIGHT: Details + Attachments ──────────────────────── -->
+          <div class="ahc-cd__sidebar">
+
+            <!-- Case Details card (collapsible so Attachments stays reachable) -->
+            <div class="ahc-cd__card">
+              <div class="ahc-cd__card-head ahc-cd__card-head--toggle"
+                   ng-click="c.detailsOpen = !c.detailsOpen">
+                <i class="fa fa-info-circle"></i> Case Details
+                <button class="ahc-cd__card-toggle" type="button">
+                  <i class="fa" ng-class="c.detailsOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                  {{c.detailsOpen ? 'Hide' : 'Show'}}
+                </button>
+              </div>
+              <div class="ahc-cd__card-body" ng-show="c.detailsOpen">
+
+                <div class="ahc-cd__group"
+                     ng-if="data.openedBy || data.contact || data.openedByEmail || data.openedByPhone">
+                  Contact
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.openedBy">
+                  <span class="ahc-cd__detail-label">Opened by</span>
+                  <span class="ahc-cd__detail-value">{{data.openedBy}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.contact">
+                  <span class="ahc-cd__detail-label">Requested for</span>
+                  <span class="ahc-cd__detail-value">{{data.contact}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.openedByEmail">
+                  <span class="ahc-cd__detail-label">Email</span>
+                  <span class="ahc-cd__detail-value">{{data.openedByEmail}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.openedByPhone">
+                  <span class="ahc-cd__detail-label">Phone</span>
+                  <span class="ahc-cd__detail-value">{{data.openedByPhone}}</span>
+                </div>
+
+                <!-- ── Watchers ──────────────────────────────────────────── -->
+                <style>
+                  /* Quick watch toggle in the (white) meta bar — outlined by
+                     default, solid blue once watching */
+                  .ahc-cd__watch-btn { display: inline-flex; align-items: center; gap: 6px;
+                    background: #fff; color: #1a2980;
+                    border: 1px solid #c3ccdd; border-radius: 6px;
+                    padding: 6px 13px; font-size: 0.82em; font-weight: 600; cursor: pointer;
+                    white-space: nowrap;
+                    transition: background 0.12s, border-color 0.12s, color 0.12s; }
+                  .ahc-cd__watch-btn:hover { background: #eef2fb; border-color: #1a2980; }
+                  .ahc-cd__watch-btn--on { background: #1a2980; color: #fff !important;
+                    border-color: #1a2980; }
+                  .ahc-cd__watch-btn--on:hover { background: #141f6a; }
+                  .ahc-cd__watch-btn[disabled] { opacity: 0.6; cursor: default; }
+                  .ahc-cd__watchers { padding: 2px 0 4px; }
+                  .ahc-cd__watch-chip { display: inline-flex; align-items: center; gap: 6px;
+                    background: #eef2fb; color: #1a2980; border-radius: 14px;
+                    padding: 3px 8px 3px 11px; font-size: 0.8em; font-weight: 600;
+                    margin: 0 6px 6px 0; }
+                  .ahc-cd__watch-x { border: none; background: none; color: #1a2980;
+                    cursor: pointer; font-size: 1.1em; line-height: 1; padding: 0; opacity: 0.6; }
+                  .ahc-cd__watch-x:hover { opacity: 1; }
+                  .ahc-cd__watch-empty { color: #94a3b8; font-size: 0.82em; }
+                  .ahc-cd__watch-add { margin-top: 6px; position: relative; }
+                  .ahc-cd__watch-addbtn { border: 1px dashed #c3ccdd; background: none;
+                    color: #1a2980; border-radius: 6px; padding: 4px 10px; font-size: 0.8em;
+                    font-weight: 600; cursor: pointer; }
+                  .ahc-cd__watch-addbtn:hover { background: #f1f5f9; }
+                  .ahc-cd__watch-picker { margin-top: 8px; }
+                  .ahc-cd__watch-row { display: flex; gap: 6px; align-items: center;
+                    margin-bottom: 6px; }
+                  .ahc-cd__watch-select { flex: 1 1 auto; min-width: 0; font-size: 0.82em;
+                    padding: 5px 7px; border: 1px solid #c3ccdd; border-radius: 6px; }
+                  .ahc-cd__watch-confirm { flex: 0 0 auto; background: #1a2980; color: #fff;
+                    border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.8em;
+                    font-weight: 600; cursor: pointer; }
+                  .ahc-cd__watch-confirm[disabled] { opacity: 0.5; cursor: default; }
+                  .ahc-cd__watch-none { margin: 2px 0 0; color: #cf1d25; font-size: 0.78em; }
+                </style>
+
+                <div class="ahc-cd__group" ng-if="data.canWatch || data.watchers.length">
+                  Watchers
+                </div>
+                <div class="ahc-cd__watchers" ng-if="data.canWatch || data.watchers.length">
+                  <span class="ahc-cd__watch-chip" ng-repeat="w in data.watchers track by w.sys_id">
+                    {{w.name}}
+                    <button type="button" class="ahc-cd__watch-x" ng-if="data.canWatch"
+                            ng-click="c.removeWatcher(w.sys_id)" ng-disabled="c.watchBusy"
+                            title="Remove watcher">&times;</button>
+                  </span>
+                  <span class="ahc-cd__watch-empty" ng-if="!data.watchers.length">No watchers yet.</span>
+
+                  <div class="ahc-cd__watch-add" ng-if="data.canWatch">
+                    <button type="button" class="ahc-cd__watch-addbtn" ng-click="c.toggleWatcherPicker($event)">
+                      <i class="fa fa-plus"></i> Add watcher
+                    </button>
+                    <div class="ahc-cd__watch-picker" ng-if="c.showWatcherPicker" ng-click="$event.stopPropagation()">
+                      <!-- Pick a colleague on the account (when there are any) -->
+                      <div class="ahc-cd__watch-row" ng-if="data.watcherOptions.length">
+                        <select class="ahc-cd__watch-select" ng-model="c.watcherToAdd"
+                                ng-options="o.sys_id as (o.name + (o.email ? ' — ' + o.email : '')) for o in data.watcherOptions">
+                          <option value="">Select a colleague…</option>
+                        </select>
+                        <button type="button" class="ahc-cd__watch-confirm"
+                                ng-click="c.addWatcher()" ng-disabled="!c.watcherToAdd || c.watchBusy">Add</button>
+                      </div>
+                      <!-- Or add any email address -->
+                      <div class="ahc-cd__watch-row">
+                        <input type="email" class="ahc-cd__watch-select" ng-model="c.watcherEmail"
+                               ng-keydown="$event.keyCode === 13 && c.addWatcherEmail()"
+                               placeholder="Or enter an email address…" />
+                        <button type="button" class="ahc-cd__watch-confirm"
+                                ng-click="c.addWatcherEmail()" ng-disabled="!c.watcherEmail || c.watchBusy">Add</button>
+                      </div>
+                      <p class="ahc-cd__watch-none" ng-if="c.watchEmailError">
+                        Please enter a valid email address.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ahc-cd__group"
+                     ng-if="data.account || data.location || data.environment || data.platform || data.application">
+                  Context
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.account">
+                  <span class="ahc-cd__detail-label">Account</span>
+                  <span class="ahc-cd__detail-value">{{data.account}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.location">
+                  <span class="ahc-cd__detail-label">Location</span>
+                  <span class="ahc-cd__detail-value">{{data.location}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.environment">
+                  <span class="ahc-cd__detail-label">Environment</span>
+                  <span class="ahc-cd__detail-value">{{data.environment}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.platform">
+                  <span class="ahc-cd__detail-label">Platform</span>
+                  <span class="ahc-cd__detail-value">{{data.platform}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.application">
+                  <span class="ahc-cd__detail-label">Application</span>
+                  <span class="ahc-cd__detail-value">{{data.application}}</span>
+                </div>
+
+                <div class="ahc-cd__group" ng-if="data.state || data.priority || data.category">
+                  Classification
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.state">
+                  <span class="ahc-cd__detail-label">Status</span>
+                  <span class="ahc-cd__badge ahc-cd__badge--{{data.badgeClass}}">{{data.state}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.priority">
+                  <span class="ahc-cd__detail-label">Priority</span>
+                  <span class="ahc-cd__prio ahc-cd__prio--{{data.priorityVal || '4'}}">{{data.priority}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.category">
+                  <span class="ahc-cd__detail-label">Category</span>
+                  <span class="ahc-cd__detail-value">{{data.category}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.subcategory">
+                  <span class="ahc-cd__detail-label">Subcategory</span>
+                  <span class="ahc-cd__detail-value">{{data.subcategory}}</span>
+                </div>
+
+                <div class="ahc-cd__detail" ng-if="data.market">
+                  <span class="ahc-cd__detail-label">Market</span>
+                  <span class="ahc-cd__detail-value">{{data.market}}</span>
+                </div>
+
+                <!-- Catalog variables (Platform, Application, Steps to Recreate, etc.) -->
+                <div ng-repeat="v in data.variables">
+                  <div class="ahc-cd__detail ahc-cd__detail--full" ng-if="v.value.length > 80">
+                    <span class="ahc-cd__detail-label">{{v.label}}</span>
+                    <span class="ahc-cd__detail-value ahc-cd__detail-value--pre">{{v.value}}</span>
+                  </div>
+                  <div class="ahc-cd__detail" ng-if="v.value.length <= 80">
+                    <span class="ahc-cd__detail-label">{{v.label}}</span>
+                    <span class="ahc-cd__detail-value">{{v.value}}</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Attachments card -->
+            <div class="ahc-cd__card" ng-if="data.attachments.length > 0">
+              <div class="ahc-cd__card-head">
+                <i class="fa fa-paperclip"></i> Attachments
+                <span class="ahc-cd__card-count">{{data.attachments.length}}</span>
+              </div>
+              <div class="ahc-cd__card-body ahc-cd__card-body--att">
+                <a class="ahc-cd__att-item"
+                   ng-repeat="att in data.attachments"
+                   ng-href="/sys_attachment.do?sys_id={{att.sys_id}}" target="_blank">
+                  <i class="fa {{c.fileIcon(att.content_type)}} ahc-cd__att-icon"></i>
+                  <div class="ahc-cd__att-info">
+                    <span class="ahc-cd__att-name">{{att.file_name}}</span>
+                    <span class="ahc-cd__att-meta">{{c.formatBytes(att.size_bytes)}}</span>
+                  </div>
+                  <i class="fa fa-download ahc-cd__att-dl"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

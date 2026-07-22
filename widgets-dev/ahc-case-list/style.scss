@@ -596,6 +596,10 @@
 }
 .ahc-cl__side-opt.active .ahc-cl__side-count { color: #1a2980; }
 
+/* Multi-select status options — checkbox icon sits inline before the label */
+.ahc-cl__side-opt--check .ahc-cl__side-opt-label { display: inline-flex; align-items: center; }
+.ahc-cl__side-opt--check .ahc-cl__side-opt-label i { margin-right: 8px; opacity: 0.85; }
+
 /* Long facet lists (locations) scroll inside the group */
 .ahc-cl__side-scroll {
   max-height: 250px;
