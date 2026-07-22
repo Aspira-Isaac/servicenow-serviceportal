@@ -258,7 +258,7 @@ const HEADER_TEMPLATE = `
 
             <!-- Action items: cases waiting on the user (mirrors OOTB CSM bell) -->
             <a ng-repeat="n in data.notifications track by n.sys_id"
-               href="?id=ticket_detail&sys_id={{n.docSysId}}"
+               href="{{data.portalUrl}}?id=ticket_detail&sys_id={{n.docSysId}}"
                class="ahc-notif-item"
                ng-click="$root.navToCase(n.docSysId)">
               <div class="ahc-notif-item__icon" ng-class="'ahc-notif-item__icon--' + n.kind">
@@ -274,7 +274,7 @@ const HEADER_TEMPLATE = `
           </div>
 
           <div class="ahc-notif-panel__footer">
-            <a href="?id=ticket_list" class="ahc-notif-panel__footer-link"
+            <a href="{{data.portalUrl}}?id=ticket_list" class="ahc-notif-panel__footer-link"
                ng-click="$root.navToTicketList()">
               View all my cases <i class="fa fa-arrow-right"></i>
             </a>

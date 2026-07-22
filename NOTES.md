@@ -121,6 +121,61 @@ The case list widget (`ahc-case-list/client.js`) clears `$rootScope.ahcOverlay` 
 
 - Replace the spinner on case detail back-navigation (`c.navigating = true`) with a skeleton that mirrors the case list layout for a seamless transition.
 
+## Customer feedback round — July 2026 (dev)
+
+Five items from customer testing. All built **dev-only** (deploy 22/23/24) with
+read-only tests (tests/22-24). Not yet in prod — awaits external-customer dev
+sign-off + approval, then mirror with `-prod.js` scripts.
+
+1. **Notification click did nothing** — bell items + "View all my cases" used a
+   bare `href="?id=..."` (no `{{data.portalUrl}}` prefix) and `navToCase` never
+   navigated. Fixed both: portal-prefixed hrefs in `deploy/02-header-footer.js`
+   **and** `navToCase`/`navToTicketList` now drive `$location.search(...)` in
+   `widgets/ahc-header-client.js`. Redeploy header to dev via
+   `deploy/22-notif-nav-fix-dev.js` (re-runs 02 with the dev `showKbNav` ctx so
+   the Knowledge nav link isn't clobbered).
+2. **Case watchers** — Watchers section in `widgets-dev/ahc-case-detail`.
+   Add/remove entries on `watch_list`; two ways to add: pick a colleague on the
+   case's account (`data.watcherOptions`) **or type any email address**
+   (`watch_list` is a glide_list that stores emails as well as user sys_ids).
+   `add_watcher` accepts `watcherId` (32-char sys_id) or `watcherEmail`;
+   `remove_watcher` matches the stored token case-insensitively. Deploy `24`.
+   - **Gate = involvement, NOT a field ACL** (`canManageWatchers`): case
+     `opened_by`/`contact`, or `customer_admin`/`admin`, or `canWrite()`.
+     ⚠ Lesson: the first version gated on a field-level `watch_list/write` ACL
+     check (`GlideSecurityManager.hasRightsTo`), which returned **false for the
+     case opener** (Beth Grove in dev) and hid the whole section. SP widget
+     **server scripts run in global scope where GlideRecord writes bypass ACLs
+     anyway** (same reason as the old anon-case leak), so the ACL test was both
+     wrong and pointless — do the gate in our own logic.
+   - **Quick "Watch this" toggle**: meta-bar button on cases the current user
+     did NOT open (`ng-if="data.canWatch && !data.isOpener"`), toggling on
+     `data.isWatching`. Self-watch reuses `add_watcher`/`remove_watcher` with the
+     user's own sys_id (`c.watchThis`/`c.unwatchThis` → `data.currentUserId`).
+   - **Notifications work OOTB**: several ACTIVE `sysevent_email_action` on
+     `sn_customerservice_case` already recipient `watch_list` ("Case commented
+     for customer", "Case resolved/closed customer watchlist", etc.) — no
+     instance change needed. Watchers are notified on the next comment/update.
+3. **Session timeout** (instance `glide.ui.session_timeout`, not in repo):
+   **prod = 30 min**, dev = 60 min. Guest = 5 min. Yes, the new portal has the
+   same kind of inactivity logout as the old system (~30 min on prod).
+4. **Multi-select filters** — `widgets-dev/ahc-case-list`: Status, **Location**
+   and **Category** are all multi-select now (checkbox per option; each group's
+   "All" clears that facet). Client sends `states`/`locations`/`categories`
+   (comma-joined) → server `selectedStates`/`selectedLocations`/
+   `selectedCategories`; empty = All. Applied as `<field> IN <selected>` inside
+   `addConditions` so count/rows/export/facets all honor them. Facet lists keep
+   still-selected values visible at count 0 (`keepSelectedMulti`). Replaced an
+   earlier single "Hide closed" toggle and the old single-select
+   location/category. "Opened by" stays a 3-way scope selector (All/Me/My Team)
+   — not multi-select, since All already = Me + Team. Stats-card deep-links
+   (`?filter=open|pending|resolved`) still work — server expands the named group
+   into `selectedStates` on first load. Deploy `23`.
+5. **"My Team" excluded Aspira staff** — was just `opened_by != me`. Now also
+   `opened_by.company = accountId` in account scope, so vendor (Aspira) users
+   who opened a case on the account drop out. "All" opener is unchanged. Deploy
+   `23` (same widget as #4).
+
 ## Next-Gen Portal Password Gate (July 2026, dev + prod)
 
 `/nextgen` no longer forces login — the `nextgen_kb` page is **public** and

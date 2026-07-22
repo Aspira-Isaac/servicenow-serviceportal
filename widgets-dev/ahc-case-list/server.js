@@ -60,13 +60,30 @@
   var urlFilter = '';
   try { urlFilter = String($sp.getParameter('filter') || ''); } catch(e) {}
 
-  var filter   = String((input && input.filter) || urlFilter || 'all');
   var opener   = String((input && input.opener) || 'everyone');
   var search   = String((input && input.search) || '').substring(0, 200).trim();
-  var location = String((input && input.location) || '');
-  var category = String((input && input.category) || '');
   var page     = parseInt((input && input.page) || 0, 10);
   if (isNaN(page) || page < 0) page = 0;
+
+  // Location + Category are multi-select too (comma-joined lists; empty = All),
+  // same contract as the status list above.
+  function parseList(v) {
+    return typeof v === 'undefined' ? [] : String(v).split(',').filter(function(s) { return s; });
+  }
+  var selectedLocations  = parseList(input && input.locations);
+  var selectedCategories = parseList(input && input.categories);
+
+  // Multi-select status: an explicit list of state values the user checked.
+  // Empty list = All (no state constraint). After the first load the client
+  // sends input.states (comma-joined); the initial load may instead arrive via
+  // a stats-card deep-link (?filter=open|pending|resolved) or ?filter=<state>,
+  // which we expand into the list once.
+  var selectedStates = [];
+  if (input && typeof input.states !== 'undefined') {
+    selectedStates = String(input.states).split(',').filter(function(s) { return s; });
+  } else if (urlFilter && urlFilter !== 'all') {
+    selectedStates = FILTER_GROUPS[urlFilter] ? FILTER_GROUPS[urlFilter].slice() : [urlFilter];
+  }
 
   // Sorting — whitelisted columns only
   var SORT_FIELDS = {
@@ -88,20 +105,21 @@
     } else {
       gr.addQuery('contact', userId).addOrCondition('opened_by', userId);
     }
-    if (exclude !== 'state' && filter !== 'all') {
-      var group = FILTER_GROUPS[filter];
-      if (group) {
-        gr.addQuery('state', 'IN', group.join(','));
-      } else {
-        gr.addQuery('state', filter);
-      }
+    if (exclude !== 'state' && selectedStates.length) {
+      gr.addQuery('state', 'IN', selectedStates.join(','));
     }
     if (exclude !== 'opener') {
-      if (opener === 'me')   gr.addQuery('opened_by', userId);
-      if (opener === 'team') gr.addQuery('opened_by', '!=', userId);
+      if (opener === 'me') gr.addQuery('opened_by', userId);
+      if (opener === 'team') {
+        // "My Team" = other people on my account. Restrict to users whose
+        // company IS my account so internal Aspira staff (vendor company) who
+        // opened a case on the account are excluded.
+        gr.addQuery('opened_by', '!=', userId);
+        if (isAccount) gr.addQuery('opened_by.company', accountId);
+      }
     }
-    if (exclude !== 'location' && location) gr.addQuery('location', location);
-    if (exclude !== 'category' && category) gr.addQuery('category', category);
+    if (exclude !== 'location' && selectedLocations.length)  gr.addQuery('location', 'IN', selectedLocations.join(','));
+    if (exclude !== 'category' && selectedCategories.length) gr.addQuery('category', 'IN', selectedCategories.join(','));
     if (search) {
       gr.addQuery('number', 'CONTAINS', search)
         .addOrCondition('short_description', 'CONTAINS', search)
@@ -153,11 +171,11 @@
   data.total    = total;
   data.page     = page;
   data.pageSize = PAGE_SIZE;
-  data.filter   = filter;
+  data.selectedStates     = selectedStates;
+  data.selectedLocations  = selectedLocations;
+  data.selectedCategories = selectedCategories;
   data.opener   = opener;
   data.search   = search;
-  data.location = location;
-  data.category = category;
   data.sortBy   = sortBy;
   data.sortDir  = sortDir;
 
