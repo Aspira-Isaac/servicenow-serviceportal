@@ -176,32 +176,18 @@ sign-off + approval, then mirror with `-prod.js` scripts.
    who opened a case on the account drop out. "All" opener is unchanged. Deploy
    `23` (same widget as #4).
 
-## Next-Gen Portal Password Gate (July 2026, dev + prod)
+## Knowledge base moved to its own repo
 
-`/nextgen` no longer forces login — the `nextgen_kb` page is **public** and
-`ahc-kb-home` shows a password overlay to anonymous visitors instead.
+The knowledge base (Rainger shared KB + Next Gen `/nextgen` KB portal) now lives
+in **`servicenow-knowledgebase`** (private). That repo owns the KB deploy
+scripts (old `deploy/07-17`), the `ahc-kb-*` KB widgets (home / categories /
+article-list / article-view / deflect-banner), `lib/article-scoper.js`,
+`lib/nextgen-portal.js`, and the Next Gen password-gate docs.
 
-- Password lives in sys_property `ahc.nextgen.gate_password` (private; seed
-  value `aspiranext` from `deploy/15`, but the script never overwrites it —
-  rotate in the instance UI, which also invalidates outstanding tokens).
-- Unlock TTL: `ahc.nextgen.gate_ttl_hours` (24). Client stores a stateless
-  token = SHA256(secret + expiry) in localStorage key `ahcNextgenGate` and
-  sends it with every `server.get`; the server re-validates each request and
-  returns `gateDenied` on expiry (client re-locks).
-- Server withholds ALL article data without a valid token — on a locked page
-  load the widget returns only the shell; data arrives via `{action:'init'}`.
-- Gate engages only when portal `url_suffix=nextgen` AND `!gs.isLoggedIn()` —
-  logged-in users (and the /help portal) never see it. **Test in incognito.**
-- To make guest read work, the "Guest User" **cannot-read** criteria was
-  removed from the KB (cannot-read beats can-read) and "Guest User" was added
-  to can-read. The password is now the only barrier for anonymous visitors.
-- **Prod deployed 2026-07-16** (`deploy/16`, approved after dev incognito
-  test): same gate, same seed password, on the prod Rainger KB — its published
-  articles are effectively public content now. The portal↔KB allowlist keeps
-  other SP portals from listing them, but don't put anything in the Rainger KB
-  that must stay behind real auth.
-- Pure-KB portals (`data.noCatalog`) sort category article lists
-  alphabetically; /help keeps views-based sort.
+This portal repo keeps only the base `ahc-kb-search` widget (deployed by
+`05-widgets` for the `/help` Knowledge page) and the header **Knowledge nav
+link** (`showKbNav`). To layer the full KB onto dev `/help`, run the KB repo's
+`deploy/help-kb-wire-dev.js` after `node deploy/index-dev.js`.
 
 ### ⚠ Anonymous case leak — fixed 2026-07-17, approach corrected 2026-07-21
 
